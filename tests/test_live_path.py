@@ -83,3 +83,27 @@ def test_plafond_d_appels(settings, passerelle, fake_cloud, monkeypatch):
     llm.cloud(safe, "system")
     with pytest.raises(BudgetExceeded):
         llm.cloud(SafePrompt(safe.text, passerelle), "system")
+
+
+def test_parametre_refuse_ignore(settings, passerelle, monkeypatch):
+    """Un modèle qui impose ses paramètres (ex. temperature=1) ne doit pas faire échouer l'appel."""
+    import litellm
+    seen = {}
+
+    class Resp:
+        class _C:
+            class message:
+                content = "OK"
+        choices = [_C]
+        usage = None
+
+    def fake_completion(**kw):
+        seen.update(kw, drop=litellm.drop_params)
+        return Resp
+
+    monkeypatch.setattr(litellm, "completion", fake_completion)
+    s = live_settings(settings, None)
+    s["llm"].update(cloud_model="anthropic/claude-haiku-5-5", cloud_temperature=None)
+    safe, _ = passerelle.to_safe_prompt("Faille sur 10.10.0.22")
+    assert LLMClient(s).cloud(safe, "system") == "OK"
+    assert seen["drop"] is True and "temperature" not in seen

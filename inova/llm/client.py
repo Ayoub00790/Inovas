@@ -50,7 +50,11 @@ class LLMClient:
         self.local_api_base = c.get("local_api_base")
         self.cloud_model = c.get("cloud_model", "openai/gpt-4o")
         self.cloud_api_base = c.get("cloud_api_base")
-        self.temperature = float(c.get("temperature", 0.2))
+        # Température : réglage commun « temperature », ou propre à chaque modèle
+        # (local_temperature / cloud_temperature). null = valeur par défaut du modèle.
+        common = c.get("temperature", 0.2)
+        self.local_temperature = c.get("local_temperature", common)
+        self.cloud_temperature = c.get("cloud_temperature", common)
         self.timeout = float(c.get("timeout_s", 120))
         p = settings.get("pricing", {})
         self.price_in = float(p.get("cloud_input_per_million", 0) or 0)
@@ -63,7 +67,7 @@ class LLMClient:
     def local(self, system: str, user: str, phase: str = "") -> str:
         """SLM local : peut recevoir les données réelles (rien ne sort)."""
         return self._call("local", self.local_model, self.local_mode, system, user,
-                          self.local_api_base, phase, self._mock_local)
+                          self.local_api_base, phase, self._mock_local, self.local_temperature)
 
     def cloud(self, prompt: SafePrompt, system: str, phase: str = "") -> str:
         """LLM externe : uniquement du texte masqué et validé par la passerelle."""
@@ -73,10 +77,10 @@ class LLMClient:
         if self.budget:
             self.budget.check_cloud()              # lève BudgetExceeded si plafond atteint
         return self._call("cloud", self.cloud_model, self.cloud_mode, system, prompt.text,
-                          self.cloud_api_base, phase, self._mock_cloud)
+                          self.cloud_api_base, phase, self._mock_cloud, self.cloud_temperature)
 
     # ------------------------------------------------------------------
-    def _call(self, target, model, mode, system, user, api_base, phase, mock) -> str:
+    def _call(self, target, model, mode, system, user, api_base, phase, mock, temperature=None) -> str:
         t0 = time.perf_counter()
         if mode == "live":
             import os
@@ -84,9 +88,15 @@ class LLMClient:
             os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
             import litellm  # import tardif : inutile en mode simulé
             litellm.telemetry = False
-            resp = litellm.completion(
-                model=model, api_base=api_base, temperature=self.temperature, timeout=self.timeout,
-                messages=[{"role": "system", "content": system}, {"role": "user", "content": user}])
+            # Certains modèles imposent leurs paramètres (ex. Claude Haiku 5.5 : temperature=1
+            # uniquement). Un paramètre refusé est alors ignoré au lieu de faire échouer l'appel.
+            litellm.drop_params = True
+            kwargs = {"model": model, "api_base": api_base, "timeout": self.timeout,
+                      "messages": [{"role": "system", "content": system},
+                                   {"role": "user", "content": user}]}
+            if temperature is not None:
+                kwargs["temperature"] = float(temperature)
+            resp = litellm.completion(**kwargs)
             content = resp.choices[0].message.content or ""
             usage = getattr(resp, "usage", None)
             pt = int(getattr(usage, "prompt_tokens", 0) or 0) or estimate_tokens(system + user)
