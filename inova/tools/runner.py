@@ -1,0 +1,59 @@
+# -*- coding: utf-8 -*-
+"""Exécution encadrée des outils de pentest.
+
+- Liste blanche d'outils (settings.tools.allowlist).
+- Vérification du périmètre AVANT chaque commande.
+- Pas de shell (liste d'arguments) : pas d'injection de commande.
+- Mode dry_run : affiche la commande sans l'exécuter.
+- Toutes les sorties sont rangées dans runs/<mission>/evidence/.
+"""
+from __future__ import annotations
+
+import shutil
+import subprocess
+import time
+from pathlib import Path
+
+from ..core.audit import AuditLog
+from ..guardrails.scope import ScopeGuard
+
+# Gabarits de commandes (non destructives)
+TEMPLATES = {
+    "nmap":          lambda t, out, _: ["nmap", "-sV", "-T3", "--top-ports", "1000", "-oX", out, t],
+    "whatweb":       lambda t, out, _: ["whatweb", "--log-json", out, t],
+    "nuclei":        lambda t, out, _: ["nuclei", "-u", t, "-severity", "medium,high,critical",
+                                        "-jsonl", "-o", out],
+    # re-test ciblé d'UN seul test déjà détecté (vérification, pas d'attaque)
+    "nuclei_verify": lambda t, out, tid: ["nuclei", "-u", t, "-id", tid, "-jsonl", "-o", out],
+}
+TOOL_OF = {"nuclei_verify": "nuclei"}
+
+
+class ToolRunner:
+    def __init__(self, settings: dict, guard: ScopeGuard, run_dir: Path, audit: AuditLog):
+        t = settings.get("tools", {})
+        self.dry_run = bool(t.get("dry_run", True))
+        self.timeout = int(t.get("timeout_s", 900))
+        self.allowlist = set(t.get("allowlist", []))
+        self.guard = guard
+        self.audit = audit
+        self.evidence = run_dir / "evidence"
+        self.evidence.mkdir(parents=True, exist_ok=True)
+
+    def run(self, template: str, target: str, extra: str = "") -> Path | None:
+        tool = TOOL_OF.get(template, template)
+        if tool not in self.allowlist:
+            raise PermissionError(f"Outil non autorisé : {tool}")
+        self.guard.check(target)                       # garde-fou périmètre
+
+        out = self.evidence / f"{template}_{int(time.time() * 1000)}.out"
+        cmd = TEMPLATES[template](target, str(out), extra)
+        self.audit.event("tool", template=template, dry_run=self.dry_run)
+
+        if self.dry_run:
+            print("  [dry-run] " + " ".join(cmd))
+            return None
+        if shutil.which(tool) is None:
+            raise FileNotFoundError(f"{tool} n'est pas installé")
+        subprocess.run(cmd, timeout=self.timeout, check=False, capture_output=True)
+        return out if out.exists() else None

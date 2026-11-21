@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sortie nmap d'exemple (laboratoire fictif) pour le mode demo -->
+<nmaprun scanner="nmap" args="nmap -sV -T3 --top-ports 1000">
+  <host>
+    <address addr="10.10.0.10" addrtype="ipv4"/>
+    <hostnames><hostname name="demo.inova-lab.local"/></hostnames>
+    <ports>
+      <port protocol="tcp" portid="443"><state state="open"/><service name="https" product="nginx" version="1.18.0"/></port>
+      <port protocol="tcp" portid="80"><state state="open"/><service name="http" product="nginx" version="1.18.0"/></port>
+      <port protocol="tcp" portid="3306"><state state="filtered"/><service name="mysql"/></port>
+    </ports>
+  </host>
+  <host>
+    <address addr="10.10.0.20" addrtype="ipv4"/>
+    <ports>
+      <port protocol="tcp" portid="22"><state state="open"/><service name="ssh" product="OpenSSH" version="8.2p1"/></port>
+      <port protocol="tcp" portid="8080"><state state="open"/><service name="http" product="Apache httpd" version="2.4.49"/></port>
+    </ports>
+  </host>
+</nmaprun>

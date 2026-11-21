@@ -1,0 +1,35 @@
+# ============================================================
+# INOVA — paramètres généraux
+# ============================================================
+
+engagement:
+  id: "ENG-2026-001"          # identifiant de la mission (scope du vault)
+  language: "fr"              # langue des textes analysés par Presidio (fr | en)
+  output_dir: "runs"          # où sont écrits preuves, rapports, journaux
+
+llm:
+  mode: "mock"                # mock (démo, sans modèle) | live (LiteLLM)
+  local_model: "ollama/qwen2.5:7b"          # SLM local (aiguilleur + chemin local)
+  local_api_base: "http://localhost:11434"
+  cloud_model: "openai/gpt-4o"              # LLM externe (chemin cloud)
+  temperature: 0.2
+
+router:                       # l'aiguilleur (SLM local)
+  complexity_threshold: 0.55  # au-dessus -> pentest "lourd"
+  sensitivity_threshold: 0.70 # au-dessus -> données trop sensibles pour sortir
+  use_slm_refinement: false   # true : le SLM affine les scores heuristiques
+
+gateway:                      # passerelle Presidio
+  min_confidence: 0.60        # en dessous : détection jugée "incertaine"
+  uncertain_band: 0.35        # score entre 0.35 et 0.60 -> incertain -> fail-closed
+  max_uncertain_spans: 0      # au-delà : on refuse d'envoyer au cloud
+  vault_dir: ".inova_vault"   # table de correspondance chiffrée (LOCALE)
+
+tools:
+  dry_run: true               # true : affiche les commandes sans les exécuter
+  timeout_s: 900
+  allowlist: ["nmap", "whatweb", "nuclei"]
+
+guardrails:
+  require_approval_for: ["exploitation"]   # validation humaine obligatoire
+  max_findings_to_verify: 5

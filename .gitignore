@@ -1,0 +1,8 @@
+.env
+.inova_vault/
+runs/
+config/scope.yaml
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/

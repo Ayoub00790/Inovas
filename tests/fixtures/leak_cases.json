@@ -1,0 +1,22 @@
+[
+  {"text": "Injection SQL sur https://demo.inova-lab.local/login, serveur 10.10.0.20.",
+   "secrets": ["demo.inova-lab.local", "10.10.0.20"]},
+  {"text": "Requête vulnérable : SELECT * FROM clients_cartes WHERE id=1",
+   "secrets": ["clients_cartes"]},
+  {"text": "Identifiants trouvés : password=Adm1n2026 et api_key=sk_live_9f8e7d6c5b4a",
+   "secrets": ["Adm1n2026", "sk_live_9f8e7d6c5b4a"]},
+  {"text": "Jeton de session : eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiJ9.c2lnbmF0dXJlMTIz",
+   "secrets": ["eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiJ9.c2lnbmF0dXJlMTIz"]},
+  {"text": "Clé AWS exposée dans le dépôt : AKIAIOSFODNN7EXAMPLE",
+   "secrets": ["AKIAIOSFODNN7EXAMPLE"]},
+  {"text": "Dépôt interne : url = https://gitlab.intranet-demo.local/equipe/SinistresPro.git",
+   "secrets": ["gitlab.intranet-demo.local", "SinistresPro"]},
+  {"text": "Hôte de base de données srv-db01.intranet-demo.local joignable depuis 10.10.0.10",
+   "secrets": ["srv-db01", "intranet-demo", "10.10.0.10"]},
+  {"text": "Responsable applicatif : Karim Bennani (karim.bennani@demo-client.ma, +212 6 12 34 56 78)",
+   "secrets": ["Bennani", "karim.bennani@demo-client.ma"]},
+  {"text": "Hash du mot de passe admin : 5f4dcc3b5aa765d61d8327deb882cf99",
+   "secrets": ["5f4dcc3b5aa765d61d8327deb882cf99"]},
+  {"text": "Authorization: Bearer abcdef1234567890ABCDEF1234567890",
+   "secrets": ["abcdef1234567890ABCDEF1234567890"]}
+]
