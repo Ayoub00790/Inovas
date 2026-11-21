@@ -74,3 +74,21 @@ def test_preuve_extraite_du_corps_de_reponse(tmp_path):
     f = tmp_path / "n.jsonl"
     f.write_text(json.dumps(rec) + "\n", encoding="utf-8")
     assert parse_nuclei_jsonl(f)[0].evidence == "# HELP process_cpu; process_cpu 1.5"
+
+
+def test_tous_les_fichiers_lus_et_ecrits_en_utf8():
+    """Sous Windows, l'encodage par défaut est cp1252 : une lecture sans encoding="utf-8"
+    plante sur la sortie d'un outil (UnicodeDecodeError). On l'interdit dans tout le code."""
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1] / "inova"
+    bad = []
+    for f in root.rglob("*.py"):
+        src = f.read_text(encoding="utf-8")
+        for m in re.finditer(r"\.(read_text|write_text)\((?P<args>[^()]*(?:\([^()]*\)[^()]*)*)\)|\bopen\((?P<o>[^()]*)\)", src):
+            args = m.group("args") if m.group("args") is not None else m.group("o")
+            if "webbrowser" in src[max(0, m.start() - 12):m.start()]:
+                continue
+            if "encoding" not in args and "rb" not in args and "wb" not in args:
+                bad.append(f"{f.name}: {m.group(0)[:60]}")
+    assert bad == []

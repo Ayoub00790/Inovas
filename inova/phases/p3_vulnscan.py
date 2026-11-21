@@ -30,7 +30,7 @@ def _body_excerpt(response: str, lines: int = 6, width: int = 160) -> str:
 
 def parse_nuclei_jsonl(path: Path, start: int = 1) -> list[Finding]:
     findings = []
-    for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=start):
+    for i, line in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), start=start):
         if not line.strip():
             continue
         r = json.loads(line)
