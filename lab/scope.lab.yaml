@@ -1,0 +1,30 @@
+# Périmètre du laboratoire INOVA (copier dans config/scope.yaml)
+authorization:
+  client: Laboratoire INOVA
+  reference: Laboratoire personnel (Juice Shop + Vulhub)
+  signed_by: Ayoub Benkhajjou
+  valid_from: '2026-11-21'
+  valid_until: '2026-12-31'
+pentest:
+  type: multi_applications
+  authenticated: false
+  custom_application: false
+  exploitation_chaining: true
+  data_classification: interne
+  sector: assurance
+targets:
+  domains: []
+  ip_ranges:
+  - 127.0.0.1/32
+  urls:
+  - http://127.0.0.1:3000
+  - http://127.0.0.1:8081
+  - http://127.0.0.1:8082
+  - http://127.0.0.1:8083
+  - http://127.0.0.1:8084
+  - http://127.0.0.1:9200
+excluded: []
+asset_criticality:
+  127.0.0.1: haute
+sensitive_terms:
+- juice-sh.op

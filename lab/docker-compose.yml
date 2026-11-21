@@ -1,0 +1,49 @@
+# ============================================================
+# Laboratoire INOVA : applications VOLONTAIREMENT vulnérables
+# (images et configurations issues de Vulhub, licence MIT : voir LICENSE.vulhub)
+#
+# Toutes les applications écoutent UNIQUEMENT sur 127.0.0.1 : elles ne sont pas
+# joignables depuis le réseau. Plusieurs permettent une exécution de code à
+# distance : ne jamais changer « 127.0.0.1: » et arrêter le labo après usage
+# (docker compose down).
+# ============================================================
+name: inova-lab
+
+services:
+  # Apache 2.4.49 : traversée de répertoires / RCE (CVE-2021-41773, CVE-2021-42013)
+  apache:
+    build: ./apache
+    ports: ["127.0.0.1:8081:80"]
+
+  # phpMyAdmin 4.8.1 : inclusion de fichier local (CVE-2018-12613)
+  phpmyadmin:
+    image: vulhub/phpmyadmin:4.8.1
+    volumes: ["./phpmyadmin/config.inc.php:/var/www/html/config.inc.php"]
+    ports: ["127.0.0.1:8082:80"]
+    depends_on: [mysql]
+  mysql:
+    image: mysql:5.5
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=test
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=test
+
+  # Tomcat 8 : console d'administration avec identifiants par défaut
+  tomcat:
+    image: vulhub/tomcat:8.0
+    volumes:
+      - ./tomcat/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
+      - ./tomcat/context.xml:/usr/local/tomcat/webapps/manager/META-INF/context.xml
+      - ./tomcat/context.xml:/usr/local/tomcat/webapps/host-manager/META-INF/context.xml
+    ports: ["127.0.0.1:8083:8080"]
+
+  # ThinkPHP 5.0.23 : exécution de code à distance
+  thinkphp:
+    image: vulhub/thinkphp:5.0.23
+    ports: ["127.0.0.1:8084:80"]
+
+  # Elasticsearch 1.4.2 : évasion du bac à sable Groovy (CVE-2015-1427)
+  elasticsearch:
+    image: vulhub/elasticsearch:1.4.2
+    ports: ["127.0.0.1:9200:9200"]
