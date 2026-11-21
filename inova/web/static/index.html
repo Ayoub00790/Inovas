@@ -238,7 +238,7 @@ legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:
   #print-root table{font-size:8.5pt;break-inside:auto}
   #print-root tr{break-inside:avoid}
   #print-root .tw{overflow:visible}
-  #print-root td,#print-root th{word-break:break-word;overflow-wrap:anywhere}
+  #print-root td.brk{overflow-wrap:anywhere}
   #print-root td:nth-child(2),#print-root td:nth-child(1){white-space:nowrap}
   #print-root th{background:#EEF0FA;color:#00008F}
   #print-root code{font-size:8pt}
@@ -815,6 +815,8 @@ function exportPdf(version) {
     <div class="p-foot">Document généré localement par INOVA. Les données sensibles du client n'ont quitté la machine que sous forme masquée
       (contrôle de l'outbox : ${r.outbox_check && r.outbox_check.ok === false ? "fuite détectée" : "aucune valeur sensible sortie"}).
       ${r.demo ? "Mission de démonstration (laboratoire fictif)." : ""}</div>`;
+  // seules les cellules contenant une valeur très longue (URL, empreinte…) peuvent être coupées
+  $$("#print-root td").forEach(td => { if (td.textContent.split(/\s+/).some(w => w.length > 24)) td.classList.add("brk"); });
   document.title = `INOVA_${version}_${r.run}`;
   window.print();
   setTimeout(() => document.title = "INOVA — Console", 1000);
