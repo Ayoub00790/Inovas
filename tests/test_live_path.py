@@ -106,3 +106,37 @@ def test_parametre_refuse_ignore(settings, passerelle, monkeypatch):
     safe, _ = passerelle.to_safe_prompt("Faille sur 10.10.0.22")
     assert LLMClient(s).cloud(safe, "system") == "OK"
     assert seen["drop"] is True and "temperature" not in seen
+
+
+class SlowOpenAI(BaseHTTPRequestHandler):
+    def do_POST(self):
+        import time
+        time.sleep(3)                                   # plus long que le délai accordé
+        self.send_response(500)
+        self.end_headers()
+
+    def log_message(self, *a):
+        pass
+
+
+def test_cloud_trop_lent_repli_local_sans_planter(settings, passerelle, monkeypatch, tmp_path):
+    """Un cloud qui ne répond pas ne doit plus faire échouer la mission : repli local."""
+    from inova.core.audit import AuditLog
+    from inova.core.models import Route, RouteDecision
+    from inova.router.reasoner import Reasoner
+    srv = HTTPServer(("127.0.0.1", 0), SlowOpenAI)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        monkeypatch.setenv("OPENAI_API_KEY", "cle-de-test")
+        s = live_settings(settings, f"http://127.0.0.1:{srv.server_port}/v1")
+        s["llm"].update(timeout_s=1, retries=0)
+        audit = AuditLog(tmp_path)
+        r = Reasoner(RouteDecision(Route.CLOUD, 1.0, 0.5, []), passerelle, LLMClient(s), audit)
+        answer = r.think("exploitation", "Analyse", "Faille sur 10.10.0.20", allow_cloud=True)
+        assert answer and r.last["path"] == "LOCAL" and r.last["cloud_error"]
+        events = [json.loads(l)["event"] for l in audit.path.read_text(encoding="utf-8").splitlines()]
+        assert "cloud_indisponible" in events
+        outbox = (tmp_path / "cloud_outbox.jsonl").read_text(encoding="utf-8")
+        assert "10.10.0.20" not in outbox                  # même en cas d'erreur, rien de réel n'est sorti
+    finally:
+        srv.shutdown()

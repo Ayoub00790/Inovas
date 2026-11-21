@@ -789,7 +789,7 @@ const PHASES = [["1", "Configuration & aiguillage", null], ["2", "Reconnaissance
 function aiByPhase(trace) {
   const ai = {};
   for (const t of trace || []) {
-    const v = t.fail_closed || t.budget ? "FAIL" : t.path;
+    const v = t.fail_closed || t.budget || t.cloud_error ? "FAIL" : t.path;
     if (ai[t.phase] !== "CLOUD") ai[t.phase] = v;
   }
   return ai;
@@ -865,7 +865,7 @@ function renderMission(r) {
   const tr = r.trace || [];
   const nLocal = tr.filter(t => t.path === "LOCAL").length;
   const nCloud = tr.filter(t => t.path === "CLOUD").length;
-  const nFail = tr.filter(t => t.fail_closed || t.budget).length;
+  const nFail = tr.filter(t => t.fail_closed || t.budget || t.cloud_error).length;
   const nEnt = r.audit.filter(e => e.event === "masking").reduce((a, e) => a + (e.entities || 0), 0);
   const nInj = r.audit.filter(e => e.event === "injection_suspectee").reduce((a, e) => a + (e.count || 1), 0);
   const oc = r.outbox_check || {};
@@ -890,6 +890,7 @@ function renderMission(r) {
     const head = t.fail_closed
       ? `<span class="path p-FAIL">REPLI LOCAL</span><p class="hint">masquage jugé incertain : rien n'est sorti</p>`
       : t.budget ? `<span class="path p-FAIL">REPLI LOCAL</span><p class="hint">plafond atteint : ${esc(t.budget)}</p>`
+      : t.cloud_error ? `<span class="path p-FAIL">REPLI LOCAL</span><p class="hint">le cloud n'a pas répondu (${esc(t.cloud_error.split(" : ")[0])}) : analyse faite en local</p>`
       : t.path === "CLOUD"
         ? `<span class="path p-CLOUD">CLOUD · VIA LA PASSERELLE</span><p class="hint">${t.entities} entité(s) masquée(s)</p>`
         : `<span class="path p-LOCAL">LOCAL</span><p class="hint">${t.allow_cloud ? "route " + esc(r.decision.route) + " : traité par le SLM local" : "phase réservée au local"} — rien n'est sorti</p>`;

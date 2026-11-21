@@ -56,6 +56,8 @@ class LLMClient:
         self.local_temperature = c.get("local_temperature", common)
         self.cloud_temperature = c.get("cloud_temperature", common)
         self.timeout = float(c.get("timeout_s", 120))
+        self.retries = int(c.get("retries", 1))              # nouvel essai si réseau lent ou API surchargée
+        self.max_tokens = c.get("max_tokens", 1500)          # réponses bornées : plus rapides, moins coûteuses
         p = settings.get("pricing", {})
         self.price_in = float(p.get("cloud_input_per_million", 0) or 0)
         self.price_out = float(p.get("cloud_output_per_million", 0) or 0)
@@ -96,6 +98,10 @@ class LLMClient:
                                    {"role": "user", "content": user}]}
             if temperature is not None:
                 kwargs["temperature"] = float(temperature)
+            if self.max_tokens:
+                kwargs["max_tokens"] = int(self.max_tokens)
+            if self.retries:
+                kwargs["num_retries"] = self.retries
             t0 = time.perf_counter()     # on chronomètre l'appel seul, pas le chargement de LiteLLM
             resp = litellm.completion(**kwargs)
             content = resp.choices[0].message.content or ""

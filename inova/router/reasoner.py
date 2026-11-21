@@ -59,8 +59,14 @@ class Reasoner:
             answer = self._via_cloud(phase, text, step)
         if answer is None:
             self.audit.event("reasoning", phase=phase, path="LOCAL")
-            answer = self.llm.local(SYSTEM, text, phase=phase)
             step["path"] = "LOCAL"
+            try:
+                answer = self.llm.local(SYSTEM, text, phase=phase)
+            except Exception as exc:          # modèle local arrêté ou trop lent : la mission continue
+                self.audit.event("ia_indisponible", phase=phase, cible="local", error=type(exc).__name__)
+                step["local_error"] = f"{type(exc).__name__} : {str(exc)[:200]}"
+                answer = ("⚠ Analyse indisponible : le modèle local n'a pas répondu "
+                          f"({type(exc).__name__}). Vérifier qu'Ollama tourne, puis relancer la mission.")
 
         # 3) relire les actions proposées par l'IA
         flags = review(answer, self.guard)
@@ -90,6 +96,12 @@ class Reasoner:
             self.audit.event("budget_atteint", phase=phase, reason=str(exc), path="LOCAL")
             step["budget"] = str(exc)
             return None
+        except Exception as exc:        # délai dépassé, API surchargée, réseau coupé…
+            # le texte masqué a pu partir avant l'erreur : il est consigné dans l'outbox
+            self._outbox(phase, safe.text)
+            self.audit.event("cloud_indisponible", phase=phase, error=type(exc).__name__, path="LOCAL")
+            step.update(sent=safe.text, cloud_error=f"{type(exc).__name__} : {str(exc)[:200]}")
+            return None                 # repli sur le modèle local : la mission continue
         self.audit.event("reasoning", phase=phase, path="CLOUD")
         self._outbox(phase, safe.text)
         step.update(path="CLOUD", sent=safe.text, cloud_raw=raw)

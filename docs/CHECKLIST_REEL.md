@@ -53,7 +53,7 @@ python -m pytest -q
 | `AuthenticationError` / 401 | clé absente ou invalide dans `.env` |
 | `NotFoundError` / modèle inconnu | nom de modèle incorrect dans `cloud_model` |
 | `RateLimitError` / crédit | quota ou crédit épuisé chez le fournisseur |
-| `Timeout` | connexion lente : augmenter `llm.timeout_s` |
+| `Timeout` | connexion lente ou API surchargée : INOVA réessaie une fois (`llm.retries`), puis bascule l'analyse en local sans arrêter la mission. Si ça se répète : augmenter `llm.timeout_s` (ex. 240) |
 | `UnsupportedParamsError … temperature` | le modèle impose sa température (ex. Claude Haiku 5.5) : corrigé depuis le commit « Paramètres imposés » (`git pull`) ; sinon mettre `temperature: 1` |
 
 ---

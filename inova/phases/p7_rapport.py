@@ -91,7 +91,8 @@ def run(ctx: Context) -> None:
          f"- Route : **{d.route.value}** (complexité {d.complexity}, sensibilité {d.sensitivity})",
          *[f"  - {r}" for r in d.reasons],
          f"- Raisonnements locaux : {local_calls} · via cloud (masqués) : {cloud_calls} · "
-         f"replis locaux (fail-closed) : {count('fail_closed')} · entités masquées : {masked}",
+         f"replis locaux (fail-closed) : {count('fail_closed')} · cloud indisponible (repli local) : "
+         f"{count('cloud_indisponible')} · entités masquées : {masked}",
          f"- Contrôle de l'outbox : **{'aucune valeur sensible sortie' if oc['ok'] else str(len(oc['leaks'])) + ' fuite(s) détectée(s)'}** "
          f"({oc['entries']} envoi(s) vérifié(s) contre {oc['checked_values']} valeur(s) connue(s))",
          "", "## 4. Sécurité de la mission",

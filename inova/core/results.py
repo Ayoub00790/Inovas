@@ -63,7 +63,7 @@ def save_mission(ctx) -> dict:
         "attend": sum(f.decision == "ATTEND" for f in ctx.findings),
         "verified": sum(bool(f.verified) for f in ctx.findings),
         "local_calls": usage["local"]["calls"], "cloud_calls": usage["cloud"]["calls"],
-        "fail_closed": sum(e["event"] == "fail_closed" for e in audit),
+        "fail_closed": sum(e["event"] in ("fail_closed", "cloud_indisponible") for e in audit),
         "injections": sum(e.get("count", 1) for e in audit if e["event"] == "injection_suspectee"),
         "actions_signalees": sum(e["event"] == "action_signalee" for e in audit),
         "masked_entities": sum(e.get("entities", 0) for e in audit if e["event"] == "masking"),
