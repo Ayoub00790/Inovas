@@ -63,3 +63,14 @@ def test_constats_analyses_meme_sans_act_attend():
                                     epss=0.0, decision=dec)
     assert [f.id for f in select_candidates([mk("A", "medium", "TRACK"), mk("B", "low", "TRACK")], 5)] == ["A"]
     assert [f.id for f in select_candidates([mk("A", "medium", "TRACK"), mk("C", "high", "ACT")], 5)] == ["C"]
+
+
+def test_preuve_extraite_du_corps_de_reponse(tmp_path):
+    import json
+    from inova.phases.p3_vulnscan import parse_nuclei_jsonl
+    rec = {"template-id": "prometheus-metrics", "matched-at": "http://127.0.0.1:3000/metrics",
+           "info": {"name": "Prometheus Metrics - Detect", "severity": "medium"},
+           "response": "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n# HELP process_cpu\nprocess_cpu 1.5\n"}
+    f = tmp_path / "n.jsonl"
+    f.write_text(json.dumps(rec) + "\n", encoding="utf-8")
+    assert parse_nuclei_jsonl(f)[0].evidence == "# HELP process_cpu; process_cpu 1.5"

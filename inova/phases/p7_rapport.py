@@ -54,7 +54,8 @@ def run(ctx: Context) -> None:
         ctx.executive_summary = ctx.reasoner.think(
             phase="rapport", task="Rédige une synthèse exécutive (5 lignes) pour la direction. "
             "ACT / ATTEND / TRACK* / TRACK sont des décisions de priorisation (SSVC), pas des "
-            "méthodes HTTP. N'affirme rien qui ne figure pas dans les constats.",
+            "méthodes HTTP (inutile de le préciser au lecteur). N'affirme rien qui ne figure pas "
+            "dans les constats.",
             context=wrap_untrusted("constats", top), allow_cloud=True)
     else:   # rien à synthétiser : pas d'appel à l'IA (elle inventerait un gabarit)
         ctx.executive_summary = ("Aucune vulnérabilité n'a été détectée par les outils sur le périmètre "
@@ -123,7 +124,9 @@ def run(ctx: Context) -> None:
          "", "## 7. Analyses détaillées"]
     for f in ctx.findings:
         if f.analysis:
-            L += [f"### {f.id} — {f.title}", f"Élément observé : `{f.evidence}`", "", _demote(f.analysis), ""]
+            L += [f"### {f.id} — {f.title}",
+                  *([f"Élément observé : `{f.evidence}`", ""] if f.evidence.strip() else []),
+                  _demote(f.analysis), ""]
     if not any(f.analysis for f in ctx.findings):
         L += ["Aucun constat à analyser.", ""]
     L += ["## 8. Preuves", "Voir `evidence_index.json` (empreintes SHA-256), `audit.jsonl`, "

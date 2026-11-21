@@ -20,6 +20,14 @@ def _is_internet_facing(asset: str) -> bool:
         return True   # nom de domaine : supposé exposé (prudence)
 
 
+def _body_excerpt(response: str, lines: int = 6, width: int = 160) -> str:
+    """Quelques lignes du corps de la réponse : l'IA a besoin de VOIR ce qui est exposé.
+    (Ce texte vient de la cible : il passe ensuite par la passerelle et le bloc non fiable.)"""
+    body = response.split("\r\n\r\n", 1)[-1] if "\r\n\r\n" in response else response.split("\n\n", 1)[-1]
+    kept = [l.strip()[:width] for l in body.splitlines() if l.strip()][:lines]
+    return "; ".join(kept)
+
+
 def parse_nuclei_jsonl(path: Path, start: int = 1) -> list[Finding]:
     findings = []
     for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=start):
@@ -30,7 +38,8 @@ def parse_nuclei_jsonl(path: Path, start: int = 1) -> list[Finding]:
         cls = info.get("classification") or {}
         cves = cls.get("cve-id") or []
         asset = r.get("matched-at") or r.get("host", "")
-        evidence = "; ".join(r.get("extracted-results") or []) or r.get("matcher-name", "")
+        evidence = "; ".join(r.get("extracted-results") or []) or r.get("matcher-name", "") \
+            or _body_excerpt(r.get("response", "")) or info.get("description", "").strip()
         findings.append(Finding(
             id=f"F-{i:03d}", title=info.get("name", r.get("template-id", "?")),
             asset=asset, severity=info.get("severity", "info"),
