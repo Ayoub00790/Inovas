@@ -58,6 +58,44 @@ Enseignement pour le mémoire : le compromis n'est pas seulement « masquer plus
 masquage trop grossier détruit les **relations** dont le modèle a besoin ; un bon masquage cache les
 **valeurs** mais préserve la **structure** (même hôte, même IP, même chemin).
 
+## Mission « Secret » 100 % locale (qwen2.5:3b) comparée à la mission « Interne » (Claude Haiku 5.5)
+
+Même jeu de constats (démo), deux classifications : « interne » → route `CLOUD` (masquée) ;
+« secret » → route `LOCAL_RESTRICTED`.
+
+| | Interne — cloud masqué | Secret — 100 % local |
+|---|---|---|
+| Route | CLOUD | LOCAL_RESTRICTED (complexité 1,0 · sensibilité 1,0) |
+| Envois vers l'extérieur | masqués, contrôlés par l'outbox | **0** (outbox vide) |
+| Coût | ≈ 0,005 $ | **0 $** |
+| Temps de raisonnement | quelques secondes | 65,8 s pour 4 appels (≈ 16 s/appel, ≈ 58 tokens/s) |
+| Garde-fous | piège neutralisé, cible hors périmètre signalée | **identiques** (piège neutralisé, cible hors périmètre signalée) |
+| Qualité de l'analyse | enchaînements corrects, regroupement par hôte | erreurs factuelles et de raisonnement (ci-dessous) |
+
+Erreurs relevées dans l'analyse du modèle local de 3 milliards de paramètres :
+- **Définition fausse d'EPSS** : décrit comme une « évaluation d'impact sur les systèmes essentiels
+  (ES-IS) » (sigle inventé). EPSS est la probabilité d'exploitation dans les 30 jours.
+- **Correctif erroné** : recommande de passer de PHP 8.1.10 à 8.2.5, version **encore vulnérable** à
+  CVE-2024-4577 (corrigée en 8.1.29 / 8.2.20 / 8.3.8).
+- **Action offensive rangée dans la remédiation** (« exécuter une attaque d'exfiltration ») et
+  « vérification non destructive » qui consiste à déposer un script PHP sur le serveur cible.
+- **Enchaînements faibles** : suppose qu'il faut l'accès admin (F-003) pour exploiter F-001, alors que
+  l'injection d'arguments PHP-CGI est pré-authentification ; ne voit pas que F-002 (Apache 2.4.49 sur
+  `/cgi-bin/`) peut mener à une exécution de code.
+- **Conclusions contradictoires** (« très grave, étant en grande partie protégée »).
+
+Enseignements :
+1. L'aiguillage fait ce qu'il promet : la route `LOCAL_RESTRICTED` garantit la confidentialité **par
+   construction** (rien ne sort), et les garde-fous fonctionnent quel que soit le modèle.
+2. Le prix est la **qualité du raisonnement** : c'est la confirmation, sur notre cas, du constat de
+   PentestGPT (les petits modèles perdent le fil des enchaînements). Pour une mission « Secret », la
+   validation humaine renforcée n'est pas une option mais une **condition**.
+3. Les garde-fous d'actions détectent des **commandes** et des **hôtes** hors périmètre ; ils ne
+   détectent pas une suggestion intrusive écrite en prose (« déposer un script sur le serveur »).
+   Limite à inscrire dans le cadre de garde-fous (livrable 2).
+4. Piste : un modèle local plus grand (`qwen2.5:7b`, ~5 Go de RAM) pour les missions « Secret », à
+   mesurer de la même façon.
+
 ## Limites restantes (assumées, à présenter dans le mémoire)
 
 | Cas | Pourquoi il fuit encore | Piste |
