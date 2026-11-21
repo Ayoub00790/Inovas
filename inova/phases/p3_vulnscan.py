@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ipaddress
 import json
+import socket
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -41,12 +42,27 @@ def parse_nuclei_jsonl(path: Path, start: int = 1) -> list[Finding]:
     return findings
 
 
+def reachable(url: str, timeout: float = 3.0) -> bool:
+    """La cible répond-elle ? (sinon nuclei l'ignore en silence et rend 0 constat)"""
+    u = urlparse(url)
+    port = u.port or (443 if u.scheme == "https" else 80)
+    try:
+        with socket.create_connection((u.hostname, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
 def run(ctx: Context) -> None:
     urls = ctx.scope.get("targets", {}).get("urls", [])
     if ctx.demo:
         ctx.findings = parse_nuclei_jsonl(ctx.fixtures_dir / "sample_nuclei.jsonl")
     else:
         for url in urls:
+            if not reachable(url):
+                print(f"   ⚠ {url} ne répond pas : application arrêtée ? (scan ignoré)")
+                ctx.audit.event("cible_injoignable", url=url)
+                continue
             out = ctx.runner.run("nuclei", url)
             if out:
                 ctx.findings += parse_nuclei_jsonl(out, start=len(ctx.findings) + 1)

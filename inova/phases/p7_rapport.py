@@ -91,6 +91,8 @@ def run(ctx: Context) -> None:
          f"- Validations humaines : {sum(e['event'] == 'approval' and e.get('approved') for e in ev)} accordée(s), "
          f"{sum(e['event'] == 'approval' and not e.get('approved') for e in ev)} refusée(s)",
          f"- Plafonds de mission atteints : {count('budget_atteint')}",
+         *[f"- ⚠ Cible injoignable au moment du scan : {e['url']} (aucun test lancé)"
+           for e in ev if e["event"] == "cible_injoignable"],
          *[f"- ⚠ Outil en échec : {e['template']} (code {e['returncode']}) — voir evidence/*.log"
            for e in ev if e["event"] == "tool_result" and e.get("returncode") != 0],
          *[f"- {f.id} : {al}" for f in ctx.findings for al in f.alerts],

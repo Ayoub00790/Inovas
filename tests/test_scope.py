@@ -44,3 +44,13 @@ def test_titre_repete_retire_et_cout_sans_appel():
     assert _strip_title("Texte seul.", "Synthèse exécutive") == "Texte seul."
     assert _fmt_cost(None, 0) == "0 $ (aucun appel)"
     assert _fmt_cost(0.0051, 3) == "0.0051 $"
+
+
+def test_cible_injoignable_detectee():
+    import socket
+    from inova.phases.p3_vulnscan import reachable
+    srv = socket.socket(); srv.bind(("127.0.0.1", 0)); srv.listen(1)
+    port = srv.getsockname()[1]
+    assert reachable(f"http://127.0.0.1:{port}")
+    srv.close()
+    assert not reachable(f"http://127.0.0.1:{port}", timeout=1)
