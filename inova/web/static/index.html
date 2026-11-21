@@ -191,6 +191,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .ex .pane{box-shadow:none}
 details.real{padding:10px 16px;border-top:1px solid var(--line);font-size:13.5px}
 details.real summary{cursor:pointer;color:var(--muted);font-weight:600}
+.md pre.code{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;word-break:break-word;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:6px 0 10px}
 details.real pre{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;background:var(--soft);padding:10px;border-radius:8px;border:1px solid var(--line)}
 .local-ans{padding:12px 16px;font-size:14px;white-space:pre-wrap}
 .alerts{padding:10px 16px 0;display:flex;gap:6px;flex-wrap:wrap}
@@ -730,7 +731,7 @@ function renderMission(r) {
   const cost = `<div class="card" style="margin-top:18px"><h3>Coût et performance <small>${u.local.estimated || u.cloud.estimated ? "tokens estimés (IA simulée)" : "tokens réels du fournisseur"}</small></h3>
     <div class="tw"><table><thead><tr><th>Modèle</th><th class="num">Appels</th><th class="num">Tokens envoyés</th><th class="num">Tokens reçus</th><th class="num">Durée</th><th class="num">Coût</th></tr></thead><tbody>
     <tr><td>SLM local</td><td class="num">${u.local.calls || 0}</td><td class="num">${fmtInt(u.local.prompt_tokens)}</td><td class="num">${fmtInt(u.local.completion_tokens)}</td><td class="num">${fmtInt(u.local.latency_ms)} ms</td><td class="num">0 $</td></tr>
-    <tr><td>LLM cloud</td><td class="num">${u.cloud.calls || 0}</td><td class="num">${fmtInt(u.cloud.prompt_tokens)}</td><td class="num">${fmtInt(u.cloud.completion_tokens)}</td><td class="num">${fmtInt(u.cloud.latency_ms)} ms</td><td class="num">${u.cloud.cost_usd != null ? u.cloud.cost_usd.toFixed(4) + " $" : "tarif non renseigné"}</td></tr>
+    <tr><td>LLM cloud</td><td class="num">${u.cloud.calls || 0}</td><td class="num">${fmtInt(u.cloud.prompt_tokens)}</td><td class="num">${fmtInt(u.cloud.completion_tokens)}</td><td class="num">${fmtInt(u.cloud.latency_ms)} ms</td><td class="num">${!u.cloud.calls ? "0 $ (aucun appel)" : u.cloud.cost_usd != null ? u.cloud.cost_usd.toFixed(4) + " $" : "tarif non renseigné"}</td></tr>
     </tbody></table></div><p class="lock">Durée totale ${r.budget ? r.budget.elapsed_s : "?"} s · plafonds : ${r.budget ? r.budget.max_cloud_calls : "?"} appels cloud, ${fmtInt(r.budget ? r.budget.max_tokens : 0)} tokens.</p></div>`;
   const services = `<div class="tw"><table><thead><tr><th>Hôte</th><th>Port</th><th>Service</th></tr></thead><tbody>${
     r.services.map(s => `<tr><td class="mono">${esc(s.host)}</td><td>${s.port}/${esc(s.protocol)}</td><td>${esc(s.name)} <span style="color:var(--muted)">${esc(s.product)} ${esc(s.version)}</span></td></tr>`).join("") || `<tr><td colspan="3" class="empty">Aucun service</td></tr>`}</tbody></table></div>`;
@@ -780,6 +781,11 @@ function md(src) {
         rows.slice(2).map(r => `<tr>${cells(r).map(c => `<td>${inl(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
       continue;
     }
+    if (/^\s*```/.test(l)) {                       // bloc de code (même indenté dans une liste)
+      const code = []; i++; while (i < L.length && !/^\s*```/.test(L[i])) code.push(L[i++]); i++;
+      const ind = Math.min(...code.filter(c => c.trim()).map(c => c.match(/^\s*/)[0].length), 99);
+      h += `<pre class="code">${esc(code.map(c => c.slice(ind === 99 ? 0 : ind)).join("\n"))}</pre>`; continue;
+    }
     if ((m = l.match(/^(#{1,3})\s+(.*)/))) { const n = m[1].length; h += `<h${n}>${inl(m[2])}</h${n}>`; i++; continue; }
     if (/^\s*-\s+/.test(l)) {
       h += "<ul>"; while (i < L.length && /^\s*-\s+/.test(L[i])) {
@@ -787,7 +793,7 @@ function md(src) {
       h += "</ul>"; continue;
     }
     if (!l.trim()) { i++; continue; }
-    const p = []; while (i < L.length && L[i].trim() && !/^(#|\s*\||\s*-\s)/.test(L[i])) p.push(L[i++]);
+    const p = []; while (i < L.length && L[i].trim() && !/^(#|\s*\||\s*-\s|\s*```)/.test(L[i])) p.push(L[i++]);
     h += `<p>${p.map(inl).join("<br>")}</p>`;
   }
   return h;

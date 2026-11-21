@@ -27,7 +27,18 @@ def _demote(text: str) -> str:
     return re.sub(r"(?m)^\s*#{1,6}\s+(.+?)\s*#*\s*$", r"**\1**", text or "")
 
 
-def _fmt_cost(v) -> str:
+def _strip_title(text: str, title: str) -> str:
+    """Retire une première ligne qui répète le titre de la section (« **Synthèse Exécutive** »)."""
+    lines = (text or "").strip().splitlines()
+    norm = lambda s: re.sub(r"[^a-z]", "", s.lower().translate(str.maketrans("éèêàç", "eeeac")))  # noqa: E731
+    if lines and norm(lines[0]) == norm(title):
+        lines = lines[1:]
+    return "\n".join(lines).strip()
+
+
+def _fmt_cost(v, calls: int = 1) -> str:
+    if not calls:
+        return "0 $ (aucun appel)"
     return f"{v:.4f} $" if v is not None else "non renseigné (tarifs à saisir dans settings.yaml)"
 
 
@@ -54,7 +65,7 @@ def run(ctx: Context) -> None:
     L = [f"# Rapport de test d'intrusion — {a.get('client', '')}",
          f"Mission : {ctx.settings['engagement']['id']}  ·  Mandat : {a.get('reference', '')}  ·  "
          f"Date : {ctx.started_at[:10]}" + ("  ·  Données de démonstration" if ctx.demo else ""), "",
-         "## 1. Synthèse exécutive", _demote(ctx.executive_summary), "",
+         "## 1. Synthèse exécutive", _strip_title(_demote(ctx.executive_summary), "Synthèse exécutive"), "",
          "## 2. Vulnérabilités priorisées",
          "| # | ID | Constat | Actif | Sévérité | CVSS | EPSS | Décision | Vérifiée |",
          "|---|---|---|---|---|---|---|---|---|",
@@ -83,7 +94,7 @@ def run(ctx: Context) -> None:
          f"{u['local']['prompt_tokens']} | {u['local']['completion_tokens']} | {u['local']['latency_ms']} ms | 0 $ (local) |",
          f"| LLM cloud ({ctx.llm.cloud_model}, {ctx.llm.cloud_mode}) | {u['cloud']['calls']} | "
          f"{u['cloud']['prompt_tokens']} | {u['cloud']['completion_tokens']} | {u['cloud']['latency_ms']} ms | "
-         f"{_fmt_cost(u['cloud']['cost_usd'])} |",
+         f"{_fmt_cost(u['cloud']['cost_usd'], u['cloud']['calls'])} |",
          f"Durée totale de la mission (validations humaines comprises) : {ctx.budget.elapsed():.1f} s"
          + "".join(f"  ·  tokens du {name} estimés (IA simulée)"
                    for name, key in (("SLM local", "local"), ("LLM cloud", "cloud"))

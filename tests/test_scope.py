@@ -36,3 +36,11 @@ def test_titres_de_l_ia_ne_cassent_pas_le_rapport():
     txt = "## 1. Exploitabilité réelle\nTexte\n### Détail\n- point"
     out = _demote(txt)
     assert "##" not in out and "**1. Exploitabilité réelle**" in out and "- point" in out
+
+
+def test_titre_repete_retire_et_cout_sans_appel():
+    from inova.phases.p7_rapport import _fmt_cost, _strip_title
+    assert _strip_title("**Synthèse Exécutive**\nTexte.", "Synthèse exécutive") == "Texte."
+    assert _strip_title("Texte seul.", "Synthèse exécutive") == "Texte seul."
+    assert _fmt_cost(None, 0) == "0 $ (aucun appel)"
+    assert _fmt_cost(0.0051, 3) == "0.0051 $"
