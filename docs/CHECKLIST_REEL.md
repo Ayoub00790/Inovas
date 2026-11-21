@@ -85,7 +85,10 @@ et **aucun** fichier `cloud_outbox.jsonl` n'est créé.
    (version Windows du projet ProjectDiscovery), puis `nuclei -update-templates`.
 3. Onglet **Périmètre** : URL `http://127.0.0.1:3000`, plage IP `127.0.0.1/32`, dates du jour, mandat
    « Laboratoire personnel » → **Enregistrer**.
-4. `config\settings.yaml` : `tools.dry_run: false`.
+4. `config\settings.yaml` : `tools.dry_run: false`. Facultatif pour le labo :
+   `tools.nuclei_severity: "low,medium,high,critical"` (par défaut : medium,high,critical).
+   INOVA lance toujours nuclei avec `-ni` : pas d'Interactsh, donc aucune cible ne contacte un
+   serveur public tiers (oast.live…) pendant la mission.
 5. Créer `config\secrets_labo.txt` (ignoré par git) et y lister, une par ligne, les valeurs sensibles
    connues du labo (mots de passe, e-mails de test…). Le contrôle de l'outbox les recherchera.
 6. Onglet **Mission** → Source « Outils réels », **Validation humaine cochée** → Lancer.

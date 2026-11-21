@@ -21,10 +21,14 @@ from ..guardrails.scope import ScopeGuard
 TEMPLATES = {
     "nmap":          lambda t, out, _: ["nmap", "-sV", "-T3", "--top-ports", "1000", "-oX", out, t],
     "whatweb":       lambda t, out, _: ["whatweb", "--log-json", out, t],
-    "nuclei":        lambda t, out, _: ["nuclei", "-u", t, "-severity", "medium,high,critical",
-                                        "-jsonl", "-o", out],
+    # -ni : pas d'Interactsh. Sinon nuclei fait appeler par la cible un serveur PUBLIC
+    #       (oast.live…) : un tiers apprendrait quelles cibles sont testées. Contraire à INOVA.
+    # -duc : pas de vérification de mise à jour pendant la mission.
+    "nuclei":        lambda t, out, sev: ["nuclei", "-u", t, "-severity", sev or "medium,high,critical",
+                                          "-ni", "-duc", "-jsonl", "-o", out],
     # re-test ciblé d'UN seul test déjà détecté (vérification, pas d'attaque)
-    "nuclei_verify": lambda t, out, tid: ["nuclei", "-u", t, "-id", tid, "-jsonl", "-o", out],
+    "nuclei_verify": lambda t, out, tid: ["nuclei", "-u", t, "-id", tid, "-ni", "-duc",
+                                          "-jsonl", "-o", out],
 }
 TOOL_OF = {"nuclei_verify": "nuclei"}
 
@@ -35,6 +39,7 @@ class ToolRunner:
         self.dry_run = bool(t.get("dry_run", True))
         self.timeout = int(t.get("timeout_s", 900))
         self.allowlist = set(t.get("allowlist", []))
+        self.nuclei_severity = str(t.get("nuclei_severity", "medium,high,critical"))
         self.guard = guard
         self.audit = audit
         self.evidence = run_dir / "evidence"
@@ -47,6 +52,8 @@ class ToolRunner:
         self.guard.check(target)                       # garde-fou périmètre
 
         out = self.evidence / f"{template}_{int(time.time() * 1000)}.out"
+        if template == "nuclei" and not extra:
+            extra = self.nuclei_severity
         cmd = TEMPLATES[template](target, str(out), extra)
         if tool == "nmap" and self.guard.excluded:         # une plage peut contenir un hôte exclu
             cmd[-1:-1] = ["--exclude", ",".join(sorted(self.guard.excluded))]

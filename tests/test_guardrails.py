@@ -93,3 +93,20 @@ def test_plage_cidr_et_hotes_exclus(tmp_path, capsys):
     ToolRunner({"tools": {"dry_run": True, "allowlist": ["nmap"]}}, g, tmp_path,
                AuditLog(tmp_path)).run("nmap", "10.10.0.0/24")
     assert "--exclude 10.10.0.1 10.10.0.0/24" in capsys.readouterr().out
+
+
+def test_nuclei_sans_serveur_tiers_et_gravite_configurable(tmp_path, capsys):
+    import datetime as dt
+    from inova.core.audit import AuditLog
+    from inova.guardrails.scope import ScopeGuard
+    from inova.tools.runner import ToolRunner
+    today = dt.date.today().isoformat()
+    g = ScopeGuard({"authorization": {"valid_from": today, "valid_until": today},
+                    "targets": {"ip_ranges": ["127.0.0.1/32"]}})
+    tools = {"dry_run": True, "allowlist": ["nuclei"], "nuclei_severity": "low,medium,high,critical"}
+    r = ToolRunner({"tools": tools}, g, tmp_path, AuditLog(tmp_path))
+    r.run("nuclei", "http://127.0.0.1:3000")
+    r.run("nuclei_verify", "http://127.0.0.1:3000/metrics", "prometheus-metrics")
+    out = capsys.readouterr().out
+    assert "-severity low,medium,high,critical" in out
+    assert out.count(" -ni ") == 2                     # jamais d'Interactsh (serveur public)
