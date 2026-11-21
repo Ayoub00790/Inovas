@@ -57,7 +57,9 @@ def run_with(settings: dict, scope: dict, demo: bool = False, auto_approve: bool
     ctx.approver, ctx.on_phase = approver, on_phase
 
     _title(0, ctx)
+    t0 = time.time()
     p1_config.run(ctx)
+    ctx.audit.event("duree_phase", phase=PHASE_NAMES[0], s=round(time.time() - t0, 1))
 
     # La passerelle (Presidio) n'est chargée que si le pentest part au cloud
     if ctx.decision.route == Route.CLOUD:
@@ -73,7 +75,9 @@ def run_with(settings: dict, scope: dict, demo: bool = False, auto_approve: bool
 
     for i, phase in enumerate(PHASES, start=1):
         _title(i, ctx)
+        t0 = time.time()
         phase.run(ctx)
+        ctx.audit.event("duree_phase", phase=PHASE_NAMES[i], s=round(time.time() - t0, 1))
 
     save_mission(ctx)
     if ctx.on_phase:

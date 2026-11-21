@@ -40,21 +40,33 @@ class ToolRunner:
         self.timeout = int(t.get("timeout_s", 900))
         self.allowlist = set(t.get("allowlist", []))
         self.nuclei_severity = str(t.get("nuclei_severity", "medium,high,critical"))
+        # non-destructivité : jamais de tests de déni de service, intrusifs (écriture, envoi de
+        # fichiers) ou de fuzzing, même s'ils existent dans la base de nuclei
+        self.nuclei_exclude_tags = str(t.get("nuclei_exclude_tags", "dos,intrusive,fuzz"))
         self.guard = guard
         self.audit = audit
         self.evidence = run_dir / "evidence"
         self.evidence.mkdir(parents=True, exist_ok=True)
 
-    def run(self, template: str, target: str, extra: str = "") -> Path | None:
+    def run(self, template: str, target: str | list[str], extra: str = "") -> Path | None:
         tool = TOOL_OF.get(template, template)
         if tool not in self.allowlist:
             raise PermissionError(f"Outil non autorisé : {tool}")
-        self.guard.check(target)                       # garde-fou périmètre
+        targets = list(target) if isinstance(target, (list, tuple)) else [target]
+        for t in targets:
+            self.guard.check(t)                        # garde-fou périmètre, cible par cible
 
         out = self.evidence / f"{template}_{int(time.time() * 1000)}.out"
         if template == "nuclei" and not extra:
             extra = self.nuclei_severity
-        cmd = TEMPLATES[template](target, str(out), extra)
+        cmd = TEMPLATES[template](targets[0], str(out), extra)
+        if len(targets) > 1:                           # un seul nuclei pour toutes les cibles :
+            lst = out.with_suffix(".cibles.txt")       # il les teste en parallèle (bien plus rapide)
+            lst.write_text("\n".join(targets) + "\n", encoding="utf-8")
+            i = cmd.index("-u")
+            cmd[i:i + 2] = ["-l", str(lst)]
+        if tool == "nuclei" and self.nuclei_exclude_tags:
+            cmd += ["-etags", self.nuclei_exclude_tags]
         if tool == "nmap" and self.guard.excluded:         # une plage peut contenir un hôte exclu
             cmd[-1:-1] = ["--exclude", ",".join(sorted(self.guard.excluded))]
         self.audit.event("tool", template=template, dry_run=self.dry_run)

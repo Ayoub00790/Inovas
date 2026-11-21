@@ -87,6 +87,8 @@ et **aucun** fichier `cloud_outbox.jsonl` n'est créé.
    « Laboratoire personnel » → **Enregistrer**.
 4. `config\settings.yaml` : `tools.dry_run: false`. Facultatif pour le labo :
    `tools.nuclei_severity: "low,medium,high,critical"` (par défaut : medium,high,critical).
+   Par défaut, les tests `dos`, `intrusive` et `fuzz` sont exclus (`tools.nuclei_exclude_tags`) :
+   INOVA reste non destructif. Plusieurs cibles sont testées en un seul passage de nuclei.
    INOVA lance toujours nuclei avec `-ni` : pas d'Interactsh, donc aucune cible ne contacte un
    serveur public tiers (oast.live…) pendant la mission.
 5. Créer `config\secrets_labo.txt` (ignoré par git) et y lister, une par ligne, les valeurs sensibles

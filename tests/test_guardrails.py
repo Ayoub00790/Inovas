@@ -137,3 +137,22 @@ def test_outil_en_echec_journalise(tmp_path, monkeypatch, capsys):
     assert "flag provided" in next((tmp_path / "run" / "evidence").glob("*.log")).read_text()
     ev = [json.loads(l) for l in audit.path.read_text().splitlines()]
     assert ev[-1]["event"] == "tool_result" and ev[-1]["returncode"] == 2
+
+
+def test_nuclei_plusieurs_cibles_un_seul_passage(tmp_path, capsys):
+    import datetime as dt
+    import pytest
+    from inova.core.audit import AuditLog
+    from inova.guardrails.scope import OutOfScopeError, ScopeGuard
+    from inova.tools.runner import ToolRunner
+    today = dt.date.today().isoformat()
+    g = ScopeGuard({"authorization": {"valid_from": today, "valid_until": today},
+                    "targets": {"ip_ranges": ["127.0.0.1/32"]}})
+    r = ToolRunner({"tools": {"dry_run": True, "allowlist": ["nuclei"]}}, g, tmp_path, AuditLog(tmp_path))
+    r.run("nuclei", ["http://127.0.0.1:8081", "http://127.0.0.1:8082"])
+    out = capsys.readouterr().out
+    assert " -l " in out and " -u " not in out and "-etags dos,intrusive,fuzz" in out
+    lst = next((tmp_path / "evidence").glob("*.cibles.txt")).read_text(encoding="utf-8")
+    assert lst.split() == ["http://127.0.0.1:8081", "http://127.0.0.1:8082"]
+    with pytest.raises(OutOfScopeError):                     # une seule cible hors périmètre suffit
+        r.run("nuclei", ["http://127.0.0.1:8081", "http://10.0.0.5"])

@@ -117,6 +117,8 @@ def run(ctx: Context) -> None:
          + "".join(f"  ·  tokens du {name} estimés (IA simulée)"
                    for name, key in (("SLM local", "local"), ("LLM cloud", "cloud"))
                    if u[key]["estimated"] and u[key]["calls"]),
+         "", "Durée par phase : " + " · ".join(f"{e['phase']} {e['s']:.0f} s"
+                                               for e in ev if e["event"] == "duree_phase"),
          "", "## 6. Surface d'attaque",
          "| Hôte | Port | Service | Produit / version |", "|---|---|---|---|",
          *[f"| {s.host} | {s.port}/{s.protocol} | {s.name} | {s.product} {s.version} |"

@@ -67,14 +67,18 @@ def run(ctx: Context) -> None:
     if ctx.demo:
         ctx.findings = parse_nuclei_jsonl(ctx.fixtures_dir / "sample_nuclei.jsonl")
     else:
+        alive = []
         for url in urls:
-            if not reachable(url):
+            if reachable(url):
+                alive.append(url)
+            else:
                 print(f"   ⚠ {url} ne répond pas : application arrêtée ? (scan ignoré)")
                 ctx.audit.event("cible_injoignable", url=url)
-                continue
-            out = ctx.runner.run("nuclei", url)
+        if alive:
+            print(f"   nuclei sur {len(alive)} cible(s) en un seul passage…")
+            out = ctx.runner.run("nuclei", alive)
             if out:
-                ctx.findings += parse_nuclei_jsonl(out, start=len(ctx.findings) + 1)
+                ctx.findings = parse_nuclei_jsonl(out)
 
     for f in ctx.findings:
         print(f"   {f.id}  [{f.severity:<8}] {f.title}  ({f.cve or 'sans CVE'})")
