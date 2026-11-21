@@ -19,10 +19,11 @@
 html,body{margin:0}
 body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.5}
 button,select,input,textarea{font:inherit;color:inherit}
+a{color:var(--axa)}
 
 /* ---------- En-tête ---------- */
 header{background:var(--axa);color:#fff;position:relative;overflow:hidden}
-header::after{content:"";position:absolute;right:120px;top:-30px;width:6px;height:150px;background:var(--axa-red);transform:rotate(38deg);opacity:.95}
+header::after{content:"";position:absolute;right:120px;top:-30px;width:6px;height:150px;background:var(--axa-red);transform:rotate(38deg)}
 .head-in{max-width:1240px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative;z-index:1}
 .brand{display:flex;align-items:baseline;gap:14px}
 .brand b{font-size:26px;letter-spacing:.06em;font-weight:800}
@@ -33,34 +34,40 @@ header::after{content:"";position:absolute;right:120px;top:-30px;width:6px;heigh
 .hb.live{background:var(--local-soft);color:var(--local);border-color:var(--local-soft);font-weight:600}
 
 nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
-.nav-in{max-width:1240px;margin:0 auto;padding:0 16px;display:flex;gap:4px;overflow-x:auto}
-.tab{border:0;background:none;padding:14px 16px 12px;cursor:pointer;color:var(--muted);font-weight:600;border-bottom:3px solid transparent;white-space:nowrap}
-.tab .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--soft);border:1px solid var(--line);font-size:12px;margin-right:8px;color:var(--muted)}
+.nav-in{max-width:1240px;margin:0 auto;padding:0 16px;display:flex;gap:2px;overflow-x:auto}
+.tab{border:0;background:none;padding:14px 13px 12px;cursor:pointer;color:var(--muted);font-weight:600;border-bottom:3px solid transparent;white-space:nowrap}
+.tab .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--soft);border:1px solid var(--line);font-size:12px;margin-right:7px;color:var(--muted)}
 .tab:hover{color:var(--axa)}
 .tab[aria-selected=true]{color:var(--axa);border-bottom-color:var(--axa-red)}
 .tab[aria-selected=true] .n{background:var(--axa);border-color:var(--axa);color:#fff}
 
 main{max-width:1240px;margin:0 auto;padding:24px 24px 60px}
 section[hidden]{display:none}
-.intro{margin:0 0 18px;color:var(--muted);max-width:900px}
+.intro{margin:0 0 18px;color:var(--muted);max-width:920px}
 .intro b{color:var(--ink)}
 h2.sec{font-size:22px;margin:0 0 6px;color:var(--axa)}
 
 /* ---------- Cartes ---------- */
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;min-width:0}
 .card h3{margin:0 0 12px;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--axa)}
 .card h3 small{text-transform:none;letter-spacing:0;color:var(--muted);font-weight:400;font-size:13px;margin-left:6px}
 .grid{display:grid;gap:18px}
 .g-2{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
 .g-2e{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .g-4{grid-template-columns:repeat(4,minmax(0,1fr))}
-@media (max-width:900px){.g-2,.g-2e,.g-4{grid-template-columns:1fr}.badges{margin-right:0}header::after{display:none}}
+.g-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.g-rep{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.g-mis{grid-template-columns:minmax(0,4fr) minmax(0,8fr)}
+@media (max-width:900px){.g-2,.g-2e,.g-3,.g-4,.g-5,.g-rep,.g-mis{grid-template-columns:1fr}.badges{margin-right:0}header::after{display:none}}
 
 /* ---------- Formulaires ---------- */
 label.f{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:12px 0 5px}
-select,input[type=number],textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:#fff}
+select,input[type=number],input[type=text],input[type=date],textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:#fff}
 select:focus,input:focus,textarea:focus{outline:2px solid var(--axa);outline-offset:1px}
 textarea{min-height:130px;resize:vertical;font-family:var(--mono);font-size:13.5px;line-height:1.55}
+textarea.sm{min-height:84px}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
 .checks{display:grid;gap:8px;margin-top:12px}
 .check{display:flex;gap:10px;align-items:center;cursor:pointer;font-size:14px}
 .check input{width:17px;height:17px;accent-color:var(--axa)}
@@ -70,6 +77,7 @@ textarea{min-height:130px;resize:vertical;font-family:var(--mono);font-size:13.5
 .btn.ghost{background:#fff;color:var(--axa)}
 .btn.ghost:hover{background:var(--cloud-soft)}
 .btn.red{background:var(--axa-red);border-color:var(--axa-red)}
+.btn.red:hover{background:#D60F1C}
 .btn.sm{padding:6px 11px;font-size:13px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
@@ -82,7 +90,6 @@ textarea{min-height:130px;resize:vertical;font-family:var(--mono);font-size:13.5
 .r-LOCAL{background:var(--local-soft);border-color:#BFE3D2}.r-LOCAL .tag{background:var(--local)}
 .r-CLOUD{background:var(--cloud-soft);border-color:#C9CDEE}.r-CLOUD .tag{background:var(--cloud)}
 .r-LOCAL_RESTRICTED{background:var(--warn-soft);border-color:#F3D3A6}.r-LOCAL_RESTRICTED .tag{background:var(--warn)}
-
 .gauge{margin:16px 0 26px}
 .gauge .lbl{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px}
 .gauge .lbl b{font-variant-numeric:tabular-nums}
@@ -91,7 +98,6 @@ textarea{min-height:130px;resize:vertical;font-family:var(--mono);font-size:13.5
 .bar .fill.hot{background:var(--axa-red)}
 .bar .mark{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink)}
 .bar .mark span{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);white-space:nowrap}
-
 .matrix{display:grid;grid-template-columns:110px 1fr 1fr;gap:6px;margin-top:22px;font-size:13.5px}
 .matrix .h{color:var(--muted);font-weight:600;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
 .matrix .c{border:1px dashed var(--line);border-radius:8px;padding:12px 8px;text-align:center;font-weight:700;color:#9A9DB3;background:#fff;transition:all .25s}
@@ -108,37 +114,41 @@ ul.reasons li:last-child{color:var(--ink);font-weight:600;list-style:"→  "}
 .verdict small{display:block;font-weight:400;color:var(--muted)}
 .v-ok{background:var(--local-soft);border-color:#BFE3D2;color:#06553A}
 .v-no{background:var(--deny-soft);border-color:#F4B9C2;color:#8C0B20}
+.v-warn{background:var(--warn-soft);border-color:#F3D3A6;color:#6A3A00}
 .flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;align-items:stretch}
-@media (max-width:1100px){.flow{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.flow .arrow{display:none}}
-@media (max-width:640px){.flow{grid-template-columns:1fr}}
+.flow.f3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1100px){.flow,.flow.f3{grid-template-columns:1fr;gap:14px}.flow .arrow{display:none}}
 .pane{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0}
 .pane .ph{padding:10px 14px;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:flex;gap:8px;align-items:center}
-.pane .ph .st{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;color:#fff;font-size:11px}
+.pane .ph .st{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;color:#fff;font-size:11px;flex:0 0 20px}
 .pane .pb{padding:12px 14px;font-family:var(--mono);font-size:13px;white-space:pre-wrap;word-break:break-word;line-height:1.6;flex:1}
 .pane.local .ph{background:var(--local-soft);color:#06553A}.pane.local .st{background:var(--local)}
 .pane.cloud .ph{background:var(--cloud-soft);color:var(--axa)}.pane.cloud .st{background:var(--axa)}
 .pane.off{opacity:.55}
 .pane .where{margin-left:auto;font-weight:600;text-transform:none;letter-spacing:0;font-size:11.5px}
-.flow.f3{grid-template-columns:repeat(3,minmax(0,1fr))}
-@media (max-width:1100px){.flow.f3{grid-template-columns:1fr}}
 .ex .pane .pb{max-height:360px;overflow:auto}
 .flowcell{display:flex;align-items:stretch;min-width:0}
 .flowcell .pane{flex:1}
 .arrow{display:flex;align-items:center;justify-content:center;width:26px;flex:0 0 26px;color:var(--axa-red);font-size:20px;font-weight:800}
 .empty{color:var(--muted);font-family:inherit;font-style:italic}
-
 mark.ent{border-radius:4px;padding:1px 3px;color:var(--ink);border-bottom:2px solid}
 mark.ent sup{font-size:9.5px;font-family:"Segoe UI",system-ui,sans-serif;font-weight:700;margin-left:3px;letter-spacing:.02em;opacity:.8}
 mark.ent.unc{outline:2px dashed var(--warn);outline-offset:1px}
 .tok{border-radius:4px;padding:1px 4px;font-weight:700;border:1px solid;white-space:nowrap}
+.neut{background:var(--warn-soft);color:var(--warn);border-radius:4px;padding:1px 4px;font-weight:700}
 
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:2px solid var(--line);background:var(--soft)}
 td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 td.mono,.mono{font-family:var(--mono);font-size:12.5px;word-break:break-all}
+td.t{white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
 .chip{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
 .c-ok{background:var(--local-soft);color:var(--local)}
-.c-unc{background:var(--warn-soft);color:var(--warn)}
+.c-unc,.c-warn{background:var(--warn-soft);color:var(--warn)}
+.c-bad{background:var(--deny-soft);color:var(--deny)}
+.c-info{background:var(--cloud-soft);color:var(--axa)}
 .lock{font-size:12.5px;color:var(--muted);margin:8px 0 0}
 
 /* ---------- Mission ---------- */
@@ -150,55 +160,88 @@ td.mono,.mono{font-family:var(--mono);font-size:12.5px;word-break:break-all}
 .step .ai{margin-top:6px;font-size:11px;font-weight:700}
 .step.run{border-color:var(--axa);box-shadow:0 0 0 3px var(--cloud-soft)}
 .step.run .num{color:var(--axa)}
-.step.done{border-color:#BFC4EA;background:linear-gradient(180deg,#fff, #FAFAFF)}
+.step.wait{border-color:var(--axa-red);box-shadow:0 0 0 3px #FFE0E3}
+.step.done{border-color:#BFC4EA;background:linear-gradient(180deg,#fff,#FAFAFF)}
 .step.done .num{color:var(--axa)}
 .step.done::after{content:"✓";position:absolute;top:8px;right:10px;color:var(--local);font-weight:800}
 .ai.LOCAL{color:var(--local)}.ai.CLOUD{color:var(--axa)}.ai.FAIL{color:var(--warn)}.ai.NONE{color:#9A9DB3;font-weight:600}
-
-.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
-@media (max-width:900px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.approval{border:2px solid var(--axa-red);background:#fff;border-radius:var(--radius);padding:18px 20px;margin:0 0 18px;box-shadow:0 8px 28px rgba(255,23,33,.12)}
+.approval h3{margin:0 0 6px;color:var(--axa-red);font-size:16px;text-transform:uppercase;letter-spacing:.05em}
+.approval .act{font-weight:700;font-size:16px;margin:4px 0 10px}
+.approval pre{white-space:pre-wrap;font-family:var(--mono);font-size:13px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0 0 14px}
+.approval pre .w{color:var(--deny);font-weight:700}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:18px 0}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;border-left:5px solid}
-.kpi b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
-.kpi span{color:var(--muted);font-size:13px}
-.k-local{border-left-color:var(--local)}.k-cloud{border-left-color:var(--axa)}.k-fail{border-left-color:var(--warn)}.k-ent{border-left-color:var(--axa-red)}
-
+.kpi b{display:block;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:12.5px}
+.k-local{border-left-color:var(--local)}.k-cloud{border-left-color:var(--axa)}.k-fail{border-left-color:var(--warn)}.k-ent{border-left-color:var(--axa-red)}.k-inj{border-left-color:#7A4FA0}.k-ok{border-left-color:var(--local)}.k-bad{border-left-color:var(--deny)}
 .dec{display:inline-block;font-weight:800;font-size:11.5px;padding:3px 8px;border-radius:6px;color:#fff;letter-spacing:.03em}
 .d-ACT{background:var(--deny)}.d-ATTEND{background:#E07000}.d-TRACKs{background:var(--axa)}.d-TRACK{background:#8B8FA8}
-
+.r-badge{display:inline-block;font-weight:800;font-size:11px;padding:3px 8px;border-radius:6px;color:#fff}
+.rb-LOCAL{background:var(--local)}.rb-CLOUD{background:var(--axa)}.rb-LOCAL_RESTRICTED{background:var(--warn)}
 .ex{border:1px solid var(--line);border-radius:var(--radius);background:#fff;margin-top:14px;overflow:hidden}
 .ex-h{display:flex;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .ex-h b{font-size:15px}
 .path{font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;color:#fff;letter-spacing:.03em}
 .p-LOCAL{background:var(--local)}.p-CLOUD{background:var(--axa)}.p-FAIL{background:var(--warn)}
-.ex-h .hint{color:var(--muted);font-size:13px}
-.ex .flow{padding:14px;gap:0;background:var(--soft)}
+.ex-h .hint{color:var(--muted);font-size:13px;margin:0}
+.ex .flow{padding:14px;background:var(--soft)}
 .ex .pane{box-shadow:none}
 details.real{padding:10px 16px;border-top:1px solid var(--line);font-size:13.5px}
 details.real summary{cursor:pointer;color:var(--muted);font-weight:600}
 details.real pre{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;background:var(--soft);padding:10px;border-radius:8px;border:1px solid var(--line)}
 .local-ans{padding:12px 16px;font-size:14px;white-space:pre-wrap}
+.alerts{padding:10px 16px 0;display:flex;gap:6px;flex-wrap:wrap}
 
 /* ---------- Rapport ---------- */
-.md h2{color:var(--axa);font-size:22px;margin:4px 0 10px}
-.md h3{color:var(--axa);font-size:17px;margin:22px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--axa-red);display:inline-block}
-.md h4{font-size:15px;margin:16px 0 6px}
+.md h1{color:var(--axa);font-size:22px;margin:4px 0 6px}
+.md h2{color:var(--axa);font-size:17px;margin:22px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--axa-red);display:inline-block}
+.md h3{font-size:15px;margin:16px 0 6px}
 .md p{margin:6px 0}
 .md ul{margin:6px 0;padding-left:20px}
 .md li.sub{margin-left:18px;color:var(--muted);font-size:14px}
-.md code{font-family:var(--mono);font-size:12.5px;background:var(--soft);border:1px solid var(--line);padding:1px 5px;border-radius:4px}
-.md .tw{overflow-x:auto;margin:8px 0 12px}
-.md table{margin:0}
-td.t{white-space:nowrap}
-.g-rep{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
-@media (max-width:900px){.g-rep{grid-template-columns:1fr}}
+.md code{font-family:var(--mono);font-size:12.5px;background:var(--soft);border:1px solid var(--line);padding:1px 5px;border-radius:4px;word-break:break-all}
+.md .tw{margin:8px 0 12px}
 .outbox-item{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;overflow:hidden}
 .outbox-item .oh{background:var(--cloud-soft);color:var(--axa);font-weight:700;font-size:12px;padding:6px 10px;text-transform:uppercase;letter-spacing:.05em}
 .outbox-item pre{margin:0;padding:10px;font-family:var(--mono);font-size:12px;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto}
 .placeholder{text-align:center;color:var(--muted);padding:50px 20px;border:2px dashed var(--line);border-radius:var(--radius);background:#fff}
 .err{background:var(--deny-soft);color:#8C0B20;border:1px solid #F4B9C2;padding:10px 14px;border-radius:8px;margin-top:12px}
+.ok{background:var(--local-soft);color:#06553A;border:1px solid #BFE3D2;padding:10px 14px;border-radius:8px;margin-top:12px}
+.err ul{margin:6px 0 0;padding-left:20px}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:8px}
+.spin.dark{border-color:rgba(0,0,143,.25);border-top-color:var(--axa)}
 @keyframes sp{to{transform:rotate(360deg)}}
 footer{max-width:1240px;margin:0 auto;padding:0 24px 30px;color:var(--muted);font-size:12.5px}
+fieldset{border:1px solid var(--line);border-radius:var(--radius);padding:6px 18px 16px;margin:0;min-width:0;background:#fff}
+legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:.06em;font-size:13px;padding:0 6px}
+
+/* ---------- Impression / PDF ---------- */
+#print-root{display:none}
+@media print{
+  @page{size:A4;margin:14mm 13mm 16mm}
+  html,body{background:#fff}
+  body>*:not(#print-root){display:none!important}
+  #print-root{display:block;font-size:10.5pt;color:#14142B}
+  #print-root *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .p-head{background:#00008F;color:#fff;padding:14px 18px;border-radius:6px;position:relative;overflow:hidden;margin-bottom:14px}
+  .p-head::after{content:"";position:absolute;right:46px;top:-18px;width:5px;height:110px;background:#FF1721;transform:rotate(38deg)}
+  .p-head b{font-size:20pt;letter-spacing:.06em}
+  .p-head .t{font-size:11pt;color:#DCDDF7;margin-top:2px}
+  .p-head .m{font-size:9pt;color:#C9CCF2;margin-top:6px}
+  .p-conf{display:inline-block;margin-top:8px;background:#FF1721;color:#fff;font-weight:700;font-size:8.5pt;padding:2px 8px;border-radius:3px;letter-spacing:.06em}
+  #print-root h1{display:none}
+  #print-root h2{color:#00008F;font-size:13pt;border-bottom:2px solid #FF1721;padding-bottom:3px;margin:16px 0 8px;break-after:avoid}
+  #print-root h3{font-size:11pt;margin:12px 0 4px;break-after:avoid}
+  #print-root table{font-size:8.5pt;break-inside:auto}
+  #print-root tr{break-inside:avoid}
+  #print-root td:nth-child(2),#print-root td:nth-child(1){white-space:nowrap}
+  #print-root th{background:#EEF0FA;color:#00008F}
+  #print-root code{font-size:8pt}
+  .p-foot{margin-top:18px;border-top:1px solid #DCDFEA;padding-top:6px;font-size:8pt;color:#5B5F77}
+}
 </style>
 </head>
 <body>
@@ -212,16 +255,72 @@ footer{max-width:1240px;margin:0 auto;padding:0 24px 30px;color:var(--muted);fon
 
 <nav>
   <div class="nav-in" role="tablist">
-    <button class="tab" role="tab" data-tab="aiguillage"><span class="n">1</span>Aiguillage</button>
-    <button class="tab" role="tab" data-tab="passerelle"><span class="n">2</span>Passerelle</button>
-    <button class="tab" role="tab" data-tab="mission"><span class="n">3</span>Mission</button>
-    <button class="tab" role="tab" data-tab="rapport"><span class="n">4</span>Rapport &amp; journal</button>
+    <button class="tab" role="tab" data-tab="perimetre"><span class="n">1</span>Périmètre</button>
+    <button class="tab" role="tab" data-tab="aiguillage"><span class="n">2</span>Aiguillage</button>
+    <button class="tab" role="tab" data-tab="passerelle"><span class="n">3</span>Passerelle</button>
+    <button class="tab" role="tab" data-tab="mission"><span class="n">4</span>Mission</button>
+    <button class="tab" role="tab" data-tab="rapport"><span class="n">5</span>Rapport</button>
+    <button class="tab" role="tab" data-tab="historique"><span class="n">6</span>Historique</button>
+    <button class="tab" role="tab" data-tab="evaluation"><span class="n">7</span>Évaluation</button>
   </div>
 </nav>
 
 <main>
-<!-- =============================== 1. AIGUILLAGE =============================== -->
-<section id="tab-aiguillage">
+<!-- =============================== 1. PÉRIMÈTRE =============================== -->
+<section id="tab-perimetre">
+  <h2 class="sec">Périmètre de la mission</h2>
+  <p class="intro">Aucun test n'est lancé hors de ce périmètre ni hors des dates du mandat. Les domaines, le nom du client et les termes sensibles déclarés ici sont <b>masqués d'office</b> par la passerelle. Le périmètre est enregistré localement dans <code>config/scope.yaml</code>.</p>
+  <div class="grid g-2e">
+    <fieldset><legend>Mandat</legend>
+      <label class="f" for="s-client">Client</label><input type="text" id="s-client">
+      <label class="f" for="s-ref">Référence de la lettre de mission</label><input type="text" id="s-ref">
+      <label class="f" for="s-signed">Signée par</label><input type="text" id="s-signed">
+      <div class="grid g-2e" style="gap:12px">
+        <div><label class="f" for="s-from">Valide du</label><input type="date" id="s-from"></div>
+        <div><label class="f" for="s-until">au</label><input type="date" id="s-until"></div>
+      </div>
+    </fieldset>
+    <fieldset><legend>Pentest</legend>
+      <div class="grid g-2e" style="gap:12px">
+        <div><label class="f" for="s-type">Type</label><select id="s-type">
+          <option value="web_boite_noire">Web — boîte noire</option><option value="web_boite_grise">Web — boîte grise</option>
+          <option value="api">API</option><option value="multi_applications">Plusieurs applications</option></select></div>
+        <div><label class="f" for="s-class">Classification des données</label><select id="s-class">
+          <option value="public">Public</option><option value="interne">Interne</option>
+          <option value="confidentiel">Confidentiel</option><option value="secret">Secret</option></select></div>
+      </div>
+      <label class="f" for="s-sector">Secteur</label><select id="s-sector">
+        <option value="">Non précisé</option><option value="assurance">Assurance</option><option value="banque">Banque</option>
+        <option value="sante">Santé</option><option value="defense">Défense</option></select>
+      <div class="checks">
+        <label class="check"><input type="checkbox" id="s-auth"> Tests authentifiés</label>
+        <label class="check"><input type="checkbox" id="s-custom"> Application développée sur mesure</label>
+        <label class="check"><input type="checkbox" id="s-chain"> Enchaînement de failles nécessaire</label>
+      </div>
+    </fieldset>
+    <fieldset><legend>Cibles autorisées</legend>
+      <label class="f" for="s-domains">Domaines (un par ligne)</label><textarea class="sm" id="s-domains"></textarea>
+      <label class="f" for="s-ranges">Plages IP (un par ligne, ex. 10.10.0.0/24)</label><textarea class="sm" id="s-ranges"></textarea>
+      <label class="f" for="s-urls">URL (une par ligne)</label><textarea class="sm" id="s-urls"></textarea>
+      <label class="f" for="s-excl">Exclusions (hôtes ou IP interdits)</label><textarea class="sm" id="s-excl"></textarea>
+    </fieldset>
+    <fieldset><legend>Confidentialité et impact</legend>
+      <label class="f" for="s-terms">Termes sensibles du client (un par ligne)</label><textarea class="sm" id="s-terms"></textarea>
+      <div class="hint">Noms d'applications, de bases, de projets internes… toujours masqués.</div>
+      <label class="f" for="s-crit">Criticité des actifs (« hôte: basse | moyenne | haute »)</label><textarea class="sm" id="s-crit"></textarea>
+      <div class="hint">Sert à la priorisation (impact métier).</div>
+    </fieldset>
+  </div>
+  <div class="row" style="margin-top:18px">
+    <button class="btn" id="s-save">Enregistrer le périmètre</button>
+    <button class="btn ghost" id="s-example">Charger l'exemple</button>
+    <span class="lock" id="s-file"></span>
+  </div>
+  <div id="s-msg"></div>
+</section>
+
+<!-- =============================== 2. AIGUILLAGE =============================== -->
+<section id="tab-aiguillage" hidden>
   <h2 class="sec">L'aiguilleur décide du chemin, avant le pentest</h2>
   <p class="intro">Le <b>SLM local</b> évalue la <b>complexité</b> du pentest (le modèle local en est-il capable ?) et la <b>sensibilité</b> des données (peut-on les faire sortir, même masquées ?). Modifie le profil : la décision se met à jour.</p>
   <div class="grid g-2">
@@ -234,10 +333,8 @@ footer{max-width:1240px;margin:0 auto;padding:0 24px 30px;color:var(--muted);fon
       </div>
       <label class="f" for="r-type">Type de pentest</label>
       <select id="r-type">
-        <option value="web_boite_noire">Web — boîte noire</option>
-        <option value="web_boite_grise">Web — boîte grise</option>
-        <option value="api">API</option>
-        <option value="multi_applications">Plusieurs applications</option>
+        <option value="web_boite_noire">Web — boîte noire</option><option value="web_boite_grise">Web — boîte grise</option>
+        <option value="api">API</option><option value="multi_applications">Plusieurs applications</option>
       </select>
       <div class="checks">
         <label class="check"><input type="checkbox" id="r-auth"> Tests authentifiés</label>
@@ -248,29 +345,15 @@ footer{max-width:1240px;margin:0 auto;padding:0 24px 30px;color:var(--muted);fon
       <label class="f" for="r-targets">Nombre de cibles</label>
       <input type="number" id="r-targets" min="1" max="50" value="1">
       <label class="f" for="r-class">Classification des données</label>
-      <select id="r-class">
-        <option value="public">Public</option>
-        <option value="interne">Interne</option>
-        <option value="confidentiel">Confidentiel</option>
-        <option value="secret">Secret</option>
-      </select>
+      <select id="r-class"><option value="public">Public</option><option value="interne">Interne</option><option value="confidentiel">Confidentiel</option><option value="secret">Secret</option></select>
       <label class="f" for="r-sector">Secteur du client</label>
-      <select id="r-sector">
-        <option value="">Non précisé</option>
-        <option value="assurance">Assurance</option>
-        <option value="banque">Banque</option>
-        <option value="sante">Santé</option>
-        <option value="defense">Défense</option>
-      </select>
+      <select id="r-sector"><option value="">Non précisé</option><option value="assurance">Assurance</option><option value="banque">Banque</option><option value="sante">Santé</option><option value="defense">Défense</option></select>
     </div>
-    <div class="card">
-      <h3>Décision de l'aiguilleur</h3>
-      <div id="r-out"><p class="empty">Calcul…</p></div>
-    </div>
+    <div class="card"><h3>Décision de l'aiguilleur</h3><div id="r-out"><p class="empty">Calcul…</p></div></div>
   </div>
 </section>
 
-<!-- =============================== 2. PASSERELLE =============================== -->
+<!-- =============================== 3. PASSERELLE =============================== -->
 <section id="tab-passerelle" hidden>
   <h2 class="sec">La passerelle : ce que voit vraiment le cloud</h2>
   <p class="intro">Colle un constat de pentest. <b>Presidio</b> détecte les données sensibles, les remplace par des jetons, puis vérifie qu'il ne reste rien. Si c'est sûr, le texte masqué part au LLM externe ; sa réponse revient en jetons et les vraies valeurs sont <b>réinjectées sur ta machine</b>. Au moindre doute : <b>repli local</b>.</p>
@@ -289,46 +372,74 @@ footer{max-width:1240px;margin:0 auto;padding:0 24px 30px;color:var(--muted);fon
   <div id="m-out"></div>
 </section>
 
-<!-- =============================== 3. MISSION =============================== -->
+<!-- =============================== 4. MISSION =============================== -->
 <section id="tab-mission" hidden>
-  <h2 class="sec">Mission complète : les 7 phases</h2>
-  <p class="intro">Démonstration sur un <b>laboratoire fictif</b> (sorties nmap / nuclei d'exemple). Aucun outil n'est lancé ; en démo, les validations humaines sont accordées automatiquement. Change la classification des données pour voir l'aiguillage basculer.</p>
+  <h2 class="sec">Mission : les 7 phases</h2>
+  <p class="intro">La mission s'exécute sur ta machine. En mode <b>validation humaine</b>, elle s'arrête avant chaque action active et attend ta décision. La source <b>Démo</b> utilise des sorties nmap / nuclei d'un laboratoire fictif ; <b>Outils réels</b> lance nmap et nuclei sur le périmètre (si <code>tools.dry_run: false</code>).</p>
   <div class="card">
-    <div class="grid g-4" style="align-items:end">
-      <div><label class="f" for="x-class" style="margin-top:0">Classification des données</label>
-        <select id="x-class"><option value="interne">Interne → CLOUD</option><option value="confidentiel">Confidentiel → LOCAL_RESTRICTED</option><option value="secret">Secret → LOCAL_RESTRICTED</option></select></div>
+    <div class="grid g-5" style="align-items:end">
+      <div><label class="f" for="x-source" style="margin-top:0">Source des données</label>
+        <select id="x-source"><option value="demo">Démo (labo fictif)</option><option value="tools">Outils réels</option></select></div>
+      <div><label class="f" for="x-class" style="margin-top:0">Classification</label>
+        <select id="x-class"><option value="">Selon le périmètre</option><option value="interne">Interne</option><option value="confidentiel">Confidentiel</option><option value="secret">Secret</option></select></div>
       <div><label class="f" for="x-type" style="margin-top:0">Type de pentest</label>
-        <select id="x-type"><option value="web_boite_grise">Web — boîte grise</option><option value="web_boite_noire">Web — boîte noire</option><option value="api">API</option><option value="multi_applications">Plusieurs applications</option></select></div>
-      <div><label class="check" style="margin-bottom:10px"><input type="checkbox" id="x-chain" checked> Enchaînement de failles</label></div>
+        <select id="x-type"><option value="">Selon le périmètre</option><option value="web_boite_grise">Web — boîte grise</option><option value="web_boite_noire">Web — boîte noire</option><option value="api">API</option><option value="multi_applications">Plusieurs applications</option></select></div>
+      <div><label class="check" style="margin-bottom:10px"><input type="checkbox" id="x-human" checked> Validation humaine</label></div>
       <div><button class="btn red" id="x-go" style="width:100%">Lancer la mission</button></div>
     </div>
+    <p class="hint" id="x-note"></p>
   </div>
   <div class="stepper" id="x-steps"></div>
+  <div id="x-approval"></div>
   <div id="x-out"></div>
 </section>
 
-<!-- =============================== 4. RAPPORT =============================== -->
+<!-- =============================== 5. RAPPORT =============================== -->
 <section id="tab-rapport" hidden>
   <h2 class="sec">Rapport et preuves de confidentialité</h2>
-  <p class="intro">Le rapport est généré <b>en local</b>, avec les vraies valeurs. À droite : <b>cloud_outbox.jsonl</b>, la copie exacte de tout ce qui a quitté la machine, et <b>audit.jsonl</b>, le journal des décisions.</p>
-  <div id="rp-out"><div class="placeholder">Lance d'abord une mission dans l'onglet <b>3 · Mission</b>.</div></div>
+  <p class="intro">Le rapport est généré <b>en local</b>, avec les vraies valeurs. Exporte-le en PDF en version <b>direction</b> (synthèse, priorités, confidentialité, coût) ou <b>technique</b> (complète). À droite : <b>cloud_outbox.jsonl</b>, la copie exacte de tout ce qui a quitté la machine, et le journal d'audit.</p>
+  <div id="rp-out"><div class="placeholder">Lance une mission (onglet <b>4</b>) ou ouvre-en une dans l'<b>historique</b> (onglet <b>6</b>).</div></div>
+</section>
+
+<!-- =============================== 6. HISTORIQUE =============================== -->
+<section id="tab-historique" hidden>
+  <h2 class="sec">Historique des missions</h2>
+  <p class="intro">Chaque mission est conservée localement dans <code>runs/</code>. Compare-les ligne à ligne : c'est le protocole de validation du mémoire (tout-local, INOVA, cloud). <b>Ouvrir</b> recharge une mission dans les onglets Mission et Rapport.</p>
+  <div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px"><h3 style="margin:0">Missions</h3><button class="btn ghost sm" id="h-refresh">Rafraîchir</button></div><div id="h-out" class="tw"></div></div>
+</section>
+
+<!-- =============================== 7. ÉVALUATION =============================== -->
+<section id="tab-evaluation" hidden>
+  <h2 class="sec">Évaluation : taux de fuite de la passerelle</h2>
+  <p class="intro">Mesure sur un corpus de <b>56 cas étiquetés</b> (sorties nmap, nuclei, sqlmap, HTTP, JSON, configurations, journaux, texte libre, obfuscations). La <b>fuite effective</b> compte les valeurs qui seraient réellement sorties : un repli local empêche la sortie. Voir <code>docs/EVALUATION.md</code> pour la méthode et ses limites.</p>
+  <div class="card"><div class="row">
+    <label class="f" for="e-model" style="margin:0">Modèle spaCy français</label>
+    <select id="e-model" style="width:auto"></select>
+    <button class="btn" id="e-go">Lancer la mesure</button>
+    <span class="lock">Environ 10 secondes. Le résultat détaillé est enregistré dans <code>runs/</code>.</span>
+  </div></div>
+  <div id="e-out"></div>
 </section>
 </main>
 
 <footer>Interface locale (127.0.0.1) — la table de correspondance s'affiche ici parce que tout reste sur ta machine. À utiliser uniquement dans le cadre d'un mandat signé.</footer>
+<div id="print-root"></div>
 
 <script>
 "use strict";
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const pct = v => v === null || v === undefined ? "—" : v.toFixed(1).replace(".", ",") + " %";
+const fmtInt = n => Number(n || 0).toLocaleString("fr-FR");
 
 async function api(path, body) {
   const opt = body === undefined ? {} :
     {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)};
   const r = await fetch(path, opt);
   const j = await r.json().catch(() => ({error: "réponse illisible"}));
-  if (!r.ok) throw new Error(j.error || ("HTTP " + r.status));
+  if (!r.ok && !j.errors) throw new Error(j.error || ("HTTP " + r.status));
   return j;
 }
 
@@ -338,10 +449,12 @@ const ENT = {
   SECRET:["#FFE1E4","#D0142C"], HASH:["#ECEDF2","#5B5F77"], DB_OBJECT:["#E1F3E6","#25804A"],
   CLIENT_TERM:["#DFE1F5","#00008F"], PERSON:["#FFEBD6","#B85C00"], EMAIL_ADDRESS:["#FFF3CC","#8A6A00"],
   PHONE_NUMBER:["#F6E6DA","#8A4B1E"], CREDIT_CARD:["#FFE1E4","#D0142C"], IBAN_CODE:["#FFE1E4","#D0142C"],
+  ADDRESS:["#F3E6F6","#86398F"], ID_NATIONAL:["#F6E1EA","#A11850"],
 };
 const entStyle = t => { const [bg, fg] = ENT[t] || ["#ECEDF2", "#5B5F77"]; return `background:${bg};border-color:${fg};`; };
-const tokens = text => esc(text).replace(/\[([A-Z_]+?)_(\d+)\]/g,
-  (m, t) => `<span class="tok" style="${entStyle(t)}color:${(ENT[t]||[])[1]||"#333"}">${m}</span>`);
+const tokens = text => esc(text)
+  .replace(/\[([A-Z_]+?)_(\d+)\]/g, (m, t) => `<span class="tok" style="${entStyle(t)}color:${(ENT[t]||[])[1]||"#333"}">${m}</span>`)
+  .replace(/⟦[^⟧]*⟧/g, m => `<span class="neut">${m}</span>`);
 
 function highlight(text, spans) {
   let out = "", pos = 0;
@@ -363,18 +476,75 @@ const routeCard = d => `<div class="route r-${d.route}"><span class="tag">${esc(
   <div><h4>${esc(ROUTE[d.route].t)}</h4><p>${esc(ROUTE[d.route].d)}</p></div></div>`;
 
 /* ---------------- Onglets ---------------- */
+const TABS = ["perimetre", "aiguillage", "passerelle", "mission", "rapport", "historique", "evaluation"];
 function show(tab) {
-  if (!["aiguillage", "passerelle", "mission", "rapport"].includes(tab)) tab = "aiguillage";
+  if (!TABS.includes(tab)) tab = "perimetre";
   $$(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
   $$("main > section").forEach(s => s.hidden = s.id !== "tab-" + tab);
   if (location.hash.slice(1) !== tab) history.replaceState(null, "", "#" + tab);
+  if (tab === "historique") loadHistory();
 }
 $$(".tab").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
 window.addEventListener("hashchange", () => show(location.hash.slice(1)));
 
 let INFO = null;
+async function loadInfo() {
+  INFO = await api("/api/info");
+  const mode = m => m === "live" ? "réel" : "simulé";
+  const anyMock = INFO.local_mode !== "live" || INFO.cloud_mode !== "live";
+  $("#badges").innerHTML = `<span class="hb ${anyMock ? "demo" : "live"}">${anyMock ? "IA simulée (mode démo)" : "IA réelle"}</span>
+    <span class="hb">SLM local : ${esc(INFO.local_model)} · ${mode(INFO.local_mode)}</span>
+    <span class="hb">LLM cloud : ${esc(INFO.cloud_model)} · ${mode(INFO.cloud_mode)}</span>
+    <span class="hb">Presidio : ${esc(INFO.spacy_models.fr || "?")}</span>
+    <span class="hb">Périmètre : ${esc(INFO.client)} · ${esc(INFO.scope_file)}</span>`;
+  $("#x-note").textContent = INFO.tools_dry_run
+    ? "Outils réels : tools.dry_run est à true dans settings.yaml, les commandes seront seulement affichées (aucun résultat)."
+    : "Outils réels : nmap et nuclei seront lancés sur les cibles du périmètre.";
+  setProfile(INFO.profile);
+}
 
-/* ================= 1. AIGUILLAGE ================= */
+/* ================= 1. PÉRIMÈTRE ================= */
+const lines = v => v.split("\n").map(x => x.trim()).filter(Boolean);
+function fillScope(sc) {
+  const a = sc.authorization || {}, p = sc.pentest || {}, t = sc.targets || {};
+  $("#s-client").value = a.client || ""; $("#s-ref").value = a.reference || ""; $("#s-signed").value = a.signed_by || "";
+  $("#s-from").value = a.valid_from || ""; $("#s-until").value = a.valid_until || "";
+  $("#s-type").value = p.type || "web_boite_noire"; $("#s-class").value = p.data_classification || "interne";
+  $("#s-sector").value = p.sector || ""; $("#s-auth").checked = !!p.authenticated;
+  $("#s-custom").checked = !!p.custom_application; $("#s-chain").checked = !!p.exploitation_chaining;
+  $("#s-domains").value = (t.domains || []).join("\n"); $("#s-ranges").value = (t.ip_ranges || []).join("\n");
+  $("#s-urls").value = (t.urls || []).join("\n"); $("#s-excl").value = (sc.excluded || []).join("\n");
+  $("#s-terms").value = (sc.sensitive_terms || []).join("\n");
+  $("#s-crit").value = Object.entries(sc.asset_criticality || {}).map(([h, c]) => `${h}: ${c}`).join("\n");
+}
+function readScope() {
+  const crit = {};
+  for (const l of lines($("#s-crit").value)) { const i = l.lastIndexOf(":"); if (i > 0) crit[l.slice(0, i).trim()] = l.slice(i + 1).trim(); }
+  return {
+    authorization: {client: $("#s-client").value.trim(), reference: $("#s-ref").value.trim(), signed_by: $("#s-signed").value.trim(),
+                    valid_from: $("#s-from").value, valid_until: $("#s-until").value},
+    pentest: {type: $("#s-type").value, authenticated: $("#s-auth").checked, custom_application: $("#s-custom").checked,
+              exploitation_chaining: $("#s-chain").checked, data_classification: $("#s-class").value, sector: $("#s-sector").value},
+    targets: {domains: lines($("#s-domains").value), ip_ranges: lines($("#s-ranges").value), urls: lines($("#s-urls").value)},
+    excluded: lines($("#s-excl").value), asset_criticality: crit, sensitive_terms: lines($("#s-terms").value),
+  };
+}
+let EXAMPLE_SCOPE = null;
+async function loadScope() {
+  const r = await api("/api/scope"); EXAMPLE_SCOPE = r.example; fillScope(r.scope);
+  $("#s-file").textContent = "Fichier actuel : config/" + r.file;
+}
+$("#s-example").addEventListener("click", () => { if (EXAMPLE_SCOPE) fillScope(EXAMPLE_SCOPE); $("#s-msg").innerHTML = ""; });
+$("#s-save").addEventListener("click", async () => {
+  try {
+    const r = await api("/api/scope", {scope: readScope()});
+    if (!r.ok) { $("#s-msg").innerHTML = `<div class="err">Périmètre non enregistré :<ul>${r.errors.map(e => `<li>${esc(e)}</li>`).join("")}</ul></div>`; return; }
+    $("#s-msg").innerHTML = `<div class="ok">Périmètre enregistré dans <b>config/${esc(r.file)}</b>. Il s'applique aux prochaines missions et à la passerelle.</div>`;
+    await loadInfo(); updateRoute(); $("#s-file").textContent = "Fichier actuel : config/" + r.file;
+  } catch (e) { $("#s-msg").innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+});
+
+/* ================= 2. AIGUILLAGE ================= */
 const PRESETS = {
   simple: {pentest_type: "web_boite_noire", authenticated: false, custom_application: false, exploitation_chaining: false, nb_targets: 1, data_classification: "interne", sector: "", sensitive_terms: false},
   lourd:  {pentest_type: "web_boite_grise", authenticated: true, custom_application: true, exploitation_chaining: true, nb_targets: 3, data_classification: "interne", sector: "assurance", sensitive_terms: true},
@@ -383,7 +553,7 @@ const PRESETS = {
 function setProfile(p) {
   $("#r-type").value = p.pentest_type; $("#r-auth").checked = !!p.authenticated;
   $("#r-custom").checked = !!p.custom_application; $("#r-chain").checked = !!p.exploitation_chaining;
-  $("#r-terms").checked = !!(p.sensitive_terms && (p.sensitive_terms.length ?? p.sensitive_terms));
+  $("#r-terms").checked = Array.isArray(p.sensitive_terms) ? p.sensitive_terms.length > 0 : !!p.sensitive_terms;
   $("#r-targets").value = p.nb_targets; $("#r-class").value = p.data_classification; $("#r-sector").value = p.sector || "";
 }
 const getProfile = () => ({
@@ -415,10 +585,11 @@ $$("#tab-aiguillage select, #tab-aiguillage input").forEach(el =>
   el.addEventListener("input", () => { clearTimeout(rTimer); rTimer = setTimeout(updateRoute, 120); }));
 $$("[data-preset]").forEach(b => b.addEventListener("click", () => { setProfile(PRESETS[b.dataset.preset]); updateRoute(); }));
 
-/* ================= 2. PASSERELLE ================= */
+/* ================= 3. PASSERELLE ================= */
 const EXAMPLES = [
   ["Injection SQL", "Injection SQL confirmée sur https://demo.inova-lab.local/login (serveur 10.10.0.20). La requête vulnérable est SELECT * FROM clients_cartes WHERE id=1. Identifiant admin trouvé : password=Adm1n2026. Le serveur 10.10.0.20 expose aussi SSH. Comment corriger cette faille ?"],
-  ["Dépôt Git exposé", "Fichier .git/config exposé sur https://demo.inova-lab.local/.git/config — url = https://gitlab.intranet-demo.local/equipe/SinistresPro.git. Jeton trouvé dans l'historique : eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiJ9.c2lnbmF0dXJlMTIz. Hôte de base de données srv-db01.intranet-demo.local joignable depuis 10.10.0.10."],
+  ["Fichier .env exposé", "Fichier https://demo.inova-lab.local/.env accessible :\nDB_HOST=db01.intranet-demo.local\nDB_PASSWORD=S3cr3t!2026\nDATABASE_URL=postgres://app:Pg_2026!@db01.intranet-demo.local:5432/sinistres\nAWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"],
+  ["Dump sqlmap", "Table: clients_cartes\n| id | titulaire      | numero_carte        |\n| 1  | Youssef Alaoui | 4111 1111 1111 1111 |\n| 2  | Salma Bennis   | 5555 5555 5555 4444 |\nIBAN du compte de règlement : MA64 0115 1900 0001 2050 0053 4921"],
   ["Contact (doute → local)", "Responsable applicatif : Karim Bennani (karim.bennani@demo-client.ma, +212 6 12 34 56 78). Le prévenir avant le re-test du panneau d'administration."],
 ];
 $("#m-examples").innerHTML = EXAMPLES.map((e, i) => `<button class="btn ghost sm" data-ex="${i}">${esc(e[0])}</button>`).join("");
@@ -429,9 +600,7 @@ function pane(n, title, where, cls, body, off) {
   return `<div class="pane ${cls}${off ? " off" : ""}"><div class="ph"><span class="st">${n}</span>${esc(title)}<span class="where">${esc(where)}</span></div><div class="pb">${body}</div></div>`;
 }
 const arrow = `<div class="arrow" aria-hidden="true">›</div>`;
-function flow4(p1, p2, p3, p4) {
-  return `<div class="flow"><div class="flowcell">${p1}${arrow}</div><div class="flowcell">${p2}${arrow}</div><div class="flowcell">${p3}${arrow}</div><div class="flowcell">${p4}</div></div>`;
-}
+const flow = (panes, cls = "") => `<div class="flow ${cls}">${panes.map((p, i) => `<div class="flowcell">${p}${i < panes.length - 1 ? arrow : ""}</div>`).join("")}</div>`;
 
 async function runMask() {
   const btn = $("#m-go"); btn.disabled = true; btn.innerHTML = `<span class="spin"></span>Analyse par Presidio…`;
@@ -441,21 +610,21 @@ async function runMask() {
       ? `<div class="verdict v-ok"><span class="ic">✅</span><div>Envoi au cloud AUTORISÉ<small>${r.entities} entité(s) masquée(s) · aucune détection incertaine · aucune fuite résiduelle</small></div></div>`
       : `<div class="verdict v-no"><span class="ic">⛔</span><div>Envoi REFUSÉ → repli local (fail-closed)<small>${r.uncertain} détection(s) incertaine(s) (score &lt; ${r.min_confidence})${r.residual.length ? " · fuite résiduelle : " + esc(r.residual.join(", ")) : ""} — dans le doute, rien ne sort.</small></div></div>`;
     const none = `<span class="empty">Rien n'est envoyé.</span>`;
-    const flow = flow4(
+    const fl = flow([
       pane(1, "Texte réel", "ta machine", "local", highlight(r.text, r.spans) || `<span class="empty">(vide)</span>`),
       pane(2, "Ce que reçoit le cloud", "Internet", "cloud", r.safe ? tokens(r.masked) : none, !r.safe),
       pane(3, "Réponse du cloud", "en jetons", "cloud", r.cloud_raw ? tokens(r.cloud_raw) : none, !r.safe),
-      pane(4, "Réponse réinjectée", "ta machine", "local", r.restored ? esc(r.restored) : `<span class="empty">Le SLM local traite la demande.</span>`, !r.safe));
+      pane(4, "Réponse réinjectée", "ta machine", "local", r.restored ? esc(r.restored) : `<span class="empty">Le SLM local traite la demande.</span>`, !r.safe)]);
     const mapping = r.mapping.length ? `<table><thead><tr><th>Jeton</th><th>Type</th><th>Valeur réelle</th></tr></thead><tbody>${
       r.mapping.map(m => `<tr><td>${tokens(m.token)}</td><td>${esc(m.entity)}</td><td class="mono">${esc(m.value)}</td></tr>`).join("")}</tbody></table>`
       : `<p class="empty">Aucune donnée sensible détectée.</p>`;
     const dets = r.spans.length ? `<table><thead><tr><th>Élément</th><th>Type</th><th>Score</th><th>Statut</th></tr></thead><tbody>${
       r.spans.map(s => `<tr><td class="mono">${esc(r.text.slice(s.start, s.end))}</td><td>${esc(s.entity)}</td><td>${s.score}</td><td>${s.certain ? '<span class="chip c-ok">certain</span>' : '<span class="chip c-unc">incertain</span>'}</td></tr>`).join("")}</tbody></table>`
       : `<p class="empty">—</p>`;
-    $("#m-out").innerHTML = verdict + flow + `<div class="grid g-2e" style="margin-top:18px">
-      <div class="card"><h3>Table de correspondance <small>locale · chiffrée · jamais envoyée</small></h3>${mapping}
+    $("#m-out").innerHTML = verdict + fl + `<div class="grid g-2e" style="margin-top:18px">
+      <div class="card"><h3>Table de correspondance <small>locale · chiffrée · jamais envoyée</small></h3><div class="tw">${mapping}</div>
         <p class="lock">🔒 Une même valeur garde toujours le même jeton ; deux valeurs différentes ont deux jetons différents.</p></div>
-      <div class="card"><h3>Détections de Presidio <small>seuil de certitude ${r.min_confidence}</small></h3>${dets}</div></div>`;
+      <div class="card"><h3>Détections de Presidio <small>${esc(r.models.fr || "")} · seuil ${r.min_confidence}</small></h3><div class="tw">${dets}</div></div></div>`;
   } catch (e) { $("#m-out").innerHTML = `<div class="err">${esc(e.message)}</div>`; }
   finally { btn.disabled = false; btn.textContent = "Masquer et envoyer au cloud"; }
 }
@@ -465,88 +634,141 @@ $("#m-reset").addEventListener("click", async () => {
   setTimeout(() => $("#m-status").textContent = "", 3000);
 });
 
-/* ================= 3. MISSION ================= */
+/* ================= 4. MISSION ================= */
 const PHASES = [["1", "Configuration & aiguillage", null], ["2", "Reconnaissance", "reconnaissance"],
   ["3", "Recherche de vulnérabilités", null], ["4", "Priorisation", null],
   ["5", "Exploitation (confirmation)", "exploitation"], ["6", "Preuves", null], ["7", "Rapport", "rapport"]];
-function renderSteps(state = {}, aiByPhase = {}) {
+function aiByPhase(trace) {
+  const ai = {};
+  for (const t of trace || []) {
+    const v = t.fail_closed || t.budget ? "FAIL" : t.path;
+    if (ai[t.phase] !== "CLOUD") ai[t.phase] = v;
+  }
+  return ai;
+}
+function renderSteps(current = -1, status = "idle", trace = null) {
+  const ai = aiByPhase(trace);
   $("#x-steps").innerHTML = PHASES.map(([n, nm, key], i) => {
-    const ai = key ? aiByPhase[key] : null;
+    const st = status === "done" || i < current ? "done" : i === current ? (status === "waiting_approval" ? "wait" : "run") : "";
+    const a = key ? ai[key] : null;
     const aiTxt = !key ? `<div class="ai NONE">outils / règles</div>`
-      : ai ? `<div class="ai ${ai}">${ai === "CLOUD" ? "IA · cloud masqué" : ai === "FAIL" ? "IA · repli local" : "IA · local"}</div>` : `<div class="ai NONE">IA</div>`;
-    return `<div class="step ${state[i] || ""}"><div class="num">PHASE ${n}</div><div class="nm">${nm}</div>${aiTxt}</div>`;
+      : a ? `<div class="ai ${a}">${a === "CLOUD" ? "IA · cloud masqué" : a === "FAIL" ? "IA · repli local" : "IA · local"}</div>` : `<div class="ai NONE">IA</div>`;
+    return `<div class="step ${st}"><div class="num">PHASE ${n}</div><div class="nm">${nm}</div>${aiTxt}</div>`;
   }).join("");
 }
 renderSteps();
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-const decCls = d => "d-" + d.replace("*", "s");
-let LAST = null;
 
-$("#x-go").addEventListener("click", async () => {
+let PENDING_ID = null;
+function renderApproval(p) {
+  if (!p) { $("#x-approval").innerHTML = ""; PENDING_ID = null; return; }
+  if (p.id === PENDING_ID) return;
+  PENDING_ID = p.id;
+  const details = esc(p.details).split("\n").map(l => l.startsWith("⚠") ? `<span class="w">${l}</span>` : l).join("\n");
+  $("#x-approval").innerHTML = `<div class="approval" role="alertdialog" aria-labelledby="ap-t">
+    <h3 id="ap-t">Validation humaine requise · ${esc(p.since)}</h3>
+    <div class="act">${esc(p.action)}</div><pre>${details}</pre>
+    <div class="row"><button class="btn" id="ap-yes">Autoriser</button><button class="btn ghost" id="ap-no">Refuser</button>
+    <span class="lock">L'IA a proposé, tu décides. Sans réponse sous 15 minutes : refus automatique.</span></div></div>`;
+  const decide = async ok => {
+    $("#ap-yes").disabled = $("#ap-no").disabled = true;
+    try { await api("/api/mission/decide", {id: p.id, approve: ok}); } catch (e) { alert(e.message); }
+  };
+  $("#ap-yes").addEventListener("click", () => decide(true));
+  $("#ap-no").addEventListener("click", () => decide(false));
+  $("#x-approval").scrollIntoView({behavior: "smooth", block: "center"});
+}
+
+let FOLLOWING = false;
+async function followMission() {          // suit la mission en cours (lancée ici ou avant un rechargement)
+  if (FOLLOWING) return;
+  FOLLOWING = true;
   const btn = $("#x-go"); btn.disabled = true; btn.innerHTML = `<span class="spin"></span>Mission en cours…`;
-  $("#x-out").innerHTML = ""; renderSteps({0: "run"});
   try {
-    const r = await api("/api/run", {data_classification: $("#x-class").value, type: $("#x-type").value,
-      exploitation_chaining: $("#x-chain").checked});
-    LAST = r;
-    const ai = {};
-    for (const t of r.trace) {
-      const v = t.fail_closed ? "FAIL" : t.path;
-      if (!ai[t.phase] || v === "CLOUD") ai[t.phase] = ai[t.phase] === "CLOUD" ? "CLOUD" : v;
+    for (;;) {
+      const s = await api("/api/mission/status");
+      renderSteps(s.phase, s.status);
+      renderApproval(s.pending);
+      if (s.status === "done") { showMission(s.result); break; }
+      if (s.status === "error") { $("#x-out").innerHTML = `<div class="err">${esc(s.error)}</div>`; renderSteps(); break; }
+      if (s.status === "idle") break;
+      await sleep(400);
     }
-    for (let i = 0; i < PHASES.length; i++) {   // relecture phase par phase
-      const st = {}; for (let j = 0; j < i; j++) st[j] = "done"; st[i] = "run";
-      renderSteps(st, ai); await sleep(260);
-    }
-    renderSteps(Object.fromEntries(PHASES.map((_, i) => [i, "done"])), ai);
-    renderMission(r); renderReport(r);
-  } catch (e) { $("#x-out").innerHTML = `<div class="err">${esc(e.message)}</div>`; renderSteps(); }
-  finally { btn.disabled = false; btn.textContent = "Relancer la mission"; }
+  } catch (e) { $("#x-out").innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+  finally { renderApproval(null); btn.disabled = false; btn.textContent = "Lancer une nouvelle mission"; FOLLOWING = false; }
+}
+$("#x-go").addEventListener("click", async () => {
+  $("#x-out").innerHTML = ""; renderSteps(0, "running");
+  const params = {source: $("#x-source").value, interactive: $("#x-human").checked};
+  if ($("#x-class").value) params.data_classification = $("#x-class").value;
+  if ($("#x-type").value) params.type = $("#x-type").value;
+  try { await api("/api/mission/start", params); followMission(); }
+  catch (e) { $("#x-out").innerHTML = `<div class="err">${esc(e.message)}</div>`; renderSteps(); }
 });
 
+const decCls = d => "d-" + (d || "").replace("*", "s");
+let LAST = null;
+function showMission(r) { LAST = r; renderSteps(7, "done", r.trace); renderMission(r); renderReport(r); }
+
 function renderMission(r) {
-  const nLocal = r.trace.filter(t => t.path === "LOCAL" && !t.fail_closed).length;
-  const nCloud = r.trace.filter(t => t.path === "CLOUD").length;
-  const nFail = r.trace.filter(t => t.fail_closed).length;
+  const tr = r.trace || [];
+  const nLocal = tr.filter(t => t.path === "LOCAL").length;
+  const nCloud = tr.filter(t => t.path === "CLOUD").length;
+  const nFail = tr.filter(t => t.fail_closed || t.budget).length;
   const nEnt = r.audit.filter(e => e.event === "masking").reduce((a, e) => a + (e.entities || 0), 0);
+  const nInj = r.audit.filter(e => e.event === "injection_suspectee").reduce((a, e) => a + (e.count || 1), 0);
+  const oc = r.outbox_check || {};
   const kpis = `<div class="kpis">
     <div class="kpi k-local"><b>${nLocal}</b><span>raisonnements en local</span></div>
     <div class="kpi k-cloud"><b>${nCloud}</b><span>envois au cloud (masqués)</span></div>
-    <div class="kpi k-fail"><b>${nFail}</b><span>replis locaux (fail-closed)</span></div>
-    <div class="kpi k-ent"><b>${nEnt}</b><span>entités masquées</span></div></div>`;
-  const services = `<table><thead><tr><th>Hôte</th><th>Port</th><th>Service</th></tr></thead><tbody>${
-    r.services.map(s => `<tr><td class="mono">${esc(s.host)}</td><td>${s.port}/${esc(s.protocol)}</td><td>${esc(s.name)} <span style="color:var(--muted)">${esc(s.product)} ${esc(s.version)}</span></td></tr>`).join("")}</tbody></table>`;
-  const findings = `<table><thead><tr><th>#</th><th>Constat</th><th>CVSS</th><th>EPSS</th><th>Décision</th><th>Vérifiée</th></tr></thead><tbody>${
-    r.findings.map(f => `<tr><td>${f.priority_rank}</td><td><b>${esc(f.id)}</b> ${esc(f.title)}<div class="mono" style="color:var(--muted)">${esc(f.asset)}</div></td>
-      <td>${f.cvss}</td><td>${f.epss.toFixed(2)}</td><td><span class="dec ${decCls(f.decision)}">${esc(f.decision)}</span></td>
-      <td>${f.verified ? "✅" : "—"}</td></tr>`).join("")}</tbody></table>`;
+    <div class="kpi k-fail"><b>${nFail}</b><span>replis locaux</span></div>
+    <div class="kpi k-ent"><b>${nEnt}</b><span>entités masquées</span></div>
+    <div class="kpi k-inj"><b>${nInj}</b><span>pièges neutralisés</span></div>
+    <div class="kpi ${oc.ok === false ? "k-bad" : "k-ok"}"><b>${oc.ok === false ? "⚠ " + oc.leaks.length : "✓ 0"}</b><span>fuite dans l'outbox</span></div></div>`;
+  const u = r.usage || {local: {}, cloud: {}};
+  const cost = `<div class="card" style="margin-top:18px"><h3>Coût et performance <small>${u.local.estimated || u.cloud.estimated ? "tokens estimés (IA simulée)" : "tokens réels du fournisseur"}</small></h3>
+    <div class="tw"><table><thead><tr><th>Modèle</th><th class="num">Appels</th><th class="num">Tokens envoyés</th><th class="num">Tokens reçus</th><th class="num">Durée</th><th class="num">Coût</th></tr></thead><tbody>
+    <tr><td>SLM local</td><td class="num">${u.local.calls || 0}</td><td class="num">${fmtInt(u.local.prompt_tokens)}</td><td class="num">${fmtInt(u.local.completion_tokens)}</td><td class="num">${fmtInt(u.local.latency_ms)} ms</td><td class="num">0 $</td></tr>
+    <tr><td>LLM cloud</td><td class="num">${u.cloud.calls || 0}</td><td class="num">${fmtInt(u.cloud.prompt_tokens)}</td><td class="num">${fmtInt(u.cloud.completion_tokens)}</td><td class="num">${fmtInt(u.cloud.latency_ms)} ms</td><td class="num">${u.cloud.cost_usd != null ? u.cloud.cost_usd.toFixed(4) + " $" : "tarif non renseigné"}</td></tr>
+    </tbody></table></div><p class="lock">Durée totale ${r.budget ? r.budget.elapsed_s : "?"} s · plafonds : ${r.budget ? r.budget.max_cloud_calls : "?"} appels cloud, ${fmtInt(r.budget ? r.budget.max_tokens : 0)} tokens.</p></div>`;
+  const services = `<div class="tw"><table><thead><tr><th>Hôte</th><th>Port</th><th>Service</th></tr></thead><tbody>${
+    r.services.map(s => `<tr><td class="mono">${esc(s.host)}</td><td>${s.port}/${esc(s.protocol)}</td><td>${esc(s.name)} <span style="color:var(--muted)">${esc(s.product)} ${esc(s.version)}</span></td></tr>`).join("") || `<tr><td colspan="3" class="empty">Aucun service</td></tr>`}</tbody></table></div>`;
+  const findings = `<div class="tw"><table><thead><tr><th>#</th><th>Constat</th><th class="num">CVSS</th><th class="num">EPSS</th><th>Décision</th><th>Vérifiée</th></tr></thead><tbody>${
+    r.findings.map(f => `<tr><td>${f.priority_rank}</td><td><b>${esc(f.id)}</b> ${esc(f.title)}<div class="mono" style="color:var(--muted)">${esc(f.asset)}</div>${
+      (f.alerts || []).map(a => `<span class="chip c-warn" style="margin-top:4px">⚠ ${esc(a)}</span>`).join(" ")}</td>
+      <td class="num">${f.cvss}</td><td class="num">${f.epss.toFixed(2)}</td><td><span class="dec ${decCls(f.decision)}">${esc(f.decision)}</span></td>
+      <td>${f.verified ? "✅" : f.verified === false ? "refusée" : "—"}</td></tr>`).join("") || `<tr><td colspan="6" class="empty">Aucun constat</td></tr>`}</tbody></table></div>`;
   const PH = {reconnaissance: "Phase 2 · Reconnaissance", exploitation: "Phase 5 · Exploitation", rapport: "Phase 7 · Rapport"};
-  const exchanges = r.trace.map(t => {
+  const exchanges = tr.map(t => {
     const head = t.fail_closed
-      ? `<span class="path p-FAIL">REPLI LOCAL</span><span class="hint">masquage jugé incertain : rien n'est sorti</span>`
+      ? `<span class="path p-FAIL">REPLI LOCAL</span><p class="hint">masquage jugé incertain : rien n'est sorti</p>`
+      : t.budget ? `<span class="path p-FAIL">REPLI LOCAL</span><p class="hint">plafond atteint : ${esc(t.budget)}</p>`
       : t.path === "CLOUD"
-        ? `<span class="path p-CLOUD">CLOUD · VIA LA PASSERELLE</span><span class="hint">${t.entities} entité(s) masquée(s)</span>`
-        : `<span class="path p-LOCAL">LOCAL</span><span class="hint">${t.allow_cloud ? "route " + esc(r.decision.route) + " : traité par le SLM local" : "phase réservée au local"} — rien n'est sorti</span>`;
+        ? `<span class="path p-CLOUD">CLOUD · VIA LA PASSERELLE</span><p class="hint">${t.entities} entité(s) masquée(s)</p>`
+        : `<span class="path p-LOCAL">LOCAL</span><p class="hint">${t.allow_cloud ? "route " + esc(r.decision.route) + " : traité par le SLM local" : "phase réservée au local"} — rien n'est sorti</p>`;
+    const alerts = [
+      ...(t.injections || []).map(i => `<span class="chip c-warn">⚠ instruction piégée neutralisée · source ${esc(i.source)} · ${esc(i.categories.join(", "))}</span>`),
+      ...(t.unsafe_actions || []).map(a => `<span class="chip c-bad">⚠ action signalée (non exécutée) : ${esc(a)}</span>`),
+      ...(t.out_of_scope || []).map(h => `<span class="chip c-bad">hors périmètre : ${esc(h)}</span>`)];
     const body = t.path === "CLOUD"
-      ? `<div class="flow f3">${[
-          pane(1, "Envoyé au cloud", "masqué", "cloud", tokens(t.sent)),
-          pane(2, "Réponse brute", "jetons", "cloud", tokens(t.cloud_raw)),
-          pane(3, "Réponse réinjectée", "ta machine", "local", esc(t.answer))].map((p, i, a) => `<div class="flowcell">${p}${i < a.length - 1 ? arrow : ""}</div>`).join("")}</div>`
+      ? flow([pane(1, "Envoyé au cloud", "masqué", "cloud", tokens(t.sent)),
+              pane(2, "Réponse brute", "jetons", "cloud", tokens(t.cloud_raw)),
+              pane(3, "Réponse réinjectée", "ta machine", "local", esc(t.answer))], "f3")
       : `<div class="local-ans">${esc(t.answer)}</div>`;
-    return `<div class="ex"><div class="ex-h"><b>${esc(PH[t.phase] || t.phase)}</b>${head}</div>${body}
-      <details class="real"><summary>Voir le texte réel (reste sur ta machine)</summary><pre>${esc(t.real)}</pre></details></div>`;
+    return `<div class="ex"><div class="ex-h"><b>${esc(PH[t.phase] || t.phase)}</b>${head}</div>${alerts.length ? `<div class="alerts">${alerts.join("")}</div>` : ""}${body}
+      <details class="real"><summary>Voir le texte réel (reste sur ta machine)</summary><pre>${tokens(t.real)}</pre></details></div>`;
   }).join("");
   $("#x-out").innerHTML = routeCard(r.decision) + kpis
-    + `<div class="grid g-2"><div class="card"><h3>Surface d'attaque <small>phase 2</small></h3>${services}</div>
+    + `<div class="grid g-mis"><div class="card"><h3>Surface d'attaque <small>phase 2</small></h3>${services}</div>
        <div class="card"><h3>Vulnérabilités priorisées <small>phases 3-4 · arbre de décision type SSVC</small></h3>${findings}</div></div>`
+    + cost
     + `<div class="card" style="margin-top:18px"><h3>Échanges avec l'IA <small>local ou cloud, étape par étape</small></h3>${exchanges}</div>`
-    + `<p class="lock">Dossier de la mission : <span class="mono">${esc(r.run_dir)}</span> — voir l'onglet <a href="#rapport">4 · Rapport &amp; journal</a>.</p>`;
+    + `<p class="lock">Dossier de la mission : <span class="mono">runs/${esc(r.run)}</span> — voir l'onglet <a href="#rapport">5 · Rapport</a>.</p>`;
 }
 
-/* ================= 4. RAPPORT ================= */
+/* ================= 5. RAPPORT ================= */
 function md(src) {
   const L = src.split("\n"); let h = "", i = 0;
-  const inl = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  const inl = s => esc(s).replace(/\\\*/g, "&#42;").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
   const cells = r => r.replace(/^\s*\|/, "").replace(/\|\s*$/, "").split("|").map(c => c.trim());
   while (i < L.length) {
     const l = L[i]; let m;
@@ -556,7 +778,7 @@ function md(src) {
         rows.slice(2).map(r => `<tr>${cells(r).map(c => `<td>${inl(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
       continue;
     }
-    if ((m = l.match(/^(#{1,3})\s+(.*)/))) { const n = m[1].length + 1; h += `<h${n}>${inl(m[2])}</h${n}>`; i++; continue; }
+    if ((m = l.match(/^(#{1,3})\s+(.*)/))) { const n = m[1].length; h += `<h${n}>${inl(m[2])}</h${n}>`; i++; continue; }
     if (/^\s*-\s+/.test(l)) {
       h += "<ul>"; while (i < L.length && /^\s*-\s+/.test(L[i])) {
         h += `<li class="${/^\s{2,}-/.test(L[i]) ? "sub" : ""}">${inl(L[i].replace(/^\s*-\s+/, ""))}</li>`; i++; }
@@ -568,33 +790,136 @@ function md(src) {
   }
   return h;
 }
+function reportVersion(src, version) {
+  if (version !== "direction") return src;
+  const out = []; let keep = true;
+  for (const l of src.split("\n")) {
+    const m = l.match(/^##\s+(\d+)\./);
+    if (m) keep = +m[1] <= 5;
+    if (keep) out.push(l);
+  }
+  return out.join("\n");
+}
+function exportPdf(version) {
+  if (!LAST) return;
+  const r = LAST, date = (r.started_at || "").slice(0, 10);
+  $("#print-root").innerHTML = `<div class="p-head"><b>INOVA</b>
+      <div class="t">Rapport de test d'intrusion — version ${version === "direction" ? "direction" : "technique"}</div>
+      <div class="m">Client : ${esc(r.client || "")} · Mandat : ${esc(r.reference || "")} · Mission : ${esc(r.run)} · ${esc(date)}</div>
+      <span class="p-conf">CONFIDENTIEL</span></div>
+    <div class="md">${md(reportVersion(r.report, version))}</div>
+    <div class="p-foot">Document généré localement par INOVA. Les données sensibles du client n'ont quitté la machine que sous forme masquée
+      (contrôle de l'outbox : ${r.outbox_check && r.outbox_check.ok === false ? "fuite détectée" : "aucune valeur sensible sortie"}).
+      ${r.demo ? "Mission de démonstration (laboratoire fictif)." : ""}</div>`;
+  document.title = `INOVA_${version}_${r.run}`;
+  window.print();
+  setTimeout(() => document.title = "INOVA — Console", 1000);
+}
 function renderReport(r) {
+  const oc = r.outbox_check || {};
+  const ocBanner = oc.entries === undefined ? "" : oc.ok
+    ? `<div class="verdict v-ok" style="margin:0 0 12px"><span class="ic">✅</span><div>Contrôle automatique : aucune valeur sensible sortie<small>${oc.entries} envoi(s) vérifié(s) contre ${oc.checked_values} valeur(s) connue(s)</small></div></div>`
+    : `<div class="verdict v-no" style="margin:0 0 12px"><span class="ic">⚠</span><div>${oc.leaks.length} fuite(s) détectée(s) dans l'outbox<small>${oc.leaks.map(l => esc(l.type + " (" + l.phase + ")")).join(", ")}</small></div></div>`;
   const outbox = r.outbox.length
     ? r.outbox.map(o => `<div class="outbox-item"><div class="oh">phase : ${esc(o.phase)}</div><pre>${tokens(o.sent)}</pre></div>`).join("")
     : `<p class="empty">Aucun envoi : la route ${esc(r.decision.route)} n'a rien fait sortir. Le fichier n'a même pas été créé.</p>`;
-  const audit = `<table><thead><tr><th>Heure</th><th>Évènement</th><th>Détail</th></tr></thead><tbody>${
+  const audit = `<div class="tw"><table><thead><tr><th>Heure</th><th>Évènement</th><th>Détail</th></tr></thead><tbody>${
     r.audit.map(e => { const {ts, event, ...rest} = e;
-      return `<tr><td class="mono t">${esc((ts || "").slice(11))}</td><td><b>${esc(event)}</b></td><td class="mono">${esc(JSON.stringify(rest))}</td></tr>`; }).join("")}</tbody></table>`;
-  $("#rp-out").innerHTML = `<div class="grid g-rep">
+      return `<tr><td class="mono t">${esc((ts || "").slice(11))}</td><td><b>${esc(event)}</b></td><td class="mono">${esc(JSON.stringify(rest))}</td></tr>`; }).join("")}</tbody></table></div>`;
+  $("#rp-out").innerHTML = `<div class="row" style="margin-bottom:14px">
+      <button class="btn" id="pdf-dir">Exporter en PDF — version direction</button>
+      <button class="btn ghost" id="pdf-tech">Exporter en PDF — version technique</button>
+      <span class="lock">Dans la fenêtre d'impression, choisis « Enregistrer au format PDF ».</span></div>
+    <div class="grid g-rep">
     <div class="card md">${md(r.report)}</div>
     <div class="grid" style="align-content:start">
-      <div class="card"><h3>cloud_outbox.jsonl <small>tout ce qui a quitté la machine</small></h3>${outbox}</div>
+      <div class="card"><h3>cloud_outbox.jsonl <small>tout ce qui a quitté la machine</small></h3>${ocBanner}${outbox}</div>
       <div class="card"><h3>audit.jsonl <small>décisions, sans valeurs réelles</small></h3>${audit}</div>
     </div></div>`;
+  $("#pdf-dir").addEventListener("click", () => exportPdf("direction"));
+  $("#pdf-tech").addEventListener("click", () => exportPdf("technique"));
 }
+
+/* ================= 6. HISTORIQUE ================= */
+async function loadHistory() {
+  try {
+    const {missions} = await api("/api/history");
+    if (!missions.length) { $("#h-out").innerHTML = `<p class="empty">Aucune mission pour l'instant.</p>`; return; }
+    $("#h-out").innerHTML = `<table><thead><tr><th>Date</th><th>Données</th><th>Classification</th><th>Route</th><th class="num">Constats</th>
+      <th class="num">ACT / ATTEND</th><th class="num">Cloud</th><th class="num">Replis</th><th class="num">Pièges</th><th class="num">Entités masquées</th>
+      <th class="num">Tokens</th><th class="num">Durée</th><th>Outbox</th><th></th></tr></thead><tbody>${
+      missions.map(m => `<tr><td class="t">${esc(m.started_at.replace("T", " ").slice(0, 16))}</td><td>${m.demo ? "démo" : "réelles"}</td>
+        <td>${esc(m.classification || "")}</td><td><span class="r-badge rb-${esc(m.route)}">${esc(m.route)}</span></td>
+        <td class="num">${m.findings}</td><td class="num">${m.act} / ${m.attend}</td><td class="num">${m.cloud_calls}</td>
+        <td class="num">${m.fail_closed}</td><td class="num">${m.injections}</td><td class="num">${m.masked_entities}</td>
+        <td class="num">${fmtInt(m.tokens)}</td><td class="num">${m.duration_s} s</td>
+        <td>${m.outbox_leaks ? `<span class="chip c-bad">⚠ ${m.outbox_leaks}</span>` : '<span class="chip c-ok">0 fuite</span>'}</td>
+        <td><button class="btn ghost sm" data-run="${esc(m.run)}">Ouvrir</button></td></tr>`).join("")}</tbody></table>`;
+    $$("[data-run]").forEach(b => b.addEventListener("click", async () => {
+      try { showMission(await api("/api/history/" + encodeURIComponent(b.dataset.run))); show("mission"); }
+      catch (e) { alert(e.message); }
+    }));
+  } catch (e) { $("#h-out").innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+}
+$("#h-refresh").addEventListener("click", loadHistory);
+
+/* ================= 7. ÉVALUATION ================= */
+async function loadModels() {
+  const {installed} = await api("/api/eval/models");
+  $("#e-model").innerHTML = installed.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join("")
+    || `<option value="">aucun modèle installé</option>`;
+}
+function aggRow(name, a) {
+  return `<tr><td><b>${esc(name)}</b></td><td class="num">${a.cases}</td><td class="num">${a.secrets}</td>
+    <td class="num">${pct(a.raw_rate)}</td><td class="num"><b>${pct(a.effective_rate)}</b></td>
+    <td class="num">${pct(a.refused_rate)}</td><td class="num">${pct(a.overmask_rate)}</td></tr>`;
+}
+$("#e-go").addEventListener("click", async () => {
+  const btn = $("#e-go"); btn.disabled = true; btn.innerHTML = `<span class="spin"></span>Mesure en cours…`;
+  try {
+    const r = await api("/api/eval", {model: $("#e-model").value});
+    const std = r.by_difficulty.standard || {}, dif = r.by_difficulty.difficile || {};
+    const kp = (cls, v, label) => `<div class="kpi ${cls}"><b>${v}</b><span>${label}</span></div>`;
+    const head = `<thead><tr><th></th><th class="num">Cas</th><th class="num">Valeurs</th><th class="num">Fuite brute</th><th class="num">Fuite effective</th><th class="num">Replis</th><th class="num">Sur-masquage</th></tr></thead>`;
+    const leaks = r.cases.filter(c => c.effective.length);
+    const lost = r.cases.filter(c => c.keep_lost.length);
+    $("#e-out").innerHTML = `<div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+        ${kp(std.effective_rate ? "k-bad" : "k-ok", pct(std.effective_rate), "fuite effective — cas standard")}
+        ${kp("k-fail", pct(dif.effective_rate), "fuite effective — cas difficiles")}
+        ${kp("k-cloud", pct(r.overall.refused_rate), "textes refusés (repli local)")}
+        ${kp("k-ent", pct(r.overall.overmask_rate), "sur-masquage")}</div>
+      <div class="grid g-2e">
+        <div class="card"><h3>Par difficulté <small>${esc(r.models.fr)}</small></h3><div class="tw"><table>${head}<tbody>
+          ${aggRow("Global", r.overall)}${Object.entries(r.by_difficulty).map(([k, a]) => aggRow(k, a)).join("")}</tbody></table></div>
+          <h3 style="margin-top:18px">Valeurs qui seraient sorties</h3>${leaks.length ? `<div class="tw"><table><thead><tr><th>Cas</th><th>Catégorie</th><th>Difficulté</th><th>Valeurs</th></tr></thead><tbody>${
+            leaks.map(c => `<tr><td>${esc(c.id)}</td><td>${esc(c.category)}</td><td>${esc(c.difficulty)}</td><td class="mono">${esc(c.effective.join(" · "))}</td></tr>`).join("")}</tbody></table></div>`
+            : `<p class="ok">Aucune.</p>`}
+          ${lost.length ? `<h3 style="margin-top:18px">Masqués à tort</h3><p class="mono">${lost.map(c => esc(c.id + " : " + c.keep_lost.join(", "))).join("<br>")}</p>` : ""}
+        </div>
+        <div class="card"><h3>Par catégorie</h3><div class="tw"><table>${head}<tbody>${
+          Object.entries(r.by_category).map(([k, a]) => aggRow(k, a)).join("")}</tbody></table></div></div>
+      </div>
+      <div class="card" style="margin-top:18px"><h3>Détail des cas <small>${r.cases.length} cas · ${esc(r.saved_to || "")}</small></h3>${
+        r.cases.map(c => `<details class="real"><summary>${esc(c.id)} · ${esc(c.category)} · ${esc(c.difficulty)} ${
+          c.effective.length ? '<span class="chip c-bad">fuite</span>' : '<span class="chip c-ok">ok</span>'} ${c.sent ? "" : '<span class="chip c-warn">repli local</span>'}</summary><pre>${tokens(c.masked)}</pre></details>`).join("")}</div>`;
+  } catch (e) { $("#e-out").innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+  finally { btn.disabled = false; btn.textContent = "Lancer la mesure"; }
+});
 
 /* ================= Démarrage ================= */
 (async () => {
   show(location.hash.slice(1));
-  try {
-    INFO = await api("/api/info");
-    const live = INFO.mode === "live";
-    $("#badges").innerHTML = `<span class="hb ${live ? "live" : "demo"}">${live ? "Mode réel" : "Mode démo · réponses IA simulées"}</span>
-      <span class="hb">SLM local : ${esc(INFO.local_model)}</span><span class="hb">LLM cloud : ${esc(INFO.cloud_model)}</span>
-      <span class="hb">Périmètre : ${esc(INFO.client)} · ${esc(INFO.scope_file)}</span>`;
-    setProfile(INFO.profile);
-  } catch (e) { $("#badges").innerHTML = `<span class="hb">Serveur injoignable</span>`; }
+  try { await loadInfo(); } catch (e) { $("#badges").innerHTML = `<span class="hb">Serveur injoignable</span>`; }
+  loadScope().catch(() => {}); loadModels().catch(() => {});
   updateRoute(); runMask();
+  // une mission était peut-être en cours ou terminée (page rechargée) : on la retrouve
+  try {
+    const s = await api("/api/mission/status");
+    if (s.status === "running" || s.status === "waiting_approval") {
+      if (s.status === "waiting_approval") show("mission");
+      followMission();
+    } else if (s.status === "done" && s.result) showMission(s.result);
+  } catch (e) {}
 })();
 </script>
 </body>

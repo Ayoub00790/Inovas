@@ -1,0 +1,4 @@
+# Mode réel : accès unifié au SLM local (Ollama) et au LLM cloud
+# Paquet volumineux (~45 Mo) : sur une connexion lente,
+#   pip install --default-timeout=300 --retries 10 -r requirements-live.txt
+litellm>=1.40
