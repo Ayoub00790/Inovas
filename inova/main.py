@@ -4,6 +4,7 @@
     python -m inova.main run   --scope config/scope.yaml [--demo] [--auto-approve]
     python -m inova.main route --scope config/scope.yaml
     python -m inova.main mask  --scope config/scope.yaml "texte à masquer"
+    python -m inova.main web                       (interface graphique locale)
 """
 from __future__ import annotations
 
@@ -30,7 +31,16 @@ def main() -> None:
     m.add_argument("--scope", required=True)
     m.add_argument("text")
 
+    w = sub.add_parser("web", help="ouvrir l'interface graphique locale")
+    w.add_argument("--port", type=int, default=8000)
+    w.add_argument("--no-browser", action="store_true")
+
     a = ap.parse_args()
+
+    if a.cmd == "web":
+        from .web.server import serve
+        serve(port=a.port, open_browser=not a.no_browser)
+        return
 
     if a.cmd == "run":
         from .orchestrator import run

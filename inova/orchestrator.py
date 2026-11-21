@@ -30,10 +30,10 @@ def _title(t: str) -> None:
     print(f"\n{'=' * 70}\n PHASE {t}\n{'=' * 70}")
 
 
-def build_context(settings_path: str, scope_path: str, demo: bool, auto_approve: bool) -> Context:
-    settings, scope = load_yaml(settings_path), load_yaml(scope_path)
+def build_context(settings: dict, scope: dict, demo: bool, auto_approve: bool) -> Context:
     eng = settings["engagement"]
-    run_dir = Path(eng.get("output_dir", "runs")) / f"{eng['id']}_{time.strftime('%Y%m%d-%H%M%S')}"
+    stamp = f"{time.strftime('%Y%m%d-%H%M%S')}-{int(time.time() * 1000) % 1000:03d}"
+    run_dir = Path(eng.get("output_dir", "runs")) / f"{eng['id']}_{stamp}"
     ctx = Context(settings=settings, scope=scope, run_dir=run_dir, audit=AuditLog(run_dir),
                   demo=demo, auto_approve=auto_approve and demo,
                   fixtures_dir=Path(__file__).resolve().parent.parent / "tests" / "fixtures")
@@ -44,8 +44,12 @@ def build_context(settings_path: str, scope_path: str, demo: bool, auto_approve:
     return ctx
 
 
-def run(settings_path: str, scope_path: str, demo: bool = False, auto_approve: bool = False) -> Path:
-    ctx = build_context(settings_path, scope_path, demo, auto_approve)
+def run(settings_path: str, scope_path: str, demo: bool = False, auto_approve: bool = False) -> Context:
+    return run_with(load_yaml(settings_path), load_yaml(scope_path), demo, auto_approve)
+
+
+def run_with(settings: dict, scope: dict, demo: bool = False, auto_approve: bool = False) -> Context:
+    ctx = build_context(settings, scope, demo, auto_approve)
 
     _title("1 · Configuration + aiguillage")
     p1_config.run(ctx)
@@ -68,4 +72,4 @@ def run(settings_path: str, scope_path: str, demo: bool = False, auto_approve: b
         phase.run(ctx)
 
     print(f"\nMission terminée. Dossier : {ctx.run_dir}")
-    return ctx.run_dir / "rapport.md"
+    return ctx

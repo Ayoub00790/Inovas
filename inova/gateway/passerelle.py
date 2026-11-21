@@ -109,8 +109,12 @@ class Passerelle:
             # TARGET_URL plutôt que CLIENT_TERM), sinon la plus sûre
             covering = [m for m in g["members"] if m.start == g["start"] and m.end == g["end"]]
             best = max(covering or g["members"], key=lambda m: m.score)
+            same_span = all(m.start == g["start"] and m.end == g["end"] for m in g["members"])
             best.start, best.end = g["start"], g["end"]
-            best.score = min(m.score for m in g["members"])
+            # mêmes bornes : les détecteurs sont d'accord -> le plus sûr fait foi ;
+            # bornes différentes : une partie douteuse rend la zone douteuse
+            best.score = max(m.score for m in g["members"]) if same_span \
+                else min(m.score for m in g["members"])
             if any(m.entity_type == "CLIENT_TERM" for m in g["members"]):
                 best.score = max(best.score, 0.9)   # actif du client connu : certitude
             merged.append(best)
@@ -120,6 +124,10 @@ class Passerelle:
     # 2) MASQUAGE (avec jetons cohérents issus du vault)
     # ------------------------------------------------------------------
     def mask(self, text: str) -> MaskResult:
+        return self.mask_detailed(text)[0]
+
+    def mask_detailed(self, text: str) -> tuple[MaskResult, list[dict]]:
+        """Comme mask(), et renvoie aussi chaque zone détectée (pour l'interface locale)."""
         results = self.analyze(text)
         uncertain = sum(1 for r in results if r.score < self.min_conf)
         # jetons attribués dans l'ordre de lecture ([X_1] avant [X_2])...
@@ -132,9 +140,13 @@ class Passerelle:
         for r, token in sorted(zip(results, tokens), key=lambda x: x[0].start, reverse=True):
             masked = masked[:r.start] + token + masked[r.end:]
         self.vault.save()
-        return MaskResult(masked_text=masked, nb_entities=len(results),
-                          uncertain_spans=uncertain,
-                          residual_leaks=self.residual_check(masked))
+        spans = [{"start": r.start, "end": r.end, "entity": r.entity_type,
+                  "score": round(r.score, 2), "certain": r.score >= self.min_conf, "token": t}
+                 for r, t in zip(results, tokens)]
+        result = MaskResult(masked_text=masked, nb_entities=len(results),
+                            uncertain_spans=uncertain,
+                            residual_leaks=self.residual_check(masked))
+        return result, spans
 
     # ------------------------------------------------------------------
     # 3) CONTRÔLE APRÈS MASQUAGE (second filet de sécurité)

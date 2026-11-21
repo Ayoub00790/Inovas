@@ -28,7 +28,7 @@ def _patterns() -> dict[str, list[Pattern]]:
         ],
         "SECRET": [
             Pattern("key_value",
-                    r"\b(?:password|passwd|pwd|mot_de_passe|api[_-]?key|secret|token)\s*[:=]\s*\S+",
+                    r"\b(?:password|passwd|pwd|mot_de_passe|api[_-]?key|secret|token)\s*[:=]\s*\S*[^\s.,;:!?)]",
                     0.95),
             Pattern("jwt", r"\beyJ[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}\b", 0.95),
             Pattern("aws_key", r"\bAKIA[0-9A-Z]{16}\b", 0.95),

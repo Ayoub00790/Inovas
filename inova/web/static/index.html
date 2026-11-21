@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INOVA — Console</title>
+<style>
+:root{
+  --axa:#00008F; --axa-deep:#00005E; --axa-red:#FF1721;
+  --ink:#14142B; --muted:#5B5F77; --line:#DCDFEA; --bg:#F3F4F9; --card:#FFFFFF; --soft:#F7F8FC;
+  --local:#0B7A50; --local-soft:#E2F3EB;
+  --cloud:#00008F; --cloud-soft:#E7E9F8;
+  --warn:#A85300; --warn-soft:#FFF0DC;
+  --deny:#C8102E; --deny-soft:#FDE8EB;
+  --radius:10px; --shadow:0 1px 2px rgba(0,0,50,.06),0 6px 18px rgba(0,0,70,.06);
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.5}
+button,select,input,textarea{font:inherit;color:inherit}
+
+/* ---------- En-tête ---------- */
+header{background:var(--axa);color:#fff;position:relative;overflow:hidden}
+header::after{content:"";position:absolute;right:120px;top:-30px;width:6px;height:150px;background:var(--axa-red);transform:rotate(38deg);opacity:.95}
+.head-in{max-width:1240px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative;z-index:1}
+.brand{display:flex;align-items:baseline;gap:14px}
+.brand b{font-size:26px;letter-spacing:.06em;font-weight:800}
+.brand span{color:#C9CCF2;font-size:14px}
+.badges{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;margin-right:150px}
+.hb{font-size:12.5px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);white-space:nowrap}
+.hb.demo{background:#FFE9C7;color:#6A3A00;border-color:#FFE9C7;font-weight:600}
+.hb.live{background:var(--local-soft);color:var(--local);border-color:var(--local-soft);font-weight:600}
+
+nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.nav-in{max-width:1240px;margin:0 auto;padding:0 16px;display:flex;gap:4px;overflow-x:auto}
+.tab{border:0;background:none;padding:14px 16px 12px;cursor:pointer;color:var(--muted);font-weight:600;border-bottom:3px solid transparent;white-space:nowrap}
+.tab .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--soft);border:1px solid var(--line);font-size:12px;margin-right:8px;color:var(--muted)}
+.tab:hover{color:var(--axa)}
+.tab[aria-selected=true]{color:var(--axa);border-bottom-color:var(--axa-red)}
+.tab[aria-selected=true] .n{background:var(--axa);border-color:var(--axa);color:#fff}
+
+main{max-width:1240px;margin:0 auto;padding:24px 24px 60px}
+section[hidden]{display:none}
+.intro{margin:0 0 18px;color:var(--muted);max-width:900px}
+.intro b{color:var(--ink)}
+h2.sec{font-size:22px;margin:0 0 6px;color:var(--axa)}
+
+/* ---------- Cartes ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px}
+.card h3{margin:0 0 12px;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--axa)}
+.card h3 small{text-transform:none;letter-spacing:0;color:var(--muted);font-weight:400;font-size:13px;margin-left:6px}
+.grid{display:grid;gap:18px}
+.g-2{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
+.g-2e{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:900px){.g-2,.g-2e,.g-4{grid-template-columns:1fr}.badges{margin-right:0}header::after{display:none}}
+
+/* ---------- Formulaires ---------- */
+label.f{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:12px 0 5px}
+select,input[type=number],textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:#fff}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--axa);outline-offset:1px}
+textarea{min-height:130px;resize:vertical;font-family:var(--mono);font-size:13.5px;line-height:1.55}
+.checks{display:grid;gap:8px;margin-top:12px}
+.check{display:flex;gap:10px;align-items:center;cursor:pointer;font-size:14px}
+.check input{width:17px;height:17px;accent-color:var(--axa)}
+.btn{border:1px solid var(--axa);background:var(--axa);color:#fff;border-radius:8px;padding:10px 16px;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--axa-deep)}
+.btn:disabled{opacity:.55;cursor:progress}
+.btn.ghost{background:#fff;color:var(--axa)}
+.btn.ghost:hover{background:var(--cloud-soft)}
+.btn.red{background:var(--axa-red);border-color:var(--axa-red)}
+.btn.sm{padding:6px 11px;font-size:13px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+
+/* ---------- Route ---------- */
+.route{border-radius:var(--radius);padding:18px 20px;display:flex;gap:16px;align-items:center;border:1px solid}
+.route .tag{font-weight:800;font-size:19px;letter-spacing:.04em;padding:8px 14px;border-radius:8px;color:#fff;white-space:nowrap}
+.route h4{margin:0;font-size:17px}
+.route p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.r-LOCAL{background:var(--local-soft);border-color:#BFE3D2}.r-LOCAL .tag{background:var(--local)}
+.r-CLOUD{background:var(--cloud-soft);border-color:#C9CDEE}.r-CLOUD .tag{background:var(--cloud)}
+.r-LOCAL_RESTRICTED{background:var(--warn-soft);border-color:#F3D3A6}.r-LOCAL_RESTRICTED .tag{background:var(--warn)}
+
+.gauge{margin:16px 0 26px}
+.gauge .lbl{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px}
+.gauge .lbl b{font-variant-numeric:tabular-nums}
+.bar{position:relative;height:12px;border-radius:999px;background:var(--soft);border:1px solid var(--line)}
+.bar .fill{position:absolute;inset:0 auto 0 0;border-radius:999px;background:var(--axa);transition:width .35s}
+.bar .fill.hot{background:var(--axa-red)}
+.bar .mark{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink)}
+.bar .mark span{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);white-space:nowrap}
+
+.matrix{display:grid;grid-template-columns:110px 1fr 1fr;gap:6px;margin-top:22px;font-size:13.5px}
+.matrix .h{color:var(--muted);font-weight:600;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
+.matrix .c{border:1px dashed var(--line);border-radius:8px;padding:12px 8px;text-align:center;font-weight:700;color:#9A9DB3;background:#fff;transition:all .25s}
+.matrix .c.on{border-style:solid;color:#fff;transform:scale(1.02)}
+.matrix .c.on.LOCAL{background:var(--local);border-color:var(--local)}
+.matrix .c.on.CLOUD{background:var(--cloud);border-color:var(--cloud)}
+.matrix .c.on.LOCAL_RESTRICTED{background:var(--warn);border-color:var(--warn)}
+ul.reasons{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size:14px}
+ul.reasons li:last-child{color:var(--ink);font-weight:600;list-style:"→  "}
+
+/* ---------- Passerelle ---------- */
+.verdict{border-radius:var(--radius);padding:14px 18px;display:flex;gap:12px;align-items:center;font-weight:600;border:1px solid;margin:18px 0}
+.verdict .ic{font-size:22px}
+.verdict small{display:block;font-weight:400;color:var(--muted)}
+.v-ok{background:var(--local-soft);border-color:#BFE3D2;color:#06553A}
+.v-no{background:var(--deny-soft);border-color:#F4B9C2;color:#8C0B20}
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;align-items:stretch}
+@media (max-width:1100px){.flow{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.flow .arrow{display:none}}
+@media (max-width:640px){.flow{grid-template-columns:1fr}}
+.pane{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0}
+.pane .ph{padding:10px 14px;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:flex;gap:8px;align-items:center}
+.pane .ph .st{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;color:#fff;font-size:11px}
+.pane .pb{padding:12px 14px;font-family:var(--mono);font-size:13px;white-space:pre-wrap;word-break:break-word;line-height:1.6;flex:1}
+.pane.local .ph{background:var(--local-soft);color:#06553A}.pane.local .st{background:var(--local)}
+.pane.cloud .ph{background:var(--cloud-soft);color:var(--axa)}.pane.cloud .st{background:var(--axa)}
+.pane.off{opacity:.55}
+.pane .where{margin-left:auto;font-weight:600;text-transform:none;letter-spacing:0;font-size:11.5px}
+.flow.f3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1100px){.flow.f3{grid-template-columns:1fr}}
+.ex .pane .pb{max-height:360px;overflow:auto}
+.flowcell{display:flex;align-items:stretch;min-width:0}
+.flowcell .pane{flex:1}
+.arrow{display:flex;align-items:center;justify-content:center;width:26px;flex:0 0 26px;color:var(--axa-red);font-size:20px;font-weight:800}
+.empty{color:var(--muted);font-family:inherit;font-style:italic}
+
+mark.ent{border-radius:4px;padding:1px 3px;color:var(--ink);border-bottom:2px solid}
+mark.ent sup{font-size:9.5px;font-family:"Segoe UI",system-ui,sans-serif;font-weight:700;margin-left:3px;letter-spacing:.02em;opacity:.8}
+mark.ent.unc{outline:2px dashed var(--warn);outline-offset:1px}
+.tok{border-radius:4px;padding:1px 4px;font-weight:700;border:1px solid;white-space:nowrap}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:2px solid var(--line);background:var(--soft)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+td.mono,.mono{font-family:var(--mono);font-size:12.5px;word-break:break-all}
+.chip{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.c-ok{background:var(--local-soft);color:var(--local)}
+.c-unc{background:var(--warn-soft);color:var(--warn)}
+.lock{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+
+/* ---------- Mission ---------- */
+.stepper{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin:18px 0}
+@media (max-width:900px){.stepper{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.step{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;position:relative;transition:all .3s}
+.step .num{font-size:12px;font-weight:800;color:#9A9DB3}
+.step .nm{font-weight:700;font-size:13.5px;line-height:1.3}
+.step .ai{margin-top:6px;font-size:11px;font-weight:700}
+.step.run{border-color:var(--axa);box-shadow:0 0 0 3px var(--cloud-soft)}
+.step.run .num{color:var(--axa)}
+.step.done{border-color:#BFC4EA;background:linear-gradient(180deg,#fff, #FAFAFF)}
+.step.done .num{color:var(--axa)}
+.step.done::after{content:"✓";position:absolute;top:8px;right:10px;color:var(--local);font-weight:800}
+.ai.LOCAL{color:var(--local)}.ai.CLOUD{color:var(--axa)}.ai.FAIL{color:var(--warn)}.ai.NONE{color:#9A9DB3;font-weight:600}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;border-left:5px solid}
+.kpi b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:13px}
+.k-local{border-left-color:var(--local)}.k-cloud{border-left-color:var(--axa)}.k-fail{border-left-color:var(--warn)}.k-ent{border-left-color:var(--axa-red)}
+
+.dec{display:inline-block;font-weight:800;font-size:11.5px;padding:3px 8px;border-radius:6px;color:#fff;letter-spacing:.03em}
+.d-ACT{background:var(--deny)}.d-ATTEND{background:#E07000}.d-TRACKs{background:var(--axa)}.d-TRACK{background:#8B8FA8}
+
+.ex{border:1px solid var(--line);border-radius:var(--radius);background:#fff;margin-top:14px;overflow:hidden}
+.ex-h{display:flex;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.ex-h b{font-size:15px}
+.path{font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;color:#fff;letter-spacing:.03em}
+.p-LOCAL{background:var(--local)}.p-CLOUD{background:var(--axa)}.p-FAIL{background:var(--warn)}
+.ex-h .hint{color:var(--muted);font-size:13px}
+.ex .flow{padding:14px;gap:0;background:var(--soft)}
+.ex .pane{box-shadow:none}
+details.real{padding:10px 16px;border-top:1px solid var(--line);font-size:13.5px}
+details.real summary{cursor:pointer;color:var(--muted);font-weight:600}
+details.real pre{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;background:var(--soft);padding:10px;border-radius:8px;border:1px solid var(--line)}
+.local-ans{padding:12px 16px;font-size:14px;white-space:pre-wrap}
+
+/* ---------- Rapport ---------- */
+.md h2{color:var(--axa);font-size:22px;margin:4px 0 10px}
+.md h3{color:var(--axa);font-size:17px;margin:22px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--axa-red);display:inline-block}
+.md h4{font-size:15px;margin:16px 0 6px}
+.md p{margin:6px 0}
+.md ul{margin:6px 0;padding-left:20px}
+.md li.sub{margin-left:18px;color:var(--muted);font-size:14px}
+.md code{font-family:var(--mono);font-size:12.5px;background:var(--soft);border:1px solid var(--line);padding:1px 5px;border-radius:4px}
+.md .tw{overflow-x:auto;margin:8px 0 12px}
+.md table{margin:0}
+td.t{white-space:nowrap}
+.g-rep{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+@media (max-width:900px){.g-rep{grid-template-columns:1fr}}
+.outbox-item{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.outbox-item .oh{background:var(--cloud-soft);color:var(--axa);font-weight:700;font-size:12px;padding:6px 10px;text-transform:uppercase;letter-spacing:.05em}
+.outbox-item pre{margin:0;padding:10px;font-family:var(--mono);font-size:12px;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto}
+.placeholder{text-align:center;color:var(--muted);padding:50px 20px;border:2px dashed var(--line);border-radius:var(--radius);background:#fff}
+.err{background:var(--deny-soft);color:#8C0B20;border:1px solid #F4B9C2;padding:10px 14px;border-radius:8px;margin-top:12px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+footer{max-width:1240px;margin:0 auto;padding:0 24px 30px;color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-in">
+    <div class="brand"><b>INOVA</b><span>Pentest assisté par IA · confidentialité maîtrisée</span></div>
+    <div class="badges" id="badges"></div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-in" role="tablist">
+    <button class="tab" role="tab" data-tab="aiguillage"><span class="n">1</span>Aiguillage</button>
+    <button class="tab" role="tab" data-tab="passerelle"><span class="n">2</span>Passerelle</button>
+    <button class="tab" role="tab" data-tab="mission"><span class="n">3</span>Mission</button>
+    <button class="tab" role="tab" data-tab="rapport"><span class="n">4</span>Rapport &amp; journal</button>
+  </div>
+</nav>
+
+<main>
+<!-- =============================== 1. AIGUILLAGE =============================== -->
+<section id="tab-aiguillage">
+  <h2 class="sec">L'aiguilleur décide du chemin, avant le pentest</h2>
+  <p class="intro">Le <b>SLM local</b> évalue la <b>complexité</b> du pentest (le modèle local en est-il capable ?) et la <b>sensibilité</b> des données (peut-on les faire sortir, même masquées ?). Modifie le profil : la décision se met à jour.</p>
+  <div class="grid g-2">
+    <div class="card">
+      <h3>Profil du pentest</h3>
+      <div class="presets">
+        <button class="btn ghost sm" data-preset="simple">Pentest simple</button>
+        <button class="btn ghost sm" data-preset="lourd">Pentest lourd</button>
+        <button class="btn ghost sm" data-preset="secret">Lourd + données secrètes</button>
+      </div>
+      <label class="f" for="r-type">Type de pentest</label>
+      <select id="r-type">
+        <option value="web_boite_noire">Web — boîte noire</option>
+        <option value="web_boite_grise">Web — boîte grise</option>
+        <option value="api">API</option>
+        <option value="multi_applications">Plusieurs applications</option>
+      </select>
+      <div class="checks">
+        <label class="check"><input type="checkbox" id="r-auth"> Tests authentifiés</label>
+        <label class="check"><input type="checkbox" id="r-custom"> Application développée sur mesure</label>
+        <label class="check"><input type="checkbox" id="r-chain"> Enchaînement de failles nécessaire</label>
+        <label class="check"><input type="checkbox" id="r-terms"> Termes sensibles déclarés par le client</label>
+      </div>
+      <label class="f" for="r-targets">Nombre de cibles</label>
+      <input type="number" id="r-targets" min="1" max="50" value="1">
+      <label class="f" for="r-class">Classification des données</label>
+      <select id="r-class">
+        <option value="public">Public</option>
+        <option value="interne">Interne</option>
+        <option value="confidentiel">Confidentiel</option>
+        <option value="secret">Secret</option>
+      </select>
+      <label class="f" for="r-sector">Secteur du client</label>
+      <select id="r-sector">
+        <option value="">Non précisé</option>
+        <option value="assurance">Assurance</option>
+        <option value="banque">Banque</option>
+        <option value="sante">Santé</option>
+        <option value="defense">Défense</option>
+      </select>
+    </div>
+    <div class="card">
+      <h3>Décision de l'aiguilleur</h3>
+      <div id="r-out"><p class="empty">Calcul…</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== 2. PASSERELLE =============================== -->
+<section id="tab-passerelle" hidden>
+  <h2 class="sec">La passerelle : ce que voit vraiment le cloud</h2>
+  <p class="intro">Colle un constat de pentest. <b>Presidio</b> détecte les données sensibles, les remplace par des jetons, puis vérifie qu'il ne reste rien. Si c'est sûr, le texte masqué part au LLM externe ; sa réponse revient en jetons et les vraies valeurs sont <b>réinjectées sur ta machine</b>. Au moindre doute : <b>repli local</b>.</p>
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <h3 style="margin:0">Texte à traiter</h3>
+      <div class="presets" id="m-examples"></div>
+    </div>
+    <textarea id="m-text" spellcheck="false" aria-label="Texte à masquer"></textarea>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="m-go">Masquer et envoyer au cloud</button>
+      <button class="btn ghost" id="m-reset">Réinitialiser la table de correspondance</button>
+      <span class="lock" id="m-status"></span>
+    </div>
+  </div>
+  <div id="m-out"></div>
+</section>
+
+<!-- =============================== 3. MISSION =============================== -->
+<section id="tab-mission" hidden>
+  <h2 class="sec">Mission complète : les 7 phases</h2>
+  <p class="intro">Démonstration sur un <b>laboratoire fictif</b> (sorties nmap / nuclei d'exemple). Aucun outil n'est lancé ; en démo, les validations humaines sont accordées automatiquement. Change la classification des données pour voir l'aiguillage basculer.</p>
+  <div class="card">
+    <div class="grid g-4" style="align-items:end">
+      <div><label class="f" for="x-class" style="margin-top:0">Classification des données</label>
+        <select id="x-class"><option value="interne">Interne → CLOUD</option><option value="confidentiel">Confidentiel → LOCAL_RESTRICTED</option><option value="secret">Secret → LOCAL_RESTRICTED</option></select></div>
+      <div><label class="f" for="x-type" style="margin-top:0">Type de pentest</label>
+        <select id="x-type"><option value="web_boite_grise">Web — boîte grise</option><option value="web_boite_noire">Web — boîte noire</option><option value="api">API</option><option value="multi_applications">Plusieurs applications</option></select></div>
+      <div><label class="check" style="margin-bottom:10px"><input type="checkbox" id="x-chain" checked> Enchaînement de failles</label></div>
+      <div><button class="btn red" id="x-go" style="width:100%">Lancer la mission</button></div>
+    </div>
+  </div>
+  <div class="stepper" id="x-steps"></div>
+  <div id="x-out"></div>
+</section>
+
+<!-- =============================== 4. RAPPORT =============================== -->
+<section id="tab-rapport" hidden>
+  <h2 class="sec">Rapport et preuves de confidentialité</h2>
+  <p class="intro">Le rapport est généré <b>en local</b>, avec les vraies valeurs. À droite : <b>cloud_outbox.jsonl</b>, la copie exacte de tout ce qui a quitté la machine, et <b>audit.jsonl</b>, le journal des décisions.</p>
+  <div id="rp-out"><div class="placeholder">Lance d'abord une mission dans l'onglet <b>3 · Mission</b>.</div></div>
+</section>
+</main>
+
+<footer>Interface locale (127.0.0.1) — la table de correspondance s'affiche ici parce que tout reste sur ta machine. À utiliser uniquement dans le cadre d'un mandat signé.</footer>
+
+<script>
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+async function api(path, body) {
+  const opt = body === undefined ? {} :
+    {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)};
+  const r = await fetch(path, opt);
+  const j = await r.json().catch(() => ({error: "réponse illisible"}));
+  if (!r.ok) throw new Error(j.error || ("HTTP " + r.status));
+  return j;
+}
+
+/* ---------------- Couleurs par type d'entité ---------------- */
+const ENT = {
+  TARGET_IP:["#E1E6FF","#3D4FD0"], TARGET_URL:["#ECE3FF","#6B3FD0"], HOSTNAME:["#DDF3F4","#16808A"],
+  SECRET:["#FFE1E4","#D0142C"], HASH:["#ECEDF2","#5B5F77"], DB_OBJECT:["#E1F3E6","#25804A"],
+  CLIENT_TERM:["#DFE1F5","#00008F"], PERSON:["#FFEBD6","#B85C00"], EMAIL_ADDRESS:["#FFF3CC","#8A6A00"],
+  PHONE_NUMBER:["#F6E6DA","#8A4B1E"], CREDIT_CARD:["#FFE1E4","#D0142C"], IBAN_CODE:["#FFE1E4","#D0142C"],
+};
+const entStyle = t => { const [bg, fg] = ENT[t] || ["#ECEDF2", "#5B5F77"]; return `background:${bg};border-color:${fg};`; };
+const tokens = text => esc(text).replace(/\[([A-Z_]+?)_(\d+)\]/g,
+  (m, t) => `<span class="tok" style="${entStyle(t)}color:${(ENT[t]||[])[1]||"#333"}">${m}</span>`);
+
+function highlight(text, spans) {
+  let out = "", pos = 0;
+  for (const s of [...spans].sort((a, b) => a.start - b.start)) {
+    out += esc(text.slice(pos, s.start));
+    const [, fg] = ENT[s.entity] || [, "#5B5F77"];
+    out += `<mark class="ent${s.certain ? "" : " unc"}" style="${entStyle(s.entity)}" title="${esc(s.entity)} · score ${s.score}${s.certain ? "" : " (incertain)"}">${esc(text.slice(s.start, s.end))}<sup style="color:${fg}">${esc(s.entity)}</sup></mark>`;
+    pos = s.end;
+  }
+  return out + esc(text.slice(pos));
+}
+
+const ROUTE = {
+  LOCAL: {t: "Tout reste en local", d: "Pentest simple : le SLM local suffit. Aucune donnée ne quitte la machine."},
+  CLOUD: {t: "Bascule vers le LLM externe", d: "Pentest lourd : seule l'exploitation part au cloud, après masquage par la passerelle."},
+  LOCAL_RESTRICTED: {t: "Local + validation humaine renforcée", d: "Pentest lourd mais données trop sensibles : rien ne sort, la capacité réduite est assumée."},
+};
+const routeCard = d => `<div class="route r-${d.route}"><span class="tag">${esc(d.route)}</span>
+  <div><h4>${esc(ROUTE[d.route].t)}</h4><p>${esc(ROUTE[d.route].d)}</p></div></div>`;
+
+/* ---------------- Onglets ---------------- */
+function show(tab) {
+  if (!["aiguillage", "passerelle", "mission", "rapport"].includes(tab)) tab = "aiguillage";
+  $$(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
+  $$("main > section").forEach(s => s.hidden = s.id !== "tab-" + tab);
+  if (location.hash.slice(1) !== tab) history.replaceState(null, "", "#" + tab);
+}
+$$(".tab").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
+window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+
+let INFO = null;
+
+/* ================= 1. AIGUILLAGE ================= */
+const PRESETS = {
+  simple: {pentest_type: "web_boite_noire", authenticated: false, custom_application: false, exploitation_chaining: false, nb_targets: 1, data_classification: "interne", sector: "", sensitive_terms: false},
+  lourd:  {pentest_type: "web_boite_grise", authenticated: true, custom_application: true, exploitation_chaining: true, nb_targets: 3, data_classification: "interne", sector: "assurance", sensitive_terms: true},
+  secret: {pentest_type: "multi_applications", authenticated: true, custom_application: true, exploitation_chaining: true, nb_targets: 4, data_classification: "secret", sector: "assurance", sensitive_terms: true},
+};
+function setProfile(p) {
+  $("#r-type").value = p.pentest_type; $("#r-auth").checked = !!p.authenticated;
+  $("#r-custom").checked = !!p.custom_application; $("#r-chain").checked = !!p.exploitation_chaining;
+  $("#r-terms").checked = !!(p.sensitive_terms && (p.sensitive_terms.length ?? p.sensitive_terms));
+  $("#r-targets").value = p.nb_targets; $("#r-class").value = p.data_classification; $("#r-sector").value = p.sector || "";
+}
+const getProfile = () => ({
+  pentest_type: $("#r-type").value, authenticated: $("#r-auth").checked, custom_application: $("#r-custom").checked,
+  exploitation_chaining: $("#r-chain").checked, sensitive_terms: $("#r-terms").checked,
+  nb_targets: +$("#r-targets").value || 1, data_classification: $("#r-class").value, sector: $("#r-sector").value,
+});
+function gauge(label, v, thr, hotWord) {
+  return `<div class="gauge"><div class="lbl"><span>${label}</span><b>${v.toFixed(2)}</b></div>
+    <div class="bar"><div class="fill${v >= thr ? " hot" : ""}" style="width:${Math.round(v * 100)}%"></div>
+    <div class="mark" style="left:${thr * 100}%"><span>seuil ${thr} · ${hotWord}</span></div></div></div>`;
+}
+let rTimer;
+async function updateRoute() {
+  try {
+    const d = await api("/api/route", getProfile());
+    const heavy = d.complexity >= d.thresholds.complexity, sens = d.sensitivity >= d.thresholds.sensitivity;
+    const cell = (h, s, r) => `<div class="c ${r}${heavy === h && sens === s ? " on" : ""}">${r}</div>`;
+    $("#r-out").innerHTML = routeCard(d)
+      + gauge("Complexité — le modèle local en est-il capable ?", d.complexity, d.thresholds.complexity, "au-delà : pentest lourd")
+      + gauge("Sensibilité — les données peuvent-elles sortir, masquées ?", d.sensitivity, d.thresholds.sensitivity, "au-delà : trop sensible")
+      + `<div class="matrix"><div></div><div class="h">Données peu sensibles</div><div class="h">Données très sensibles</div>
+          <div class="h">Pentest simple</div>${cell(false, false, "LOCAL")}${cell(false, true, "LOCAL")}
+          <div class="h">Pentest lourd</div>${cell(true, false, "CLOUD")}${cell(true, true, "LOCAL_RESTRICTED")}</div>`
+      + `<ul class="reasons">${d.reasons.map(r => `<li>${esc(r)}</li>`).join("")}</ul>`;
+  } catch (e) { $("#r-out").innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+}
+$$("#tab-aiguillage select, #tab-aiguillage input").forEach(el =>
+  el.addEventListener("input", () => { clearTimeout(rTimer); rTimer = setTimeout(updateRoute, 120); }));
+$$("[data-preset]").forEach(b => b.addEventListener("click", () => { setProfile(PRESETS[b.dataset.preset]); updateRoute(); }));
+
+/* ================= 2. PASSERELLE ================= */
+const EXAMPLES = [
+  ["Injection SQL", "Injection SQL confirmée sur https://demo.inova-lab.local/login (serveur 10.10.0.20). La requête vulnérable est SELECT * FROM clients_cartes WHERE id=1. Identifiant admin trouvé : password=Adm1n2026. Le serveur 10.10.0.20 expose aussi SSH. Comment corriger cette faille ?"],
+  ["Dépôt Git exposé", "Fichier .git/config exposé sur https://demo.inova-lab.local/.git/config — url = https://gitlab.intranet-demo.local/equipe/SinistresPro.git. Jeton trouvé dans l'historique : eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiJ9.c2lnbmF0dXJlMTIz. Hôte de base de données srv-db01.intranet-demo.local joignable depuis 10.10.0.10."],
+  ["Contact (doute → local)", "Responsable applicatif : Karim Bennani (karim.bennani@demo-client.ma, +212 6 12 34 56 78). Le prévenir avant le re-test du panneau d'administration."],
+];
+$("#m-examples").innerHTML = EXAMPLES.map((e, i) => `<button class="btn ghost sm" data-ex="${i}">${esc(e[0])}</button>`).join("");
+$$("[data-ex]").forEach(b => b.addEventListener("click", () => { $("#m-text").value = EXAMPLES[+b.dataset.ex][1]; runMask(); }));
+$("#m-text").value = EXAMPLES[0][1];
+
+function pane(n, title, where, cls, body, off) {
+  return `<div class="pane ${cls}${off ? " off" : ""}"><div class="ph"><span class="st">${n}</span>${esc(title)}<span class="where">${esc(where)}</span></div><div class="pb">${body}</div></div>`;
+}
+const arrow = `<div class="arrow" aria-hidden="true">›</div>`;
+function flow4(p1, p2, p3, p4) {
+  return `<div class="flow"><div class="flowcell">${p1}${arrow}</div><div class="flowcell">${p2}${arrow}</div><div class="flowcell">${p3}${arrow}</div><div class="flowcell">${p4}</div></div>`;
+}
+
+async function runMask() {
+  const btn = $("#m-go"); btn.disabled = true; btn.innerHTML = `<span class="spin"></span>Analyse par Presidio…`;
+  try {
+    const r = await api("/api/mask", {text: $("#m-text").value});
+    const verdict = r.safe
+      ? `<div class="verdict v-ok"><span class="ic">✅</span><div>Envoi au cloud AUTORISÉ<small>${r.entities} entité(s) masquée(s) · aucune détection incertaine · aucune fuite résiduelle</small></div></div>`
+      : `<div class="verdict v-no"><span class="ic">⛔</span><div>Envoi REFUSÉ → repli local (fail-closed)<small>${r.uncertain} détection(s) incertaine(s) (score &lt; ${r.min_confidence})${r.residual.length ? " · fuite résiduelle : " + esc(r.residual.join(", ")) : ""} — dans le doute, rien ne sort.</small></div></div>`;
+    const none = `<span class="empty">Rien n'est envoyé.</span>`;
+    const flow = flow4(
+      pane(1, "Texte réel", "ta machine", "local", highlight(r.text, r.spans) || `<span class="empty">(vide)</span>`),
+      pane(2, "Ce que reçoit le cloud", "Internet", "cloud", r.safe ? tokens(r.masked) : none, !r.safe),
+      pane(3, "Réponse du cloud", "en jetons", "cloud", r.cloud_raw ? tokens(r.cloud_raw) : none, !r.safe),
+      pane(4, "Réponse réinjectée", "ta machine", "local", r.restored ? esc(r.restored) : `<span class="empty">Le SLM local traite la demande.</span>`, !r.safe));
+    const mapping = r.mapping.length ? `<table><thead><tr><th>Jeton</th><th>Type</th><th>Valeur réelle</th></tr></thead><tbody>${
+      r.mapping.map(m => `<tr><td>${tokens(m.token)}</td><td>${esc(m.entity)}</td><td class="mono">${esc(m.value)}</td></tr>`).join("")}</tbody></table>`
+      : `<p class="empty">Aucune donnée sensible détectée.</p>`;
+    const dets = r.spans.length ? `<table><thead><tr><th>Élément</th><th>Type</th><th>Score</th><th>Statut</th></tr></thead><tbody>${
+      r.spans.map(s => `<tr><td class="mono">${esc(r.text.slice(s.start, s.end))}</td><td>${esc(s.entity)}</td><td>${s.score}</td><td>${s.certain ? '<span class="chip c-ok">certain</span>' : '<span class="chip c-unc">incertain</span>'}</td></tr>`).join("")}</tbody></table>`
+      : `<p class="empty">—</p>`;
+    $("#m-out").innerHTML = verdict + flow + `<div class="grid g-2e" style="margin-top:18px">
+      <div class="card"><h3>Table de correspondance <small>locale · chiffrée · jamais envoyée</small></h3>${mapping}
+        <p class="lock">🔒 Une même valeur garde toujours le même jeton ; deux valeurs différentes ont deux jetons différents.</p></div>
+      <div class="card"><h3>Détections de Presidio <small>seuil de certitude ${r.min_confidence}</small></h3>${dets}</div></div>`;
+  } catch (e) { $("#m-out").innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+  finally { btn.disabled = false; btn.textContent = "Masquer et envoyer au cloud"; }
+}
+$("#m-go").addEventListener("click", runMask);
+$("#m-reset").addEventListener("click", async () => {
+  await api("/api/reset", {}); $("#m-status").textContent = "Table réinitialisée : la numérotation repart de 1.";
+  setTimeout(() => $("#m-status").textContent = "", 3000);
+});
+
+/* ================= 3. MISSION ================= */
+const PHASES = [["1", "Configuration & aiguillage", null], ["2", "Reconnaissance", "reconnaissance"],
+  ["3", "Recherche de vulnérabilités", null], ["4", "Priorisation", null],
+  ["5", "Exploitation (confirmation)", "exploitation"], ["6", "Preuves", null], ["7", "Rapport", "rapport"]];
+function renderSteps(state = {}, aiByPhase = {}) {
+  $("#x-steps").innerHTML = PHASES.map(([n, nm, key], i) => {
+    const ai = key ? aiByPhase[key] : null;
+    const aiTxt = !key ? `<div class="ai NONE">outils / règles</div>`
+      : ai ? `<div class="ai ${ai}">${ai === "CLOUD" ? "IA · cloud masqué" : ai === "FAIL" ? "IA · repli local" : "IA · local"}</div>` : `<div class="ai NONE">IA</div>`;
+    return `<div class="step ${state[i] || ""}"><div class="num">PHASE ${n}</div><div class="nm">${nm}</div>${aiTxt}</div>`;
+  }).join("");
+}
+renderSteps();
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const decCls = d => "d-" + d.replace("*", "s");
+let LAST = null;
+
+$("#x-go").addEventListener("click", async () => {
+  const btn = $("#x-go"); btn.disabled = true; btn.innerHTML = `<span class="spin"></span>Mission en cours…`;
+  $("#x-out").innerHTML = ""; renderSteps({0: "run"});
+  try {
+    const r = await api("/api/run", {data_classification: $("#x-class").value, type: $("#x-type").value,
+      exploitation_chaining: $("#x-chain").checked});
+    LAST = r;
+    const ai = {};
+    for (const t of r.trace) {
+      const v = t.fail_closed ? "FAIL" : t.path;
+      if (!ai[t.phase] || v === "CLOUD") ai[t.phase] = ai[t.phase] === "CLOUD" ? "CLOUD" : v;
+    }
+    for (let i = 0; i < PHASES.length; i++) {   // relecture phase par phase
+      const st = {}; for (let j = 0; j < i; j++) st[j] = "done"; st[i] = "run";
+      renderSteps(st, ai); await sleep(260);
+    }
+    renderSteps(Object.fromEntries(PHASES.map((_, i) => [i, "done"])), ai);
+    renderMission(r); renderReport(r);
+  } catch (e) { $("#x-out").innerHTML = `<div class="err">${esc(e.message)}</div>`; renderSteps(); }
+  finally { btn.disabled = false; btn.textContent = "Relancer la mission"; }
+});
+
+function renderMission(r) {
+  const nLocal = r.trace.filter(t => t.path === "LOCAL" && !t.fail_closed).length;
+  const nCloud = r.trace.filter(t => t.path === "CLOUD").length;
+  const nFail = r.trace.filter(t => t.fail_closed).length;
+  const nEnt = r.audit.filter(e => e.event === "masking").reduce((a, e) => a + (e.entities || 0), 0);
+  const kpis = `<div class="kpis">
+    <div class="kpi k-local"><b>${nLocal}</b><span>raisonnements en local</span></div>
+    <div class="kpi k-cloud"><b>${nCloud}</b><span>envois au cloud (masqués)</span></div>
+    <div class="kpi k-fail"><b>${nFail}</b><span>replis locaux (fail-closed)</span></div>
+    <div class="kpi k-ent"><b>${nEnt}</b><span>entités masquées</span></div></div>`;
+  const services = `<table><thead><tr><th>Hôte</th><th>Port</th><th>Service</th></tr></thead><tbody>${
+    r.services.map(s => `<tr><td class="mono">${esc(s.host)}</td><td>${s.port}/${esc(s.protocol)}</td><td>${esc(s.name)} <span style="color:var(--muted)">${esc(s.product)} ${esc(s.version)}</span></td></tr>`).join("")}</tbody></table>`;
+  const findings = `<table><thead><tr><th>#</th><th>Constat</th><th>CVSS</th><th>EPSS</th><th>Décision</th><th>Vérifiée</th></tr></thead><tbody>${
+    r.findings.map(f => `<tr><td>${f.priority_rank}</td><td><b>${esc(f.id)}</b> ${esc(f.title)}<div class="mono" style="color:var(--muted)">${esc(f.asset)}</div></td>
+      <td>${f.cvss}</td><td>${f.epss.toFixed(2)}</td><td><span class="dec ${decCls(f.decision)}">${esc(f.decision)}</span></td>
+      <td>${f.verified ? "✅" : "—"}</td></tr>`).join("")}</tbody></table>`;
+  const PH = {reconnaissance: "Phase 2 · Reconnaissance", exploitation: "Phase 5 · Exploitation", rapport: "Phase 7 · Rapport"};
+  const exchanges = r.trace.map(t => {
+    const head = t.fail_closed
+      ? `<span class="path p-FAIL">REPLI LOCAL</span><span class="hint">masquage jugé incertain : rien n'est sorti</span>`
+      : t.path === "CLOUD"
+        ? `<span class="path p-CLOUD">CLOUD · VIA LA PASSERELLE</span><span class="hint">${t.entities} entité(s) masquée(s)</span>`
+        : `<span class="path p-LOCAL">LOCAL</span><span class="hint">${t.allow_cloud ? "route " + esc(r.decision.route) + " : traité par le SLM local" : "phase réservée au local"} — rien n'est sorti</span>`;
+    const body = t.path === "CLOUD"
+      ? `<div class="flow f3">${[
+          pane(1, "Envoyé au cloud", "masqué", "cloud", tokens(t.sent)),
+          pane(2, "Réponse brute", "jetons", "cloud", tokens(t.cloud_raw)),
+          pane(3, "Réponse réinjectée", "ta machine", "local", esc(t.answer))].map((p, i, a) => `<div class="flowcell">${p}${i < a.length - 1 ? arrow : ""}</div>`).join("")}</div>`
+      : `<div class="local-ans">${esc(t.answer)}</div>`;
+    return `<div class="ex"><div class="ex-h"><b>${esc(PH[t.phase] || t.phase)}</b>${head}</div>${body}
+      <details class="real"><summary>Voir le texte réel (reste sur ta machine)</summary><pre>${esc(t.real)}</pre></details></div>`;
+  }).join("");
+  $("#x-out").innerHTML = routeCard(r.decision) + kpis
+    + `<div class="grid g-2"><div class="card"><h3>Surface d'attaque <small>phase 2</small></h3>${services}</div>
+       <div class="card"><h3>Vulnérabilités priorisées <small>phases 3-4 · arbre de décision type SSVC</small></h3>${findings}</div></div>`
+    + `<div class="card" style="margin-top:18px"><h3>Échanges avec l'IA <small>local ou cloud, étape par étape</small></h3>${exchanges}</div>`
+    + `<p class="lock">Dossier de la mission : <span class="mono">${esc(r.run_dir)}</span> — voir l'onglet <a href="#rapport">4 · Rapport &amp; journal</a>.</p>`;
+}
+
+/* ================= 4. RAPPORT ================= */
+function md(src) {
+  const L = src.split("\n"); let h = "", i = 0;
+  const inl = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  const cells = r => r.replace(/^\s*\|/, "").replace(/\|\s*$/, "").split("|").map(c => c.trim());
+  while (i < L.length) {
+    const l = L[i]; let m;
+    if (/^\s*\|/.test(l)) {
+      const rows = []; while (i < L.length && /^\s*\|/.test(L[i])) rows.push(L[i++]);
+      h += `<div class="tw"><table><thead><tr>${cells(rows[0]).map(c => `<th>${inl(c)}</th>`).join("")}</tr></thead><tbody>${
+        rows.slice(2).map(r => `<tr>${cells(r).map(c => `<td>${inl(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+      continue;
+    }
+    if ((m = l.match(/^(#{1,3})\s+(.*)/))) { const n = m[1].length + 1; h += `<h${n}>${inl(m[2])}</h${n}>`; i++; continue; }
+    if (/^\s*-\s+/.test(l)) {
+      h += "<ul>"; while (i < L.length && /^\s*-\s+/.test(L[i])) {
+        h += `<li class="${/^\s{2,}-/.test(L[i]) ? "sub" : ""}">${inl(L[i].replace(/^\s*-\s+/, ""))}</li>`; i++; }
+      h += "</ul>"; continue;
+    }
+    if (!l.trim()) { i++; continue; }
+    const p = []; while (i < L.length && L[i].trim() && !/^(#|\s*\||\s*-\s)/.test(L[i])) p.push(L[i++]);
+    h += `<p>${p.map(inl).join("<br>")}</p>`;
+  }
+  return h;
+}
+function renderReport(r) {
+  const outbox = r.outbox.length
+    ? r.outbox.map(o => `<div class="outbox-item"><div class="oh">phase : ${esc(o.phase)}</div><pre>${tokens(o.sent)}</pre></div>`).join("")
+    : `<p class="empty">Aucun envoi : la route ${esc(r.decision.route)} n'a rien fait sortir. Le fichier n'a même pas été créé.</p>`;
+  const audit = `<table><thead><tr><th>Heure</th><th>Évènement</th><th>Détail</th></tr></thead><tbody>${
+    r.audit.map(e => { const {ts, event, ...rest} = e;
+      return `<tr><td class="mono t">${esc((ts || "").slice(11))}</td><td><b>${esc(event)}</b></td><td class="mono">${esc(JSON.stringify(rest))}</td></tr>`; }).join("")}</tbody></table>`;
+  $("#rp-out").innerHTML = `<div class="grid g-rep">
+    <div class="card md">${md(r.report)}</div>
+    <div class="grid" style="align-content:start">
+      <div class="card"><h3>cloud_outbox.jsonl <small>tout ce qui a quitté la machine</small></h3>${outbox}</div>
+      <div class="card"><h3>audit.jsonl <small>décisions, sans valeurs réelles</small></h3>${audit}</div>
+    </div></div>`;
+}
+
+/* ================= Démarrage ================= */
+(async () => {
+  show(location.hash.slice(1));
+  try {
+    INFO = await api("/api/info");
+    const live = INFO.mode === "live";
+    $("#badges").innerHTML = `<span class="hb ${live ? "live" : "demo"}">${live ? "Mode réel" : "Mode démo · réponses IA simulées"}</span>
+      <span class="hb">SLM local : ${esc(INFO.local_model)}</span><span class="hb">LLM cloud : ${esc(INFO.cloud_model)}</span>
+      <span class="hb">Périmètre : ${esc(INFO.client)} · ${esc(INFO.scope_file)}</span>`;
+    setProfile(INFO.profile);
+  } catch (e) { $("#badges").innerHTML = `<span class="hb">Serveur injoignable</span>`; }
+  updateRoute(); runMask();
+})();
+</script>
+</body>
+</html>

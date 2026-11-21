@@ -66,6 +66,16 @@ class LLMClient:
     @staticmethod
     def _mock_cloud(masked: str) -> str:
         toks = list(dict.fromkeys(TOKEN_RE.findall(masked)))
+        if "synthèse" in masked.lower():
+            urls = [t for t in toks if "URL" in t] or ["la cible"]
+            return ("[LLM externe — simulé, n'a vu que des jetons]\n"
+                    f"Le test a révélé une faille critique sur {urls[0]}, activement exploitée dans la nature : "
+                    "correctif à appliquer immédiatement.\n"
+                    + (f"Un panneau d'administration ({urls[1]}) accepte des identifiants par défaut.\n"
+                       if len(urls) > 1 else "")
+                    + "Les autres constats relèvent de la configuration et peuvent être planifiés.\n"
+                    "Combinées, les deux premières failles permettraient une prise de contrôle du serveur.\n"
+                    "Priorité : corriger sous 48 h, puis re-tester.")
         target = next((t for t in toks if "URL" in t or "HOSTNAME" in t or "CLIENT_TERM" in t), "la cible")
         ip = next((t for t in toks if "IP" in t), "le serveur")
         secret = next((t for t in toks if "SECRET" in t), None)

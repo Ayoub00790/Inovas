@@ -51,6 +51,10 @@ inova/
 │   │   └── approval.py          ← l'IA propose, l'humain valide
 │   ├── tools/
 │   │   └── runner.py            ← nmap / whatweb / nuclei en liste blanche, sans shell
+│   ├── web/
+│   │   ├── server.py            ← serveur local (127.0.0.1), bibliothèque standard
+│   │   ├── api.py               ← logique des écrans (testable sans navigateur)
+│   │   └── static/index.html    ← ★ interface aux couleurs AXA (aucune ressource externe)
 │   └── phases/
 │       ├── p1_config.py         ← profil + aiguillage
 │       ├── p2_recon.py          ← services et versions (IA légère, locale)
@@ -63,6 +67,7 @@ inova/
     ├── test_passerelle.py       ← tests de NON-FUITE
     ├── test_aiguilleur.py       ← la matrice de décision
     ├── test_scope.py            ← périmètre, mandat, priorisation
+    ├── test_web.py              ← API de l'interface (dont non-fuite)
     └── fixtures/                ← sorties nmap/nuclei d'exemple + 10 cas de fuite
 ```
 
@@ -81,7 +86,21 @@ python -m spacy download fr_core_news_sm
 python -m spacy download en_core_web_sm
 ```
 
-## Utilisation
+## Interface graphique (recommandé pour la démo)
+
+```bash
+python -m inova.web
+```
+Le navigateur s'ouvre sur **http://127.0.0.1:8000**. Aucune installation supplémentaire n'est nécessaire : le serveur fait partie de Python. Quatre écrans :
+
+1. **Aiguillage** — modifie le profil du pentest et vois la décision LOCAL / CLOUD / LOCAL_RESTRICTED sur la matrice, avec ses justifications.
+2. **Passerelle** — colle un constat : texte réel → ce que reçoit le cloud → réponse en jetons → réponse réinjectée, avec la table de correspondance et le verdict (autorisé, ou repli local).
+3. **Mission** — les 7 phases en démo, les vulnérabilités priorisées et chaque échange avec l'IA (local ou cloud).
+4. **Rapport & journal** — le rapport, `cloud_outbox.jsonl` (tout ce qui est sorti) et `audit.jsonl`.
+
+L'interface n'écoute que sur `127.0.0.1`, c'est-à-dire ta propre machine : c'est pour cela qu'elle peut afficher les valeurs réelles. Arrêt : `Ctrl+C`.
+
+## Utilisation en ligne de commande
 
 ```bash
 # 1) Voir la décision de l'aiguilleur pour un périmètre
