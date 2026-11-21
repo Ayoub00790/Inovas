@@ -64,5 +64,17 @@ class ToolRunner:
             return None
         if shutil.which(tool) is None:
             raise FileNotFoundError(f"{tool} n'est pas installé")
-        subprocess.run(cmd, timeout=self.timeout, check=False, capture_output=True)
-        return out if out.exists() else None
+        try:
+            proc = subprocess.run(cmd, timeout=self.timeout, check=False, capture_output=True,
+                                  text=True, encoding="utf-8", errors="replace")
+            code, log = proc.returncode, (proc.stdout or "") + (proc.stderr or "")
+        except subprocess.TimeoutExpired as exc:
+            code, log = "délai dépassé", f"{exc}"
+        # journal complet de l'outil, rangé avec les preuves (diagnostic)
+        out.with_suffix(".log").write_text(" ".join(cmd) + "\n\n" + log, encoding="utf-8")
+        produced = out.exists() and out.stat().st_size > 0
+        self.audit.event("tool_result", template=template, returncode=code, output=produced)
+        if code != 0:
+            last = next((l for l in reversed(log.strip().splitlines()) if l.strip()), "")
+            print(f"  ⚠ {template} a échoué (code {code}) : {last[:200]}")
+        return out if produced else None

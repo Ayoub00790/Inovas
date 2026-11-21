@@ -44,9 +44,14 @@ def _fmt_cost(v, calls: int = 1) -> str:
 
 def run(ctx: Context) -> None:
     top = "\n".join(f"- {f.id} {f.title} ({f.decision}) sur {f.asset}" for f in ctx.findings[:5])
-    ctx.executive_summary = ctx.reasoner.think(
-        phase="rapport", task="Rédige une synthèse exécutive (5 lignes) pour la direction.",
-        context=wrap_untrusted("constats", top), allow_cloud=True)
+    if ctx.findings:
+        ctx.executive_summary = ctx.reasoner.think(
+            phase="rapport", task="Rédige une synthèse exécutive (5 lignes) pour la direction.",
+            context=wrap_untrusted("constats", top), allow_cloud=True)
+    else:   # rien à synthétiser : pas d'appel à l'IA (elle inventerait un gabarit)
+        ctx.executive_summary = ("Aucune vulnérabilité n'a été détectée par les outils sur le périmètre "
+                                 "testé. Vérifier la section « Sécurité de la mission » : un outil en échec "
+                                 "ou un périmètre incomplet peut expliquer ce résultat.")
 
     # Contrôle de l'outbox : une valeur sensible connue est-elle sortie ?
     vault_values = ctx.passerelle.vault.values() if ctx.passerelle else []
@@ -86,6 +91,8 @@ def run(ctx: Context) -> None:
          f"- Validations humaines : {sum(e['event'] == 'approval' and e.get('approved') for e in ev)} accordée(s), "
          f"{sum(e['event'] == 'approval' and not e.get('approved') for e in ev)} refusée(s)",
          f"- Plafonds de mission atteints : {count('budget_atteint')}",
+         *[f"- ⚠ Outil en échec : {e['template']} (code {e['returncode']}) — voir evidence/*.log"
+           for e in ev if e["event"] == "tool_result" and e.get("returncode") != 0],
          *[f"- {f.id} : {al}" for f in ctx.findings for al in f.alerts],
          "", "## 5. Coût et performance",
          "| Modèle | Appels | Tokens envoyés | Tokens reçus | Durée cumulée | Coût |",
@@ -107,6 +114,8 @@ def run(ctx: Context) -> None:
     for f in ctx.findings:
         if f.analysis:
             L += [f"### {f.id} — {f.title}", f"Élément observé : `{f.evidence}`", "", _demote(f.analysis), ""]
+    if not any(f.analysis for f in ctx.findings):
+        L += ["Aucun constat à analyser.", ""]
     L += ["## 8. Preuves", "Voir `evidence_index.json` (empreintes SHA-256), `audit.jsonl`, "
           "`usage.jsonl` et `cloud_outbox.jsonl`."]
 
