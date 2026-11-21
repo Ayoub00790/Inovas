@@ -18,6 +18,8 @@ from .api import InovaAPI
 
 STATIC = Path(__file__).resolve().parent / "static"
 MAX_BODY = 1_000_000
+FONTS = {"/fonts/source-sans-3.woff2": "source-sans-3.woff2",
+         "/fonts/source-serif-4.woff2": "source-serif-4.woff2"}
 
 
 def make_handler(api: InovaAPI, port: int):
@@ -59,6 +61,8 @@ def make_handler(api: InovaAPI, port: int):
             path = self.path.split("?", 1)[0]
             if path in ("/", "/index.html"):
                 self._send(200, (STATIC / "index.html").read_bytes(), "text/html; charset=utf-8")
+            elif path in FONTS:                       # polices locales (aucun appel à Internet)
+                self._send(200, (STATIC / "fonts" / FONTS[path]).read_bytes(), "font/woff2")
             elif path in gets:
                 self._guarded(gets[path])
             elif path.startswith("/api/history/"):

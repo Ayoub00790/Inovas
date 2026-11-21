@@ -5,236 +5,334 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>INOVA — Console</title>
 <style>
+@font-face{font-family:"Source Sans 3";src:url(/fonts/source-sans-3.woff2) format("woff2");font-weight:200 900;font-display:swap}
+@font-face{font-family:"Source Serif 4";src:url(/fonts/source-serif-4.woff2) format("woff2");font-weight:200 900;font-display:swap}
 :root{
-  --axa:#00008F; --axa-deep:#00005E; --axa-red:#FF1721;
-  --ink:#14142B; --muted:#5B5F77; --line:#DCDFEA; --bg:#F3F4F9; --card:#FFFFFF; --soft:#F7F8FC;
-  --local:#0B7A50; --local-soft:#E2F3EB;
-  --cloud:#00008F; --cloud-soft:#E7E9F8;
-  --warn:#A85300; --warn-soft:#FFF0DC;
-  --deny:#C8102E; --deny-soft:#FDE8EB;
-  --radius:10px; --shadow:0 1px 2px rgba(0,0,50,.06),0 6px 18px rgba(0,0,70,.06);
-  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --axa:#00008F; --axa-deep:#000066; --red:#FF1721;
+  --ink:#15153D; --muted:#5C6080; --faint:#9396AE; --line:#E0E2ED; --line-2:#ECEEF5;
+  --page:#F3F4F8; --card:#FFFFFF; --soft:#F7F8FB;
+  --local:#0A7A55; --local-tint:#E3F3EB; --local-line:#B9DFCB; --home:#F1F8F4;
+  --cloud:#00008F; --cloud-tint:#E9EBF8; --cloud-line:#C8CCEC; --away:#F2F3FB;
+  --warn:#9A5B00; --warn-soft:#FFF2DE; --warn-line:#F0D3A4;
+  --deny:#C8102E; --deny-soft:#FDE9EC; --deny-line:#F3BAC4;
+  --local-soft:var(--local-tint); --cloud-soft:var(--cloud-tint);
+  --s-critical:#A3102C; --s-high:#E0512B; --s-medium:#E3A008; --s-low:#6E8BC6; --s-info:#A9ADC0;
+  --sans:"Source Sans 3","Segoe UI",system-ui,-apple-system,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,Menlo,"Liberation Mono",monospace;
+  --r-lg:14px; --r-md:10px; --r-sm:6px;
+  --lift:0 1px 0 rgba(0,0,80,.03),0 12px 32px -16px rgba(0,0,90,.18);
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.5}
+body{font-family:var(--sans);color:var(--ink);background:var(--page);font-size:15.5px;line-height:1.5;font-feature-settings:"kern","lnum"}
 button,select,input,textarea{font:inherit;color:inherit}
 a{color:var(--axa)}
+:focus-visible{outline:2px solid var(--axa);outline-offset:2px}
+code{font-family:var(--mono);font-size:.88em}
 
-/* ---------- En-tête ---------- */
-header{background:var(--axa);color:#fff;position:relative;overflow:hidden}
-header::after{content:"";position:absolute;right:120px;top:-30px;width:6px;height:150px;background:var(--axa-red);transform:rotate(38deg)}
-.head-in{max-width:1240px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;position:relative;z-index:1}
-.brand{display:flex;align-items:baseline;gap:14px}
-.brand b{font-size:26px;letter-spacing:.06em;font-weight:800}
-.brand span{color:#C9CCF2;font-size:14px}
-.badges{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;margin-right:150px}
-.hb{font-size:12.5px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);white-space:nowrap}
-.hb.demo{background:#FFE9C7;color:#6A3A00;border-color:#FFE9C7;font-weight:600}
-.hb.live{background:var(--local-soft);color:var(--local);border-color:var(--local-soft);font-weight:600}
-
-nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
-.nav-in{max-width:1240px;margin:0 auto;padding:0 16px;display:flex;gap:2px;overflow-x:auto}
-.tab{border:0;background:none;padding:14px 13px 12px;cursor:pointer;color:var(--muted);font-weight:600;border-bottom:3px solid transparent;white-space:nowrap}
-.tab .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--soft);border:1px solid var(--line);font-size:12px;margin-right:7px;color:var(--muted)}
-.tab:hover{color:var(--axa)}
-.tab[aria-selected=true]{color:var(--axa);border-bottom-color:var(--axa-red)}
+/* ================= Structure : barre latérale + contenu ================= */
+.app{display:grid;grid-template-columns:252px minmax(0,1fr);min-height:100vh}
+.side{background:var(--axa);color:#fff;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:26px 14px 18px;overflow:hidden auto}
+.side::before{content:"";position:absolute;width:5px;height:150px;background:var(--red);transform:rotate(38deg);right:40px;top:-34px}
+.logo{padding:0 10px;position:relative}
+.logo b{font-family:var(--serif);font-weight:700;font-size:30px;letter-spacing:.05em;display:block;line-height:1}
+.logo span{display:block;font-size:13.5px;color:#C3C6EE;margin-top:8px;line-height:1.35;max-width:17ch}
+.navgroup{margin-top:24px}
+.navgroup p{font-size:13px;color:#9FA3DC;padding:0 10px;margin:0 0 6px}
+.tab{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:none;border:0;color:#E4E5FA;padding:8px 10px;border-radius:9px;cursor:pointer;font-weight:500;font-size:15.5px;margin-bottom:2px}
+.tab .n,.tab .ic{width:24px;height:24px;flex:0 0 24px;display:grid;place-items:center}
+.tab .n{border-radius:50%;border:1px solid rgba(255,255,255,.38);font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
+.tab .ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tab:hover{background:rgba(255,255,255,.09)}
+.tab[aria-selected=true]{background:#fff;color:var(--axa);font-weight:700}
 .tab[aria-selected=true] .n{background:var(--axa);border-color:var(--axa);color:#fff}
+.tab:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.status{margin-top:auto;padding:16px 10px 0;border-top:1px solid rgba(255,255,255,.16);font-size:13px;color:#C9CCF0;display:grid;gap:5px}
+.status .mode{display:flex;gap:8px;align-items:center;color:#fff;font-weight:600;font-size:14px;margin-bottom:2px}
+.status .k{color:#9FA3DC}
+.status div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{width:9px;height:9px;border-radius:50%;background:#FFB648;flex:0 0 9px;box-shadow:0 0 0 3px rgba(255,182,72,.22)}
+.dot.live{background:#3DDC97;box-shadow:0 0 0 3px rgba(61,220,151,.22)}
 
-main{max-width:1240px;margin:0 auto;padding:24px 24px 60px}
+main{padding:40px 44px 70px;max-width:1300px;width:100%}
 section[hidden]{display:none}
-.intro{margin:0 0 18px;color:var(--muted);max-width:920px}
-.intro b{color:var(--ink)}
-h2.sec{font-size:22px;margin:0 0 6px;color:var(--axa)}
+h2.sec{font-family:var(--serif);font-weight:600;font-size:34px;line-height:1.12;letter-spacing:-.012em;color:var(--axa);margin:0 0 10px}
+.intro{margin:0 0 28px;color:var(--muted);max-width:74ch;font-size:16.5px}
+.intro b{color:var(--ink);font-weight:600}
+footer{padding:0 44px 30px;color:var(--faint);font-size:13px;max-width:1300px}
 
-/* ---------- Cartes ---------- */
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;min-width:0}
-.card h3{margin:0 0 12px;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--axa)}
-.card h3 small{text-transform:none;letter-spacing:0;color:var(--muted);font-weight:400;font-size:13px;margin-left:6px}
-.grid{display:grid;gap:18px}
+@media (max-width:980px){
+  .app{grid-template-columns:1fr}
+  .side{position:relative;height:auto;padding:16px 12px 10px}
+  .side::before{right:24px;height:110px}
+  .logo span{display:none}
+  .navgroups{display:flex;gap:4px;overflow-x:auto;margin-top:12px;padding-bottom:4px}
+  .navgroup{margin:0;display:flex;gap:2px}
+  .navgroup p{display:none}
+  .tab{white-space:nowrap;width:auto}
+  .status{display:none}
+  main{padding:26px 16px 50px}
+  footer{padding:0 16px 24px}
+  h2.sec{font-size:27px}
+}
+
+/* ================= Cartes et grilles ================= */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--lift);padding:20px 22px;min-width:0}
+.card h3{font-family:var(--serif);font-weight:600;font-size:19px;line-height:1.25;margin:0 0 14px;color:var(--ink)}
+.card h3 small{display:block;font-family:var(--sans);font-weight:400;font-size:13.5px;color:var(--muted);margin-top:3px}
+.grid{display:grid;gap:20px}
 .g-2{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
 .g-2e{grid-template-columns:repeat(2,minmax(0,1fr))}
 .g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-.g-4{grid-template-columns:repeat(4,minmax(0,1fr))}
 .g-5{grid-template-columns:repeat(5,minmax(0,1fr))}
 .g-rep{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
-.g-mis{grid-template-columns:minmax(0,4fr) minmax(0,8fr)}
-@media (max-width:900px){.g-2,.g-2e,.g-3,.g-4,.g-5,.g-rep,.g-mis{grid-template-columns:1fr}.badges{margin-right:0}header::after{display:none}}
+.g-mis{grid-template-columns:minmax(0,8fr) minmax(0,4fr)}
+.g-dash{grid-template-columns:minmax(0,7fr) minmax(0,5fr);align-items:start}
+@media (max-width:1100px){.g-2,.g-2e,.g-3,.g-5,.g-rep,.g-mis,.g-dash{grid-template-columns:1fr}}
+.stack{display:grid;gap:20px;align-content:start}
+.mt{margin-top:20px}
 
-/* ---------- Formulaires ---------- */
-label.f{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:12px 0 5px}
-select,input[type=number],input[type=text],input[type=date],textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:#fff}
-select:focus,input:focus,textarea:focus{outline:2px solid var(--axa);outline-offset:1px}
+/* ================= Formulaires ================= */
+label.f{display:block;font-size:13.5px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+select,input[type=number],input[type=text],input[type=date],textarea{width:100%;border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 11px;background:#fff;transition:border-color .15s}
+select:hover,input:hover,textarea:hover{border-color:#C6C9DA}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--axa);outline-offset:0;border-color:var(--axa)}
 textarea{min-height:130px;resize:vertical;font-family:var(--mono);font-size:13.5px;line-height:1.55}
-textarea.sm{min-height:84px}
-.hint{font-size:12px;color:var(--muted);margin-top:4px}
-.checks{display:grid;gap:8px;margin-top:12px}
-.check{display:flex;gap:10px;align-items:center;cursor:pointer;font-size:14px}
-.check input{width:17px;height:17px;accent-color:var(--axa)}
-.btn{border:1px solid var(--axa);background:var(--axa);color:#fff;border-radius:8px;padding:10px 16px;font-weight:600;cursor:pointer}
+textarea.sm{min-height:86px}
+.hint{font-size:13px;color:var(--muted);margin-top:5px}
+.checks{display:grid;gap:9px;margin-top:14px}
+.check{display:flex;gap:10px;align-items:center;cursor:pointer;font-size:15px}
+.check input{width:18px;height:18px;accent-color:var(--axa)}
+fieldset{border:1px solid var(--line);border-radius:var(--r-lg);padding:4px 22px 20px;margin:0;min-width:0;background:#fff;box-shadow:var(--lift)}
+legend{font-family:var(--serif);font-weight:600;font-size:18px;color:var(--ink);padding:0 8px;margin-left:-8px}
+.btn{border:1px solid var(--axa);background:var(--axa);color:#fff;border-radius:var(--r-sm);padding:10px 18px;font-weight:600;cursor:pointer;transition:background .15s}
 .btn:hover{background:var(--axa-deep)}
 .btn:disabled{opacity:.55;cursor:progress}
-.btn.ghost{background:#fff;color:var(--axa)}
-.btn.ghost:hover{background:var(--cloud-soft)}
-.btn.red{background:var(--axa-red);border-color:var(--axa-red)}
-.btn.red:hover{background:#D60F1C}
-.btn.sm{padding:6px 11px;font-size:13px}
+.btn.ghost{background:#fff;color:var(--axa);border-color:var(--cloud-line)}
+.btn.ghost:hover{background:var(--cloud-tint)}
+.btn.red{background:var(--red);border-color:var(--red)}
+.btn.red:hover{background:#D90F1B}
+.btn.sm{padding:6px 12px;font-size:14px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
 
-/* ---------- Route ---------- */
-.route{border-radius:var(--radius);padding:18px 20px;display:flex;gap:16px;align-items:center;border:1px solid}
-.route .tag{font-weight:800;font-size:19px;letter-spacing:.04em;padding:8px 14px;border-radius:8px;color:#fff;white-space:nowrap}
-.route h4{margin:0;font-size:17px}
-.route p{margin:2px 0 0;color:var(--muted);font-size:14px}
-.r-LOCAL{background:var(--local-soft);border-color:#BFE3D2}.r-LOCAL .tag{background:var(--local)}
-.r-CLOUD{background:var(--cloud-soft);border-color:#C9CDEE}.r-CLOUD .tag{background:var(--cloud)}
-.r-LOCAL_RESTRICTED{background:var(--warn-soft);border-color:#F3D3A6}.r-LOCAL_RESTRICTED .tag{background:var(--warn)}
-.gauge{margin:16px 0 26px}
-.gauge .lbl{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px}
-.gauge .lbl b{font-variant-numeric:tabular-nums}
-.bar{position:relative;height:12px;border-radius:999px;background:var(--soft);border:1px solid var(--line)}
-.bar .fill{position:absolute;inset:0 auto 0 0;border-radius:999px;background:var(--axa);transition:width .35s}
-.bar .fill.hot{background:var(--axa-red)}
-.bar .mark{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink)}
-.bar .mark span{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);white-space:nowrap}
-.matrix{display:grid;grid-template-columns:110px 1fr 1fr;gap:6px;margin-top:22px;font-size:13.5px}
-.matrix .h{color:var(--muted);font-weight:600;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
-.matrix .c{border:1px dashed var(--line);border-radius:8px;padding:12px 8px;text-align:center;font-weight:700;color:#9A9DB3;background:#fff;transition:all .25s}
-.matrix .c.on{border-style:solid;color:#fff;transform:scale(1.02)}
-.matrix .c.on.LOCAL{background:var(--local);border-color:var(--local)}
-.matrix .c.on.CLOUD{background:var(--cloud);border-color:var(--cloud)}
-.matrix .c.on.LOCAL_RESTRICTED{background:var(--warn);border-color:var(--warn)}
-ul.reasons{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size:14px}
-ul.reasons li:last-child{color:var(--ink);font-weight:600;list-style:"→  "}
+/* ================= La frontière (signature) ================= */
+.frontier{display:grid;grid-template-columns:minmax(0,1fr) 168px minmax(0,1fr);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:#fff;box-shadow:var(--lift)}
+.zone{padding:24px 28px 26px}
+.zone.home{background:var(--home)}
+.zone.away{background:var(--away)}
+.zone h4{font-family:var(--serif);font-weight:600;font-size:21px;margin:0;line-height:1.2}
+.zone.home h4{color:#075A3F}.zone.away h4{color:var(--axa)}
+.zone .sub{color:var(--muted);font-size:14px;margin-top:3px}
+.figs{display:grid;gap:12px;margin-top:20px}
+.fig{display:flex;align-items:baseline;gap:12px}
+.fig b{font-family:var(--serif);font-weight:600;font-size:32px;line-height:1;font-variant-numeric:lining-nums tabular-nums;min-width:2.2ch}
+.fig span{color:var(--muted);font-size:14.5px;line-height:1.3}
+.zone.home .fig b{color:#075A3F}.zone.away .fig b{color:var(--axa)}
+.fig.hero b{font-size:52px;min-width:0}
+.fig.hero span{color:var(--ink);font-weight:600;font-size:15.5px}
+.fig.bad b{color:var(--deny)!important}
+.border{position:relative;background:var(--away);display:flex;flex-direction:column;justify-content:center;gap:22px;padding:22px 0}
+.border svg.slash{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cross{position:relative;margin:0 14px;font-size:12.5px;color:var(--muted);text-align:center;line-height:1.25}
+.cross i{display:block;height:2px;margin:6px 0 0;position:relative;background:var(--axa)}
+.cross i::after{content:"";position:absolute;top:-4px;border:5px solid transparent}
+.cross.out i::after{right:-2px;border-left:8px solid var(--axa);border-right:0}
+.cross.in i{background:var(--local)}
+.cross.in i::after{left:-2px;border-right:8px solid var(--local);border-left:0}
+.cross.stop i{background:repeating-linear-gradient(90deg,var(--deny) 0 5px,transparent 5px 9px);width:52%}
+.cross.stop i::after{left:52%;top:-5px;width:12px;height:12px;border:2px solid var(--deny);border-radius:50%;background:#fff;margin-left:-6px}
+.cross b{color:var(--ink);font-variant-numeric:tabular-nums}
+.cross .lbl{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 9px;position:relative;z-index:1;white-space:nowrap}
+.cross i{z-index:0}
+@media (max-width:860px){.frontier{grid-template-columns:1fr}.border{background:#fff;padding:14px 0}.border svg.slash{display:none}.cross{max-width:320px;margin:0 auto;width:100%}}
 
-/* ---------- Passerelle ---------- */
-.verdict{border-radius:var(--radius);padding:14px 18px;display:flex;gap:12px;align-items:center;font-weight:600;border:1px solid;margin:18px 0}
+/* ================= Tableau de bord ================= */
+.lede{font-family:var(--serif);font-size:19px;line-height:1.45;color:var(--ink);max-width:62ch;margin:22px 0 26px}
+.mrow{display:grid;grid-template-columns:118px 132px minmax(0,1fr) 34px;grid-template-areas:"t r b n";gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--line-2);font-size:14px}
+.mrow:first-of-type{border-top:0}
+.mrow time{color:var(--muted);font-variant-numeric:tabular-nums}
+.mrow .n{grid-area:n;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.mrow time{grid-area:t}.mrow .rt{grid-area:r}.mrow .sevbar{grid-area:b}
+@media (max-width:640px){.mrow{grid-template-columns:auto minmax(0,1fr) 30px;grid-template-areas:"t r n" "b b b";row-gap:8px}}
+.sevbar{display:flex;height:12px;border-radius:3px;overflow:hidden;background:var(--line-2)}
+.sevbar span{display:block;height:100%}
+.sev-critical{background:var(--s-critical)}.sev-high{background:var(--s-high)}.sev-medium{background:var(--s-medium)}.sev-low{background:var(--s-low)}.sev-info{background:var(--s-info)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:14px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.share{display:grid;gap:14px}
+.share .l{display:flex;justify-content:space-between;font-size:14.5px;margin-bottom:6px}
+.share .l b{font-variant-numeric:tabular-nums}
+.track{height:10px;border-radius:5px;background:var(--line-2);overflow:hidden}
+.track span{display:block;height:100%;border-radius:5px}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 20px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line-2)}
+.facts div b{display:block;font-family:var(--serif);font-size:24px;font-weight:600;font-variant-numeric:lining-nums tabular-nums;line-height:1.1}
+.facts div span{color:var(--muted);font-size:13.5px}
+.empty-state{border:1px dashed #C9CCDD;border-radius:var(--r-lg);padding:34px;text-align:center;background:#fff}
+.empty-state h4{font-family:var(--serif);font-size:21px;margin:0 0 6px;color:var(--axa)}
+.empty-state p{color:var(--muted);margin:0 0 16px}
+
+/* ================= Aiguillage : carte complexité × sensibilité ================= */
+.route{border-radius:var(--r-md);padding:16px 18px;display:flex;gap:16px;align-items:center;border:1px solid}
+.route .tag{font-weight:800;font-size:15px;letter-spacing:.03em;padding:8px 12px;border-radius:var(--r-sm);color:#fff;white-space:nowrap}
+.route h4{margin:0;font-family:var(--serif);font-weight:600;font-size:19px}
+.route p{margin:2px 0 0;color:var(--muted);font-size:14.5px}
+.r-LOCAL{background:var(--local-tint);border-color:var(--local-line)}.r-LOCAL .tag{background:var(--local)}
+.r-CLOUD{background:var(--cloud-tint);border-color:var(--cloud-line)}.r-CLOUD .tag{background:var(--cloud)}
+.r-LOCAL_RESTRICTED{background:var(--warn-soft);border-color:var(--warn-line)}.r-LOCAL_RESTRICTED .tag{background:var(--warn)}
+.quad{margin:18px 0 6px}
+.quad svg{width:100%;height:auto;display:block;overflow:visible}
+.quad .zl{font-family:var(--sans);font-size:12.5px;font-weight:700}
+.quad .ax{font-family:var(--sans);font-size:12px;fill:var(--muted)}
+.quad .pt{transition:transform .45s cubic-bezier(.3,.7,.2,1)}
+.readout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0 0}
+.readout div{background:var(--soft);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:10px 12px}
+.readout b{font-family:var(--serif);font-size:22px;font-variant-numeric:tabular-nums}
+.readout span{display:block;font-size:13px;color:var(--muted)}
+ul.reasons{margin:16px 0 0;padding-left:18px;color:var(--muted);font-size:14.5px}
+ul.reasons li:last-child{color:var(--ink);font-weight:600}
+
+/* ================= Passerelle ================= */
+.verdict{border-radius:var(--r-md);padding:14px 18px;display:flex;gap:12px;align-items:center;font-weight:600;border:1px solid;margin:20px 0}
 .verdict .ic{font-size:22px}
 .verdict small{display:block;font-weight:400;color:var(--muted)}
-.v-ok{background:var(--local-soft);border-color:#BFE3D2;color:#06553A}
-.v-no{background:var(--deny-soft);border-color:#F4B9C2;color:#8C0B20}
-.v-warn{background:var(--warn-soft);border-color:#F3D3A6;color:#6A3A00}
-.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;align-items:stretch}
+.v-ok{background:var(--local-tint);border-color:var(--local-line);color:#06553A}
+.v-no{background:var(--deny-soft);border-color:var(--deny-line);color:#8C0B20}
+.v-warn{background:var(--warn-soft);border-color:var(--warn-line);color:#6A3A00}
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch}
 .flow.f3{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:1100px){.flow,.flow.f3{grid-template-columns:1fr;gap:14px}.flow .arrow{display:none}}
-.pane{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0}
-.pane .ph{padding:10px 14px;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:flex;gap:8px;align-items:center}
-.pane .ph .st{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;color:#fff;font-size:11px;flex:0 0 20px}
+.pane{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.pane .ph{padding:10px 14px;border-bottom:1px solid var(--line);font-size:14px;font-weight:700;display:flex;gap:8px;align-items:center}
+.pane .ph .st{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;color:#fff;font-size:11.5px;flex:0 0 20px}
 .pane .pb{padding:12px 14px;font-family:var(--mono);font-size:13px;white-space:pre-wrap;word-break:break-word;line-height:1.6;flex:1}
-.pane.local .ph{background:var(--local-soft);color:#06553A}.pane.local .st{background:var(--local)}
-.pane.cloud .ph{background:var(--cloud-soft);color:var(--axa)}.pane.cloud .st{background:var(--axa)}
-.pane.off{opacity:.55}
-.pane .where{margin-left:auto;font-weight:600;text-transform:none;letter-spacing:0;font-size:11.5px}
+.pane.local .ph{background:var(--home);color:#06553A}.pane.local .st{background:var(--local)}
+.pane.cloud .ph{background:var(--away);color:var(--axa)}.pane.cloud .st{background:var(--axa)}
+.pane.off{opacity:.5}
+.pane .where{margin-left:auto;font-weight:600;font-size:12.5px;opacity:.8}
 .ex .pane .pb{max-height:360px;overflow:auto}
 .flowcell{display:flex;align-items:stretch;min-width:0}
 .flowcell .pane{flex:1}
-.arrow{display:flex;align-items:center;justify-content:center;width:26px;flex:0 0 26px;color:var(--axa-red);font-size:20px;font-weight:800}
-.empty{color:var(--muted);font-family:inherit;font-style:italic}
+.arrow{display:flex;align-items:center;justify-content:center;width:26px;flex:0 0 26px;color:var(--red);font-size:20px;font-weight:800}
+.empty{color:var(--muted);font-family:var(--sans);font-style:italic}
 mark.ent{border-radius:4px;padding:1px 3px;color:var(--ink);border-bottom:2px solid}
-mark.ent sup{font-size:9.5px;font-family:"Segoe UI",system-ui,sans-serif;font-weight:700;margin-left:3px;letter-spacing:.02em;opacity:.8}
+mark.ent sup{font-size:9.5px;font-family:var(--sans);font-weight:700;margin-left:3px;opacity:.8}
 mark.ent.unc{outline:2px dashed var(--warn);outline-offset:1px}
 .tok{border-radius:4px;padding:1px 4px;font-weight:700;border:1px solid;white-space:nowrap}
 .neut{background:var(--warn-soft);color:var(--warn);border-radius:4px;padding:1px 4px;font-weight:700}
 
-table{width:100%;border-collapse:collapse;font-size:13.5px}
-th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:2px solid var(--line);background:var(--soft)}
-td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:13px;padding:9px 10px;border-bottom:1px solid var(--line);background:var(--soft)}
+td{padding:9px 10px;border-bottom:1px solid var(--line-2);vertical-align:top}
+tbody tr:hover td{background:#FAFAFD}
 td.mono,.mono{font-family:var(--mono);font-size:12.5px;word-break:break-all}
 td.t{white-space:nowrap}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .tw{overflow-x:auto}
-.chip{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
-.c-ok{background:var(--local-soft);color:var(--local)}
+.chip{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.c-ok{background:var(--local-tint);color:var(--local)}
 .c-unc,.c-warn{background:var(--warn-soft);color:var(--warn)}
 .c-bad{background:var(--deny-soft);color:var(--deny)}
-.c-info{background:var(--cloud-soft);color:var(--axa)}
-.lock{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.c-info{background:var(--cloud-tint);color:var(--axa)}
+.lock{font-size:13px;color:var(--muted);margin:8px 0 0}
 
-/* ---------- Mission ---------- */
-.stepper{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin:18px 0}
-@media (max-width:900px){.stepper{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.step{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;position:relative;transition:all .3s}
-.step .num{font-size:12px;font-weight:800;color:#9A9DB3}
-.step .nm{font-weight:700;font-size:13.5px;line-height:1.3}
-.step .ai{margin-top:6px;font-size:11px;font-weight:700}
-.step.run{border-color:var(--axa);box-shadow:0 0 0 3px var(--cloud-soft)}
-.step.run .num{color:var(--axa)}
-.step.wait{border-color:var(--axa-red);box-shadow:0 0 0 3px #FFE0E3}
-.step.done{border-color:#BFC4EA;background:linear-gradient(180deg,#fff,#FAFAFF)}
-.step.done .num{color:var(--axa)}
-.step.done::after{content:"✓";position:absolute;top:8px;right:10px;color:var(--local);font-weight:800}
-.ai.LOCAL{color:var(--local)}.ai.CLOUD{color:var(--axa)}.ai.FAIL{color:var(--warn)}.ai.NONE{color:#9A9DB3;font-weight:600}
-.approval{border:2px solid var(--axa-red);background:#fff;border-radius:var(--radius);padding:18px 20px;margin:0 0 18px;box-shadow:0 8px 28px rgba(255,23,33,.12)}
-.approval h3{margin:0 0 6px;color:var(--axa-red);font-size:16px;text-transform:uppercase;letter-spacing:.05em}
-.approval .act{font-weight:700;font-size:16px;margin:4px 0 10px}
-.approval pre{white-space:pre-wrap;font-family:var(--mono);font-size:13px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0 0 14px}
+/* ================= Mission : frise des phases ================= */
+.launch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto auto;gap:14px;align-items:end}
+@media (max-width:1100px){.launch{grid-template-columns:1fr 1fr}}
+.rail{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));position:relative;margin:30px 0 26px}
+.rail .base,.rail .prog{position:absolute;top:17px;height:2px;left:calc(100% / 14)}
+.rail .base{right:calc(100% / 14);background:var(--line)}
+.rail .prog{background:var(--axa);transition:width .5s ease}
+.node{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;z-index:1;padding:0 4px}
+.node .dn{width:36px;height:36px;border-radius:50%;background:#fff;border:2px solid var(--line);display:grid;place-items:center;font-weight:700;color:var(--faint);font-size:14.5px;transition:all .3s}
+.node.done .dn{background:var(--axa);border-color:var(--axa);color:#fff}
+.node.run .dn{border-color:var(--axa);color:var(--axa);animation:pulse 1.8s ease-in-out infinite}
+.node.wait .dn{border-color:var(--red);color:var(--red);background:#FFF5F6;box-shadow:0 0 0 6px rgba(255,23,33,.14)}
+.node .nm{font-size:14px;font-weight:600;margin-top:9px;line-height:1.25;max-width:15ch}
+.node .ai{font-size:12.5px;margin-top:4px;color:var(--faint)}
+.node.run .nm,.node.wait .nm{color:var(--axa)}
+.node .waitlbl{font-size:12.5px;color:var(--red);font-weight:700;margin-top:4px}
+.ai.LOCAL{color:var(--local);font-weight:600}.ai.CLOUD{color:var(--axa);font-weight:600}.ai.FAIL{color:var(--warn);font-weight:600}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,0,143,.22)}50%{box-shadow:0 0 0 9px rgba(0,0,143,0)}}
+@media (max-width:760px){.rail{grid-template-columns:1fr;gap:12px}.rail .base,.rail .prog{display:none}.node{flex-direction:row;gap:12px;text-align:left}.node .nm{margin:0;max-width:none}.node .ai{margin:0 0 0 auto}}
+.approval{border:2px solid var(--red);background:#fff;border-radius:var(--r-lg);padding:20px 22px;margin:0 0 22px;box-shadow:0 14px 40px -18px rgba(255,23,33,.45)}
+.approval h3{margin:0 0 6px;color:var(--red);font-family:var(--serif);font-size:20px;font-weight:600}
+.approval .act{font-weight:700;font-size:16.5px;margin:4px 0 12px}
+.approval pre{white-space:pre-wrap;font-family:var(--mono);font-size:13px;background:var(--soft);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;margin:0 0 14px}
 .approval pre .w{color:var(--deny);font-weight:700}
-.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:18px 0}
-@media (max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media (max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;border-left:5px solid}
-.kpi b{display:block;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
-.kpi span{color:var(--muted);font-size:12.5px}
-.k-local{border-left-color:var(--local)}.k-cloud{border-left-color:var(--axa)}.k-fail{border-left-color:var(--warn)}.k-ent{border-left-color:var(--axa-red)}.k-inj{border-left-color:#7A4FA0}.k-ok{border-left-color:var(--local)}.k-bad{border-left-color:var(--deny)}
-.dec{display:inline-block;font-weight:800;font-size:11.5px;padding:3px 8px;border-radius:6px;color:#fff;letter-spacing:.03em}
+
+/* constats par application */
+.sevsum{display:flex;height:16px;border-radius:4px;overflow:hidden;margin:4px 0 0}
+.sevsum span{display:block;height:100%}
+.lane{display:grid;grid-template-columns:190px minmax(0,1fr);gap:16px;align-items:start;padding:14px 0;border-top:1px solid var(--line-2)}
+.lane .who b{display:block;font-family:var(--mono);font-size:13px;word-break:break-all;font-weight:600}
+.lane .who span{color:var(--muted);font-size:13px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.fp{display:grid;gap:2px;border:1px solid var(--line);border-left:4px solid var(--sev,#999);border-radius:var(--r-sm);padding:7px 11px;background:#fff;font-size:13.5px;max-width:330px}
+.fp .t{font-weight:600;line-height:1.3}
+.fp .m{color:var(--muted);font-size:12.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media (max-width:760px){.lane{grid-template-columns:1fr;gap:8px}}
+.dec{display:inline-block;font-weight:800;font-size:11.5px;padding:2px 7px;border-radius:4px;color:#fff;letter-spacing:.02em}
 .d-ACT{background:var(--deny)}.d-ATTEND{background:#E07000}.d-TRACKs{background:var(--axa)}.d-TRACK{background:#8B8FA8}
-.r-badge{display:inline-block;font-weight:800;font-size:11px;padding:3px 8px;border-radius:6px;color:#fff}
+.r-badge{display:inline-block;font-weight:700;font-size:12px;padding:2px 8px;border-radius:4px;color:#fff;white-space:nowrap}
 .rb-LOCAL{background:var(--local)}.rb-CLOUD{background:var(--axa)}.rb-LOCAL_RESTRICTED{background:var(--warn)}
-.ex{border:1px solid var(--line);border-radius:var(--radius);background:#fff;margin-top:14px;overflow:hidden}
+.ex{border:1px solid var(--line);border-radius:var(--r-md);background:#fff;margin-top:14px;overflow:hidden}
 .ex-h{display:flex;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.ex-h b{font-size:15px}
-.path{font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;color:#fff;letter-spacing:.03em}
+.ex-h b{font-size:15.5px}
+.path{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;color:#fff;letter-spacing:.02em}
 .p-LOCAL{background:var(--local)}.p-CLOUD{background:var(--axa)}.p-FAIL{background:var(--warn)}
-.ex-h .hint{color:var(--muted);font-size:13px;margin:0}
+.ex-h .hint{color:var(--muted);font-size:13.5px;margin:0}
 .ex .flow{padding:14px;background:var(--soft)}
-.ex .pane{box-shadow:none}
-details.real{padding:10px 16px;border-top:1px solid var(--line);font-size:13.5px}
+details.real{padding:10px 16px;border-top:1px solid var(--line);font-size:14px}
 details.real summary{cursor:pointer;color:var(--muted);font-weight:600}
-.md pre.code{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;word-break:break-word;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:6px 0 10px}
-details.real pre{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;background:var(--soft);padding:10px;border-radius:8px;border:1px solid var(--line)}
-.local-ans{padding:12px 16px;font-size:14px;white-space:pre-wrap}
+details.real pre{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;background:var(--soft);padding:10px;border-radius:var(--r-sm);border:1px solid var(--line)}
+.local-ans{padding:12px 16px;font-size:14.5px;white-space:pre-wrap}
 .alerts{padding:10px 16px 0;display:flex;gap:6px;flex-wrap:wrap}
 
-/* ---------- Rapport ---------- */
-.md h1{color:var(--axa);font-size:22px;margin:4px 0 6px}
-.md h2{color:var(--axa);font-size:17px;margin:22px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--axa-red);display:table}
-.md h3{font-size:15px;margin:16px 0 6px}
+/* ================= Rapport ================= */
+.md h1{font-family:var(--serif);color:var(--axa);font-size:24px;margin:4px 0 6px}
+.md h2{font-family:var(--serif);font-weight:600;color:var(--axa);font-size:20px;margin:26px 0 10px;padding-bottom:5px;border-bottom:2px solid var(--red);display:table}
+.md h3{font-size:16px;margin:18px 0 6px}
 .md p{margin:6px 0}
 .md ul{margin:6px 0;padding-left:20px}
-.md li.sub{margin-left:18px;color:var(--muted);font-size:14px}
+.md li.sub{margin-left:18px;color:var(--muted);font-size:14.5px}
 .md code{font-family:var(--mono);font-size:12.5px;background:var(--soft);border:1px solid var(--line);padding:1px 5px;border-radius:4px;word-break:break-all}
+.md pre.code{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;word-break:break-word;background:var(--soft);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;margin:6px 0 10px}
 .md .tw{margin:8px 0 12px}
-.outbox-item{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;overflow:hidden}
-.outbox-item .oh{background:var(--cloud-soft);color:var(--axa);font-weight:700;font-size:12px;padding:6px 10px;text-transform:uppercase;letter-spacing:.05em}
+.outbox-item{border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:10px;overflow:hidden}
+.outbox-item .oh{background:var(--away);color:var(--axa);font-weight:700;font-size:13px;padding:6px 10px}
 .outbox-item pre{margin:0;padding:10px;font-family:var(--mono);font-size:12px;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto}
-.placeholder{text-align:center;color:var(--muted);padding:50px 20px;border:2px dashed var(--line);border-radius:var(--radius);background:#fff}
-.err{background:var(--deny-soft);color:#8C0B20;border:1px solid #F4B9C2;padding:10px 14px;border-radius:8px;margin-top:12px}
-.ok{background:var(--local-soft);color:#06553A;border:1px solid #BFE3D2;padding:10px 14px;border-radius:8px;margin-top:12px}
+.placeholder{text-align:center;color:var(--muted);padding:50px 20px;border:1px dashed #C9CCDD;border-radius:var(--r-lg);background:#fff}
+.err{background:var(--deny-soft);color:#8C0B20;border:1px solid var(--deny-line);padding:10px 14px;border-radius:var(--r-sm);margin-top:12px}
+.ok{background:var(--local-tint);color:#06553A;border:1px solid var(--local-line);padding:10px 14px;border-radius:var(--r-sm);margin-top:12px}
 .err ul{margin:6px 0 0;padding-left:20px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px;border-top:4px solid}
+.kpi b{display:block;font-family:var(--serif);font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:13.5px}
+.k-local,.k-ok{border-top-color:var(--local)}.k-cloud{border-top-color:var(--axa)}.k-fail{border-top-color:var(--warn)}.k-ent{border-top-color:var(--red)}.k-bad{border-top-color:var(--deny)}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:8px}
-.spin.dark{border-color:rgba(0,0,143,.25);border-top-color:var(--axa)}
 @keyframes sp{to{transform:rotate(360deg)}}
-footer{max-width:1240px;margin:0 auto;padding:0 24px 30px;color:var(--muted);font-size:12.5px}
-fieldset{border:1px solid var(--line);border-radius:var(--radius);padding:6px 18px 16px;margin:0;min-width:0;background:#fff}
-legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:.06em;font-size:13px;padding:0 6px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
-/* ---------- Impression / PDF ---------- */
+/* ================= Impression / PDF ================= */
 #print-root{display:none}
 @media print{
   @page{size:A4;margin:14mm 13mm 16mm}
   html,body{background:#fff}
   body>*:not(#print-root){display:none!important}
-  #print-root{display:block;font-size:10.5pt;color:#14142B}
+  #print-root{display:block;font-size:10.5pt;color:#14142B;font-family:var(--sans)}
   #print-root *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .p-head{background:#00008F;color:#fff;padding:14px 18px;border-radius:6px;position:relative;overflow:hidden;margin-bottom:14px}
   .p-head::after{content:"";position:absolute;right:46px;top:-18px;width:5px;height:110px;background:#FF1721;transform:rotate(38deg)}
-  .p-head b{font-size:20pt;letter-spacing:.06em}
+  .p-head b{font-family:var(--serif);font-size:20pt;letter-spacing:.05em}
   .p-head .t{font-size:11pt;color:#DCDDF7;margin-top:2px}
   .p-head .m{font-size:9pt;color:#C9CCF2;margin-top:6px}
   .p-conf{display:inline-block;margin-top:8px;background:#FF1721;color:#fff;font-weight:700;font-size:8.5pt;padding:2px 8px;border-radius:3px;letter-spacing:.06em}
   #print-root h1{display:none}
-  #print-root h2{color:#00008F;font-size:13pt;border-bottom:2px solid #FF1721;padding-bottom:3px;margin:16px 0 8px;break-after:avoid}
+  #print-root h2{font-family:var(--serif);color:#00008F;font-size:13pt;border-bottom:2px solid #FF1721;padding-bottom:3px;margin:16px 0 8px;break-after:avoid}
   #print-root h3{font-size:11pt;margin:12px 0 4px;break-after:avoid}
   #print-root table{font-size:8.5pt;break-inside:auto}
   #print-root tr{break-inside:avoid}
@@ -248,27 +346,38 @@ legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:
 </style>
 </head>
 <body>
-
-<header>
-  <div class="head-in">
-    <div class="brand"><b>INOVA</b><span>Pentest assisté par IA · confidentialité maîtrisée</span></div>
-    <div class="badges" id="badges"></div>
+<div class="app">
+<aside class="side" aria-label="Navigation">
+  <div class="logo"><b>INOVA</b><span>Pentest assisté par IA, données sous contrôle</span></div>
+  <div class="navgroups" role="tablist" aria-orientation="vertical">
+    <div class="navgroup">
+      <button class="tab" role="tab" data-tab="tableau"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span>Tableau de bord</button>
+    </div>
+    <div class="navgroup"><p>Préparer</p>
+      <button class="tab" role="tab" data-tab="perimetre"><span class="n">1</span>Périmètre</button>
+      <button class="tab" role="tab" data-tab="aiguillage"><span class="n">2</span>Aiguillage</button>
+      <button class="tab" role="tab" data-tab="passerelle"><span class="n">3</span>Passerelle</button>
+    </div>
+    <div class="navgroup"><p>Exécuter</p>
+      <button class="tab" role="tab" data-tab="mission"><span class="n">4</span>Mission</button>
+      <button class="tab" role="tab" data-tab="rapport"><span class="n">5</span>Rapport</button>
+    </div>
+    <div class="navgroup"><p>Mesurer</p>
+      <button class="tab" role="tab" data-tab="historique"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span>Historique</button>
+      <button class="tab" role="tab" data-tab="evaluation"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M7 16v-5"/><path d="M12 16V6"/><path d="M17 16v-8"/></svg></span>Taux de fuite</button>
+    </div>
   </div>
-</header>
+  <div class="status" id="status" aria-live="polite"><div>Connexion au serveur local…</div></div>
+</aside>
 
-<nav>
-  <div class="nav-in" role="tablist">
-    <button class="tab" role="tab" data-tab="perimetre"><span class="n">1</span>Périmètre</button>
-    <button class="tab" role="tab" data-tab="aiguillage"><span class="n">2</span>Aiguillage</button>
-    <button class="tab" role="tab" data-tab="passerelle"><span class="n">3</span>Passerelle</button>
-    <button class="tab" role="tab" data-tab="mission"><span class="n">4</span>Mission</button>
-    <button class="tab" role="tab" data-tab="rapport"><span class="n">5</span>Rapport</button>
-    <button class="tab" role="tab" data-tab="historique"><span class="n">6</span>Historique</button>
-    <button class="tab" role="tab" data-tab="evaluation"><span class="n">7</span>Évaluation</button>
-  </div>
-</nav>
-
+<div>
 <main>
+<!-- =============================== TABLEAU DE BORD =============================== -->
+<section id="tab-tableau">
+  <h2 class="sec">Ce qui est sorti de ta machine</h2>
+  <p class="intro">Toutes les missions enregistrées, vues depuis la frontière entre ta machine et le cloud : ce qui a été raisonné en local, ce qui est parti masqué, et ce que le contrôle de l'outbox a trouvé en clair.</p>
+  <div id="d-out"><div class="placeholder">Chargement…</div></div>
+</section>
 <!-- =============================== 1. PÉRIMÈTRE =============================== -->
 <section id="tab-perimetre">
   <h2 class="sec">Périmètre de la mission</h2>
@@ -324,7 +433,7 @@ legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:
 
 <!-- =============================== 2. AIGUILLAGE =============================== -->
 <section id="tab-aiguillage" hidden>
-  <h2 class="sec">L'aiguilleur décide du chemin, avant le pentest</h2>
+  <h2 class="sec">Aiguillage : local ou cloud ?</h2>
   <p class="intro">Le <b>SLM local</b> évalue la <b>complexité</b> du pentest (le modèle local en est-il capable ?) et la <b>sensibilité</b> des données (peut-on les faire sortir, même masquées ?). Modifie le profil : la décision se met à jour.</p>
   <div class="grid g-2">
     <div class="card">
@@ -352,13 +461,13 @@ legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:
       <label class="f" for="r-sector">Secteur du client</label>
       <select id="r-sector"><option value="">Non précisé</option><option value="assurance">Assurance</option><option value="banque">Banque</option><option value="sante">Santé</option><option value="defense">Défense</option></select>
     </div>
-    <div class="card"><h3>Décision de l'aiguilleur</h3><div id="r-out"><p class="empty">Calcul…</p></div></div>
+    <div class="card"><h3>Décision de l'aiguilleur <small>le point rouge se déplace quand tu modifies le profil</small></h3><div id="r-out"><p class="empty">Calcul…</p></div></div>
   </div>
 </section>
 
 <!-- =============================== 3. PASSERELLE =============================== -->
 <section id="tab-passerelle" hidden>
-  <h2 class="sec">La passerelle : ce que voit vraiment le cloud</h2>
+  <h2 class="sec">Passerelle : ce que voit le cloud</h2>
   <p class="intro">Colle un constat de pentest. <b>Presidio</b> détecte les données sensibles, les remplace par des jetons, puis vérifie qu'il ne reste rien. Si c'est sûr, le texte masqué part au LLM externe ; sa réponse revient en jetons et les vraies valeurs sont <b>réinjectées sur ta machine</b>. Au moindre doute : <b>repli local</b>.</p>
   <div class="card">
     <div class="row" style="justify-content:space-between">
@@ -377,10 +486,10 @@ legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:
 
 <!-- =============================== 4. MISSION =============================== -->
 <section id="tab-mission" hidden>
-  <h2 class="sec">Mission : les 7 phases</h2>
+  <h2 class="sec">Mission</h2>
   <p class="intro">La mission s'exécute sur ta machine. En mode <b>validation humaine</b>, elle s'arrête avant chaque action active et attend ta décision. La source <b>Démo</b> utilise des sorties nmap / nuclei d'un laboratoire fictif ; <b>Outils réels</b> lance nmap et nuclei sur le périmètre (si <code>tools.dry_run: false</code>).</p>
   <div class="card">
-    <div class="grid g-5" style="align-items:end">
+    <div class="launch">
       <div><label class="f" for="x-source" style="margin-top:0">Source des données</label>
         <select id="x-source"><option value="demo">Démo (labo fictif)</option><option value="tools">Outils réels</option></select></div>
       <div><label class="f" for="x-class" style="margin-top:0">Classification</label>
@@ -392,7 +501,7 @@ legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:
     </div>
     <p class="hint" id="x-note"></p>
   </div>
-  <div class="stepper" id="x-steps"></div>
+  <div class="rail" id="x-steps"></div>
   <div id="x-approval"></div>
   <div id="x-out"></div>
 </section>
@@ -401,7 +510,7 @@ legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:
 <section id="tab-rapport" hidden>
   <h2 class="sec">Rapport et preuves de confidentialité</h2>
   <p class="intro">Le rapport est généré <b>en local</b>, avec les vraies valeurs. Exporte-le en PDF en version <b>direction</b> (synthèse, priorités, confidentialité, coût) ou <b>technique</b> (complète). À droite : <b>cloud_outbox.jsonl</b>, la copie exacte de tout ce qui a quitté la machine, et le journal d'audit.</p>
-  <div id="rp-out"><div class="placeholder">Lance une mission (onglet <b>4</b>) ou ouvre-en une dans l'<b>historique</b> (onglet <b>6</b>).</div></div>
+  <div id="rp-out"><div class="placeholder">Lance une mission (onglet <b>4</b>) ou ouvre-en une dans l'<b>historique</b>.</div></div>
 </section>
 
 <!-- =============================== 6. HISTORIQUE =============================== -->
@@ -413,7 +522,7 @@ legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:
 
 <!-- =============================== 7. ÉVALUATION =============================== -->
 <section id="tab-evaluation" hidden>
-  <h2 class="sec">Évaluation : taux de fuite de la passerelle</h2>
+  <h2 class="sec">Taux de fuite de la passerelle</h2>
   <p class="intro">Mesure sur un corpus de <b>56 cas étiquetés</b> (sorties nmap, nuclei, sqlmap, HTTP, JSON, configurations, journaux, texte libre, obfuscations). La <b>fuite effective</b> compte les valeurs qui seraient réellement sorties : un repli local empêche la sortie. Voir <code>docs/EVALUATION.md</code> pour la méthode et ses limites.</p>
   <div class="card"><div class="row">
     <label class="f" for="e-model" style="margin:0">Modèle spaCy français</label>
@@ -425,7 +534,9 @@ legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:
 </section>
 </main>
 
-<footer>Interface locale (127.0.0.1) — la table de correspondance s'affiche ici parce que tout reste sur ta machine. À utiliser uniquement dans le cadre d'un mandat signé.</footer>
+<footer>Interface locale (127.0.0.1) : la table de correspondance s'affiche ici parce que tout reste sur ta machine. À utiliser uniquement dans le cadre d'un mandat signé.</footer>
+</div>
+</div>
 <div id="print-root"></div>
 
 <script>
@@ -479,13 +590,15 @@ const routeCard = d => `<div class="route r-${d.route}"><span class="tag">${esc(
   <div><h4>${esc(ROUTE[d.route].t)}</h4><p>${esc(ROUTE[d.route].d)}</p></div></div>`;
 
 /* ---------------- Onglets ---------------- */
-const TABS = ["perimetre", "aiguillage", "passerelle", "mission", "rapport", "historique", "evaluation"];
+const TABS = ["tableau", "perimetre", "aiguillage", "passerelle", "mission", "rapport", "historique", "evaluation"];
 function show(tab) {
-  if (!TABS.includes(tab)) tab = "perimetre";
+  if (!TABS.includes(tab)) tab = "tableau";
   $$(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
   $$("main > section").forEach(s => s.hidden = s.id !== "tab-" + tab);
   if (location.hash.slice(1) !== tab) history.replaceState(null, "", "#" + tab);
   if (tab === "historique") loadHistory();
+  if (tab === "tableau") loadDashboard();
+  window.scrollTo(0, 0);
 }
 $$(".tab").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
 window.addEventListener("hashchange", () => show(location.hash.slice(1)));
@@ -495,11 +608,13 @@ async function loadInfo() {
   INFO = await api("/api/info");
   const mode = m => m === "live" ? "réel" : "simulé";
   const anyMock = INFO.local_mode !== "live" || INFO.cloud_mode !== "live";
-  $("#badges").innerHTML = `<span class="hb ${anyMock ? "demo" : "live"}">${anyMock ? "IA simulée (mode démo)" : "IA réelle"}</span>
-    <span class="hb">SLM local : ${esc(INFO.local_model)} · ${mode(INFO.local_mode)}</span>
-    <span class="hb">LLM cloud : ${esc(INFO.cloud_model)} · ${mode(INFO.cloud_mode)}</span>
-    <span class="hb">Presidio : ${esc(INFO.spacy_models.fr || "?")}</span>
-    <span class="hb">Périmètre : ${esc(INFO.client)} · ${esc(INFO.scope_file)}</span>`;
+  const short = m => esc(String(m || "").split("/").pop());
+  $("#status").innerHTML = `<div class="mode"><span class="dot${anyMock ? "" : " live"}"></span>${anyMock ? "IA simulée (démo)" : "IA réelle"}</div>
+    <div title="${esc(INFO.local_model)}"><span class="k">Local</span> ${short(INFO.local_model)} (${mode(INFO.local_mode)})</div>
+    <div title="${esc(INFO.cloud_model)}"><span class="k">Cloud</span> ${short(INFO.cloud_model)} (${mode(INFO.cloud_mode)})</div>
+    <div><span class="k">Masquage</span> Presidio, ${esc(INFO.spacy_models.fr || "?")}</div>
+    <div title="${esc(INFO.scope_file)}"><span class="k">Client</span> ${esc(INFO.client)}</div>
+    <div><span class="k">Outils</span> ${INFO.tools_dry_run ? "simulation (dry-run)" : "réels"}</div>`;
   $("#x-note").textContent = INFO.tools_dry_run
     ? "Outils réels : tools.dry_run est à true dans settings.yaml, les commandes seront seulement affichées (aucun résultat)."
     : "Outils réels : nmap et nuclei seront lancés sur les cibles du périmètre.";
@@ -564,6 +679,33 @@ const getProfile = () => ({
   exploitation_chaining: $("#r-chain").checked, sensitive_terms: $("#r-terms").checked,
   nb_targets: +$("#r-targets").value || 1, data_classification: $("#r-class").value, sector: $("#r-sector").value,
 });
+const QW = 460, QH = 330, QM = {l: 46, r: 12, t: 12, b: 42};
+function quadSvg(cT, sT) {
+  const w = QW - QM.l - QM.r, h = QH - QM.t - QM.b, X = v => QM.l + v * w, Y = v => QM.t + (1 - v) * h;
+  return `<svg viewBox="0 0 ${QW} ${QH}" role="img" aria-labelledby="q-t"><title id="q-t">Position du pentest selon sa complexité et la sensibilité de ses données</title>
+    <rect x="${X(0)}" y="${Y(1)}" width="${X(cT) - X(0)}" height="${h}" fill="#E8F5EE"/>
+    <rect x="${X(cT)}" y="${Y(sT)}" width="${X(1) - X(cT)}" height="${Y(0) - Y(sT)}" fill="#E9EBF8"/>
+    <rect x="${X(cT)}" y="${Y(1)}" width="${X(1) - X(cT)}" height="${Y(sT) - Y(1)}" fill="#FFF1DC"/>
+    <line x1="${X(cT)}" y1="${Y(0)}" x2="${X(cT)}" y2="${Y(1)}" stroke="#15153D" stroke-dasharray="4 4" stroke-width="1"/>
+    <line x1="${X(cT)}" y1="${Y(sT)}" x2="${X(1)}" y2="${Y(sT)}" stroke="#15153D" stroke-dasharray="4 4" stroke-width="1"/>
+    <text class="zl" x="${X(cT / 2)}" y="${Y(.5)}" text-anchor="middle" fill="#0A7A55">LOCAL</text>
+    <text class="ax" x="${X(cT / 2)}" y="${Y(.5) + 17}" text-anchor="middle">le modèle local suffit</text>
+    <text class="zl" x="${X((1 + cT) / 2)}" y="${Y(sT / 2)}" text-anchor="middle" fill="#00008F">CLOUD</text>
+    <text class="ax" x="${X((1 + cT) / 2)}" y="${Y(sT / 2) + 17}" text-anchor="middle">via la passerelle</text>
+    <text class="zl" x="${X((1 + cT) / 2)}" y="${Y((1 + sT) / 2)}" text-anchor="middle" fill="#9A5B00">LOCAL RESTREINT</text>
+    <text class="ax" x="${X((1 + cT) / 2)}" y="${Y((1 + sT) / 2) + 17}" text-anchor="middle">rien ne sort</text>
+    <line x1="${X(0)}" y1="${Y(0)}" x2="${X(1)}" y2="${Y(0)}" stroke="#C6C9DA"/><line x1="${X(0)}" y1="${Y(0)}" x2="${X(0)}" y2="${Y(1)}" stroke="#C6C9DA"/>
+    ${[0, .5, 1].map(v => `<text class="ax" x="${X(v)}" y="${Y(0) + 16}" text-anchor="middle">${String(v).replace(".", ",")}</text><text class="ax" x="${X(0) - 8}" y="${Y(v) + 4}" text-anchor="end">${String(v).replace(".", ",")}</text>`).join("")}
+    <text class="ax" x="${X(.5)}" y="${QH - 4}" text-anchor="middle">Complexité du pentest</text>
+    <text class="ax" transform="translate(12 ${Y(.5)}) rotate(-90)" text-anchor="middle">Sensibilité des données</text>
+    <g class="pt" id="q-pt" style="transform:translate(${X(0)}px,${Y(0)}px)"><circle r="17" fill="#FF1721" opacity=".16"/><circle r="8" fill="#FF1721" stroke="#fff" stroke-width="2.5"/></g>
+  </svg>`;
+}
+let QUAD_KEY = "";
+function placePoint(c, s) {
+  const w = QW - QM.l - QM.r, h = QH - QM.t - QM.b;
+  const pt = $("#q-pt"); if (pt) pt.style.transform = `translate(${QM.l + c * w}px,${QM.t + (1 - s) * h}px)`;
+}
 function gauge(label, v, thr, hotWord) {
   return `<div class="gauge"><div class="lbl"><span>${label}</span><b>${v.toFixed(2)}</b></div>
     <div class="bar"><div class="fill${v >= thr ? " hot" : ""}" style="width:${Math.round(v * 100)}%"></div>
@@ -573,15 +715,18 @@ let rTimer;
 async function updateRoute() {
   try {
     const d = await api("/api/route", getProfile());
-    const heavy = d.complexity >= d.thresholds.complexity, sens = d.sensitivity >= d.thresholds.sensitivity;
-    const cell = (h, s, r) => `<div class="c ${r}${heavy === h && sens === s ? " on" : ""}">${r}</div>`;
-    $("#r-out").innerHTML = routeCard(d)
-      + gauge("Complexité — le modèle local en est-il capable ?", d.complexity, d.thresholds.complexity, "au-delà : pentest lourd")
-      + gauge("Sensibilité — les données peuvent-elles sortir, masquées ?", d.sensitivity, d.thresholds.sensitivity, "au-delà : trop sensible")
-      + `<div class="matrix"><div></div><div class="h">Données peu sensibles</div><div class="h">Données très sensibles</div>
-          <div class="h">Pentest simple</div>${cell(false, false, "LOCAL")}${cell(false, true, "LOCAL")}
-          <div class="h">Pentest lourd</div>${cell(true, false, "CLOUD")}${cell(true, true, "LOCAL_RESTRICTED")}</div>`
-      + `<ul class="reasons">${d.reasons.map(r => `<li>${esc(r)}</li>`).join("")}</ul>`;
+    const key = d.thresholds.complexity + "/" + d.thresholds.sensitivity;
+    if (QUAD_KEY !== key || !$("#q-pt")) {
+      $("#r-out").innerHTML = `<div id="r-card"></div><div class="quad">${quadSvg(d.thresholds.complexity, d.thresholds.sensitivity)}</div>
+        <div class="readout"><div><b id="r-c"></b><span>complexité (seuil ${String(d.thresholds.complexity).replace(".", ",")})</span></div>
+        <div><b id="r-s"></b><span>sensibilité (seuil ${String(d.thresholds.sensitivity).replace(".", ",")})</span></div></div><ul class="reasons" id="r-why"></ul>`;
+      QUAD_KEY = key;
+    }
+    $("#r-card").innerHTML = routeCard(d);
+    $("#r-c").textContent = d.complexity.toFixed(2).replace(".", ",");
+    $("#r-s").textContent = d.sensitivity.toFixed(2).replace(".", ",");
+    $("#r-why").innerHTML = d.reasons.map(r => `<li>${esc(r)}</li>`).join("");
+    requestAnimationFrame(() => placePoint(d.complexity, d.sensitivity));
   } catch (e) { $("#r-out").innerHTML = `<div class="err">${esc(e.message)}</div>`; }
 }
 $$("#tab-aiguillage select, #tab-aiguillage input").forEach(el =>
@@ -651,13 +796,17 @@ function aiByPhase(trace) {
 }
 function renderSteps(current = -1, status = "idle", trace = null) {
   const ai = aiByPhase(trace);
-  $("#x-steps").innerHTML = PHASES.map(([n, nm, key], i) => {
+  const reached = status === "done" ? 6 : Math.max(0, Math.min(current, 6));
+  const nodes = PHASES.map(([n, nm, key], i) => {
     const st = status === "done" || i < current ? "done" : i === current ? (status === "waiting_approval" ? "wait" : "run") : "";
     const a = key ? ai[key] : null;
-    const aiTxt = !key ? `<div class="ai NONE">outils / règles</div>`
-      : a ? `<div class="ai ${a}">${a === "CLOUD" ? "IA · cloud masqué" : a === "FAIL" ? "IA · repli local" : "IA · local"}</div>` : `<div class="ai NONE">IA</div>`;
-    return `<div class="step ${st}"><div class="num">PHASE ${n}</div><div class="nm">${nm}</div>${aiTxt}</div>`;
+    const sub = st === "wait" ? `<div class="waitlbl">attend ta décision</div>`
+      : !key ? `<div class="ai">outils et règles</div>`
+      : a ? `<div class="ai ${a}">${a === "CLOUD" ? "IA, cloud masqué" : a === "FAIL" ? "IA, repli local" : "IA locale"}</div>` : `<div class="ai">IA</div>`;
+    return `<div class="node ${st}"><div class="dn">${st === "done" ? "✓" : n}</div><div class="nm">${nm}</div>${sub}</div>`;
   }).join("");
+  const w = current < 0 && status !== "done" ? 0 : reached / 6;
+  $("#x-steps").innerHTML = `<div class="base"></div><div class="prog" style="width:calc((100% - 100% / 7) * ${w})"></div>${nodes}`;
 }
 renderSteps();
 
@@ -720,13 +869,9 @@ function renderMission(r) {
   const nEnt = r.audit.filter(e => e.event === "masking").reduce((a, e) => a + (e.entities || 0), 0);
   const nInj = r.audit.filter(e => e.event === "injection_suspectee").reduce((a, e) => a + (e.count || 1), 0);
   const oc = r.outbox_check || {};
-  const kpis = `<div class="kpis">
-    <div class="kpi k-local"><b>${nLocal}</b><span>raisonnements en local</span></div>
-    <div class="kpi k-cloud"><b>${nCloud}</b><span>envois au cloud (masqués)</span></div>
-    <div class="kpi k-fail"><b>${nFail}</b><span>replis locaux</span></div>
-    <div class="kpi k-ent"><b>${nEnt}</b><span>entités masquées</span></div>
-    <div class="kpi k-inj"><b>${nInj}</b><span>pièges neutralisés</span></div>
-    <div class="kpi ${oc.ok === false ? "k-bad" : "k-ok"}"><b>${oc.ok === false ? "⚠ " + oc.leaks.length : "✓ 0"}</b><span>fuite dans l'outbox</span></div></div>`;
+  const kpis = frontier({local: nLocal, fail: nFail, inj: nInj, entities: nEnt, cloud: nCloud,
+                         answers: nCloud, leaks: oc.ok === false ? oc.leaks.length : 0, checked: oc.checked_values,
+                         route: r.decision.route});
   const u = r.usage || {local: {}, cloud: {}};
   const cost = `<div class="card" style="margin-top:18px"><h3>Coût et performance <small>${u.local.estimated || u.cloud.estimated ? "tokens estimés (IA simulée)" : "tokens réels du fournisseur"}</small></h3>
     <div class="tw"><table><thead><tr><th>Modèle</th><th class="num">Appels</th><th class="num">Tokens envoyés</th><th class="num">Tokens reçus</th><th class="num">Durée</th><th class="num">Coût</th></tr></thead><tbody>
@@ -760,12 +905,107 @@ function renderMission(r) {
     return `<div class="ex"><div class="ex-h"><b>${esc(PH[t.phase] || t.phase)}</b>${head}</div>${alerts.length ? `<div class="alerts">${alerts.join("")}</div>` : ""}${body}
       <details class="real"><summary>Voir le texte réel (reste sur ta machine)</summary><pre>${tokens(t.real)}</pre></details></div>`;
   }).join("");
-  $("#x-out").innerHTML = routeCard(r.decision) + kpis
-    + `<div class="grid g-mis"><div class="card"><h3>Surface d'attaque <small>phase 2</small></h3>${services}</div>
-       <div class="card"><h3>Vulnérabilités priorisées <small>phases 3-4 · arbre de décision type SSVC</small></h3>${findings}</div></div>`
+  $("#x-out").innerHTML = routeCard(r.decision) + `<div class="mt">${kpis}</div>`
+    + `<div class="grid g-mis mt"><div class="card"><h3>Constats par application <small>gravité, score CVSS et décision de priorisation</small></h3>${lanes(r.findings)}</div>
+       <div class="card"><h3>Services exposés <small>reconnaissance nmap</small></h3>${services}</div></div>
+       <div class="card mt"><h3>Vulnérabilités priorisées <small>arbre de décision inspiré de SSVC : ACT, ATTEND, TRACK*, TRACK</small></h3>${findings}</div>`
     + cost
     + `<div class="card" style="margin-top:18px"><h3>Échanges avec l'IA <small>local ou cloud, étape par étape</small></h3>${exchanges}</div>`
     + `<p class="lock">Dossier de la mission : <span class="mono">runs/${esc(r.run)}</span> — voir l'onglet <a href="#rapport">5 · Rapport</a>.</p>`;
+}
+
+/* ================= Visualisations partagées ================= */
+const SEV = ["critical", "high", "medium", "low", "info"];
+const SEV_FR = {critical: "critique", high: "haute", medium: "moyenne", low: "faible", info: "info"};
+const plural = (n, one, many) => `${n} ${n > 1 ? many : one}`;
+function frontier(x) {
+  const restricted = x.route === "LOCAL_RESTRICTED";
+  const leak = x.leaks > 0;
+  return `<div class="frontier" role="figure" aria-label="Ce qui a franchi la frontière entre ta machine et le cloud">
+    <div class="zone home"><h4>Ta machine</h4><div class="sub">valeurs réelles, table de correspondance chiffrée</div>
+      <div class="figs">
+        <div class="fig"><b>${x.local}</b><span>${x.local > 1 ? "raisonnements faits" : "raisonnement fait"} en local</span></div>
+        <div class="fig"><b>${x.entities}</b><span>${x.entities > 1 ? "valeurs sensibles remplacées" : "valeur sensible remplacée"} par des jetons</span></div>
+        <div class="fig"><b>${x.fail}</b><span>${x.fail > 1 ? "envois refusés" : "envoi refusé"} par prudence (repli local)</span></div>
+        ${x.inj !== undefined ? `<div class="fig"><b>${x.inj}</b><span>${x.inj > 1 ? "instructions piégées neutralisées" : "instruction piégée neutralisée"}</span></div>` : ""}
+      </div></div>
+    <div class="border" aria-hidden="true">
+      <svg class="slash" preserveAspectRatio="none" viewBox="0 0 100 100"><polygon points="-1,-1 62,-1 38,101 -1,101" fill="#F1F8F4"/><line x1="62" y1="-2" x2="38" y2="102" stroke="#FF1721" stroke-width="5" vector-effect="non-scaling-stroke"/></svg>
+      <div class="cross out"><span class="lbl">${restricted ? "rien ne part" : `<b>${x.cloud}</b> ${x.cloud > 1 ? "envois masqués" : "envoi masqué"}`}</span><i></i></div>
+      <div class="cross in"><span class="lbl"><b>${x.answers}</b> ${x.answers > 1 ? "réponses" : "réponse"}</span><i></i></div>
+      <div class="cross stop"><span class="lbl">valeurs réelles bloquées</span><i></i></div>
+    </div>
+    <div class="zone away"><h4>Cloud</h4><div class="sub">ne voit que des jetons comme [HOSTNAME_1]</div>
+      <div class="figs">
+        <div class="fig hero${leak ? " bad" : ""}"><b>${x.leaks}</b><span>${leak ? "valeur(s) réelle(s) trouvée(s) dans l'outbox" : "valeur réelle reçue"}</span></div>
+        <div class="fig"><b>${x.cloud}</b><span>${x.cloud > 1 ? "textes reçus" : "texte reçu"}, tous masqués${x.checked ? `, vérifiés contre ${plural(x.checked, "valeur connue", "valeurs connues")}` : ""}</span></div>
+      </div></div></div>`;
+}
+const originOf = a => { try { const u = new URL(a); return u.origin; } catch (e) { return String(a || "?"); } };
+function lanes(findings) {
+  if (!findings.length) return `<p class="empty">Aucun constat sur cette mission.</p>`;
+  const groups = {};
+  for (const f of findings) (groups[originOf(f.asset)] ||= []).push(f);
+  const counts = SEV.map(s => [s, findings.filter(f => f.severity === s).length]).filter(([, n]) => n);
+  const sum = `<div class="sevsum" role="img" aria-label="${counts.map(([s, n]) => n + " " + SEV_FR[s]).join(", ")}">${
+    counts.map(([s, n]) => `<span class="sev-${s}" style="width:${n / findings.length * 100}%"></span>`).join("")}</div>
+    <div class="legend">${counts.map(([s, n]) => `<span><i class="sev-${s}"></i>${n} ${SEV_FR[s]}</span>`).join("")}</div>`;
+  const rows = Object.entries(groups).sort((a, b) => b[1].length - a[1].length).map(([o, fs]) => {
+    let host = o; try { const u = new URL(o); host = u.host; } catch (e) {}
+    return `<div class="lane"><div class="who"><b>${esc(host)}</b><span>${plural(fs.length, "constat", "constats")}</span></div><div class="pills">${
+      fs.map(f => `<div class="fp" style="--sev:var(--s-${SEV.includes(f.severity) ? f.severity : "info"})" title="${esc(f.asset)}">
+        <span class="t"><b>${esc(f.id)}</b> ${esc(f.title)}</span>
+        <span class="m">${esc(SEV_FR[f.severity] || f.severity)}, CVSS ${f.cvss} <span class="dec ${decCls(f.decision)}">${esc(f.decision)}</span>${f.verified ? " vérifiée" : ""}</span></div>`).join("")}</div></div>`;
+  }).join("");
+  return sum + `<div class="mt">${rows}</div>`;
+}
+
+/* ================= TABLEAU DE BORD ================= */
+const frDate = iso => { const m = String(iso || "").match(/^\d{4}-(\d{2})-(\d{2})T(\d{2}:\d{2})/); return m ? `${m[2]}/${m[1]} ${m[3]}` : ""; };
+async function loadDashboard() {
+  let missions = [];
+  try { ({missions} = await api("/api/history")); }
+  catch (e) { $("#d-out").innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
+  if (!missions.length) {
+    $("#d-out").innerHTML = `<div class="empty-state"><h4>Aucune mission enregistrée</h4><p>Lance une première mission, en démo ou sur ton laboratoire : ses chiffres apparaîtront ici.</p>
+      <button class="btn red" onclick="show('mission')">Préparer une mission</button></div>`;
+    return;
+  }
+  const S = k => missions.reduce((a, m) => a + (+m[k] || 0), 0);
+  const leaks = S("outbox_leaks"), cloud = S("cloud_calls");
+  const real = missions.filter(m => !m.demo).length;
+  const hero = frontier({local: S("local_calls"), fail: S("fail_closed"), inj: S("injections"), entities: S("masked_entities"),
+                         cloud, answers: cloud, leaks, checked: 0, route: ""});
+  const lede = `<p class="lede">${plural(missions.length, "mission", "missions")}, dont ${real} sur des outils réels.
+    ${leaks ? `<b style="color:var(--deny)">Attention : ${plural(leaks, "valeur réelle a été trouvée", "valeurs réelles ont été trouvées")} dans ce qui est parti au cloud.</b>`
+            : `Le contrôle de l'outbox n'a jamais trouvé de valeur réelle dans ce qui est parti au cloud.`}</p>`;
+  const recent = missions.slice(0, 8);
+  const maxF = Math.max(1, ...recent.map(m => m.findings || 0));
+  const sevRows = recent.map(m => {
+    const sv = m.severity || {};
+    const segs = SEV.map(s => sv[s] ? `<span class="sev-${s}" style="width:${sv[s] / maxF * 100}%" title="${sv[s]} ${SEV_FR[s]}"></span>` : "").join("");
+    return `<div class="mrow"><time>${esc(frDate(m.started_at))}</time>
+      <span class="rt"><span class="r-badge rb-${esc(m.route)}">${esc(m.route === "LOCAL_RESTRICTED" ? "RESTREINT" : m.route)}</span>${m.demo ? ` <span class="chip c-info">démo</span>` : ""}</span>
+      <div class="sevbar" role="img" aria-label="${m.findings} constats">${segs}</div><span class="n">${m.findings}</span></div>`;
+  }).join("");
+  const routes = ["CLOUD", "LOCAL", "LOCAL_RESTRICTED"].map(r => [r, missions.filter(m => m.route === r).length]);
+  const color = {CLOUD: "var(--axa)", LOCAL: "var(--local)", LOCAL_RESTRICTED: "var(--warn)"};
+  const label = {CLOUD: "Cloud, via la passerelle", LOCAL: "Tout en local", LOCAL_RESTRICTED: "Local restreint"};
+  const share = routes.map(([r, n]) => `<div><div class="l"><span>${label[r]}</span><b>${n}</b></div>
+    <div class="track"><span style="width:${n / missions.length * 100}%;background:${color[r]}"></span></div></div>`).join("");
+  const cost = missions.reduce((a, m) => a + (m.cost_usd || 0), 0);
+  const durs = missions.map(m => m.duration_s || 0).sort((a, b) => a - b);
+  const med = durs[Math.floor(durs.length / 2)] || 0;
+  const fmtDur = s => s >= 90 ? Math.round(s / 60) + " min" : Math.round(s) + " s";
+  $("#d-out").innerHTML = hero + lede + `<div class="grid g-dash">
+    <div class="card"><h3>Constats des dernières missions <small>longueur : nombre de constats ; couleur : gravité</small></h3>${sevRows}
+      <div class="legend">${SEV.map(s => `<span><i class="sev-${s}"></i>${SEV_FR[s]}</span>`).join("")}</div></div>
+    <div class="card"><h3>Routes choisies par l'aiguilleur <small>sur ${plural(missions.length, "mission", "missions")}</small></h3><div class="share">${share}</div>
+      <div class="facts"><div><b>${cost.toFixed(4).replace(".", ",")} $</b><span>coût cloud cumulé</span></div>
+        <div><b>${fmtDur(med)}</b><span>durée médiane d'une mission</span></div>
+        <div><b>${fmtInt(S("tokens"))}</b><span>tokens traités</span></div>
+        <div><b>${S("findings")}</b><span>constats au total, dont ${S("act")} à corriger immédiatement</span></div></div></div></div>
+    <div class="row mt"><button class="btn red" onclick="show('mission')">Lancer une mission</button><button class="btn ghost" onclick="show('historique')">Voir toutes les missions</button></div>`;
 }
 
 /* ================= 5. RAPPORT ================= */
@@ -921,7 +1161,7 @@ $("#e-go").addEventListener("click", async () => {
 /* ================= Démarrage ================= */
 (async () => {
   show(location.hash.slice(1));
-  try { await loadInfo(); } catch (e) { $("#badges").innerHTML = `<span class="hb">Serveur injoignable</span>`; }
+  try { await loadInfo(); } catch (e) { $("#status").innerHTML = `<div class="mode"><span class="dot"></span>Serveur local injoignable</div>`; }
   loadScope().catch(() => {}); loadModels().catch(() => {});
   updateRoute(); runMask();
   // une mission était peut-être en cours ou terminée (page rechargée) : on la retrouve

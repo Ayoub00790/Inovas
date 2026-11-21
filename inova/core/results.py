@@ -21,6 +21,13 @@ def _read_jsonl(path: Path) -> list:
     return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines()] if path.exists() else []
 
 
+SEVERITIES = ("critical", "high", "medium", "low", "info")
+
+
+def _severity(findings: list[dict]) -> dict:
+    return {s: sum(f.get("severity") == s for f in findings) for s in SEVERITIES}
+
+
 def save_mission(ctx) -> dict:
     d = ctx.decision
     trace = ctx.reasoner.trace if ctx.reasoner else []
@@ -51,6 +58,7 @@ def save_mission(ctx) -> dict:
         "type": pentest.get("type"), "classification": pentest.get("data_classification"),
         "route": d.route.value, "complexity": d.complexity, "sensitivity": d.sensitivity,
         "findings": len(ctx.findings),
+        "severity": _severity([asdict(f) for f in ctx.findings]),
         "act": sum(f.decision == "ACT" for f in ctx.findings),
         "attend": sum(f.decision == "ATTEND" for f in ctx.findings),
         "verified": sum(bool(f.verified) for f in ctx.findings),
@@ -85,7 +93,11 @@ def list_missions(runs_root: Path) -> list[dict]:
     if runs_root.exists():
         for f in runs_root.glob("*/summary.json"):
             try:
-                out.append(json.loads(f.read_text(encoding="utf-8")))
+                summ = json.loads(f.read_text(encoding="utf-8"))
+                if "severity" not in summ:        # missions enregistrées avant l'ajout du champ
+                    mission = json.loads((f.parent / "mission.json").read_text(encoding="utf-8"))
+                    summ["severity"] = _severity(mission.get("findings", []))
+                out.append(summ)
             except (OSError, ValueError):
                 continue
     return sorted(out, key=lambda s: s.get("started_at", ""), reverse=True)
