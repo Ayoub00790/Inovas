@@ -54,3 +54,12 @@ def test_cible_injoignable_detectee():
     assert reachable(f"http://127.0.0.1:{port}")
     srv.close()
     assert not reachable(f"http://127.0.0.1:{port}", timeout=1)
+
+
+def test_constats_analyses_meme_sans_act_attend():
+    from inova.core.models import Finding
+    from inova.phases.p5_exploitation import select_candidates
+    mk = lambda i, sev, dec: Finding(id=i, title=i, asset="x", severity=sev, cve=None, cvss=5.0,  # noqa: E731
+                                    epss=0.0, decision=dec)
+    assert [f.id for f in select_candidates([mk("A", "medium", "TRACK"), mk("B", "low", "TRACK")], 5)] == ["A"]
+    assert [f.id for f in select_candidates([mk("A", "medium", "TRACK"), mk("C", "high", "ACT")], 5)] == ["C"]

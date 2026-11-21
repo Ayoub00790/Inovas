@@ -14,6 +14,10 @@ from ..eval.outbox_audit import audit_outbox
 from ..guardrails.injection import wrap_untrusted
 
 
+SSVC = {"ACT": "corriger immédiatement", "ATTEND": "corriger rapidement",
+        "TRACK*": "surveiller de près", "TRACK": "suivi normal"}
+
+
 def _audit_events(ctx: Context) -> list[dict]:
     p = ctx.audit.path
     return [json.loads(l) for l in p.read_text(encoding="utf-8").splitlines()] if p.exists() else []
@@ -43,10 +47,14 @@ def _fmt_cost(v, calls: int = 1) -> str:
 
 
 def run(ctx: Context) -> None:
-    top = "\n".join(f"- {f.id} {f.title} ({f.decision}) sur {f.asset}" for f in ctx.findings[:5])
+    # Libellés explicites : « (TRACK) » seul a été lu par un LLM comme la méthode HTTP TRACK.
+    top = "\n".join(f"- {f.id} {f.title} sur {f.asset} · gravité {f.severity} · CVSS {f.cvss} · "
+                    f"priorisation SSVC : {f.decision} ({SSVC.get(f.decision, '')})" for f in ctx.findings[:5])
     if ctx.findings:
         ctx.executive_summary = ctx.reasoner.think(
-            phase="rapport", task="Rédige une synthèse exécutive (5 lignes) pour la direction.",
+            phase="rapport", task="Rédige une synthèse exécutive (5 lignes) pour la direction. "
+            "ACT / ATTEND / TRACK* / TRACK sont des décisions de priorisation (SSVC), pas des "
+            "méthodes HTTP. N'affirme rien qui ne figure pas dans les constats.",
             context=wrap_untrusted("constats", top), allow_cloud=True)
     else:   # rien à synthétiser : pas d'appel à l'IA (elle inventerait un gabarit)
         ctx.executive_summary = ("Aucune vulnérabilité n'a été détectée par les outils sur le périmètre "

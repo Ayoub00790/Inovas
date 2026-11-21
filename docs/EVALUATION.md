@@ -96,6 +96,21 @@ Enseignements :
 4. Piste : un modèle local plus grand (`qwen2.5:7b`, ~5 Go de RAM) pour les missions « Secret », à
    mesurer de la même façon.
 
+## Première mission sur le laboratoire réel (Juice Shop, nmap + nuclei, Claude Haiku 5.5)
+
+- nuclei a remonté **F-001 Prometheus Metrics** (`/metrics` exposé, gravité moyenne, CVSS 5,3).
+- Passerelle : 2 entités masquées, outbox contrôlée contre 14 valeurs connues → **aucune fuite**.
+- Coût : 0,0004 $ ; durée : 305 s.
+- **Hallucination induite par le prompt** : la synthèse recevait « F-001 … (TRACK) ». Le LLM a lu
+  TRACK comme la **méthode HTTP TRACK** et a inventé un risque de Cross-Site Tracing absent des
+  constats. Correction : libellés explicites (« priorisation SSVC : TRACK (suivi normal) ») et
+  consigne « n'affirme rien qui ne figure pas dans les constats ». Enseignement : le masquage
+  n'est pas la seule source d'erreur ; **l'ambiguïté du contexte fourni** en est une autre, et la
+  relecture humaine du rapport reste indispensable.
+- Incidents d'exploitation rencontrés (utiles pour le livrable 2) : nuclei contacte par défaut un
+  serveur public (Interactsh) → désactivé (`-ni`) ; un outil en échec ou une cible arrêtée
+  produisait un rapport « 0 constat » trompeur → contrôle d'accessibilité et journal des outils.
+
 ## Limites restantes (assumées, à présenter dans le mémoire)
 
 | Cas | Pourquoi il fuit encore | Piste |
