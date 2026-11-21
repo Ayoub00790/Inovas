@@ -237,6 +237,8 @@ legend{font-weight:700;color:var(--axa);text-transform:uppercase;letter-spacing:
   #print-root h3{font-size:11pt;margin:12px 0 4px;break-after:avoid}
   #print-root table{font-size:8.5pt;break-inside:auto}
   #print-root tr{break-inside:avoid}
+  #print-root .tw{overflow:visible}
+  #print-root td,#print-root th{word-break:break-word;overflow-wrap:anywhere}
   #print-root td:nth-child(2),#print-root td:nth-child(1){white-space:nowrap}
   #print-root th{background:#EEF0FA;color:#00008F}
   #print-root code{font-size:8pt}
@@ -792,10 +794,12 @@ function md(src) {
 }
 function reportVersion(src, version) {
   if (version !== "direction") return src;
-  const out = []; let keep = true;
+  // Sections du rapport : « ## 1. » … « ## 8. », dans l'ordre. Un titre numéroté qui ne
+  // suit pas la séquence vient d'une réponse de l'IA (anciens rapports) : il est ignoré.
+  const out = []; let keep = true, last = 0;
   for (const l of src.split("\n")) {
     const m = l.match(/^##\s+(\d+)\./);
-    if (m) keep = +m[1] <= 5;
+    if (m && +m[1] === last + 1) { last = +m[1]; keep = last <= 5; }
     if (keep) out.push(l);
   }
   return out.join("\n");

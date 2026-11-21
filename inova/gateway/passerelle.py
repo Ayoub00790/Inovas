@@ -55,6 +55,8 @@ ALLOW_LIST = ["SQL", "XSS", "CSRF", "SSRF", "RCE", "LFI", "IDOR", "CVE", "CVSS",
 _DIGIT = re.compile(r"\d")
 
 _IPV4 = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
+_URL_PARTS = re.compile(r"^(?P<scheme>[a-z][a-z0-9+.-]*://)(?:(?P<userinfo>[^@/\s]+)@)?"
+                        r"(?P<host>[^:/?#\s\[\]]+)(?P<port>:\d{1,5})?(?P<rest>[/?#]\S*)?$", re.I)
 # clé=valeur sensible restée en clair (la valeur ne commence pas par un jeton « [ »)
 _SECRET = re.compile(r"(?i)\b[\w.-]*(?:password|passwd|pwd|api[_-]?key|secret|token)[\w.-]*[\"']?"
                      r"\s*[:=]\s*[\"']?(?![\[\"'\s])\S")
@@ -158,25 +160,63 @@ class Passerelle:
 
     def mask_detailed(self, text: str) -> tuple[MaskResult, list[dict]]:
         """Comme mask(), et renvoie aussi chaque zone détectée (pour l'interface locale)."""
-        results = self.analyze(text)
-        uncertain = sum(1 for r in results if r.score < self.min_conf)
-        # jetons attribués dans l'ordre de lecture ([X_1] avant [X_2])...
-        tokens = []
-        for r in results:
-            entity = "TARGET_IP" if r.entity_type == "IP_ADDRESS" else r.entity_type
-            tokens.append(self.vault.token_for(entity, text[r.start:r.end]))
-        # ...puis remplacés de la fin vers le début (les index restent valides)
-        masked = text
-        for r, token in sorted(zip(results, tokens), key=lambda x: x[0].start, reverse=True):
-            masked = masked[:r.start] + token + masked[r.end:]
+        masked, spans, uncertain, count = self._mask_text(text, allow_url=True)
         self.vault.save()
-        spans = [{"start": r.start, "end": r.end, "entity": r.entity_type,
-                  "score": round(r.score, 2), "certain": r.score >= self.min_conf, "token": t}
-                 for r, t in zip(results, tokens)]
-        result = MaskResult(masked_text=masked, nb_entities=len(results),
-                            uncertain_spans=uncertain,
+        result = MaskResult(masked_text=masked, nb_entities=count, uncertain_spans=uncertain,
                             residual_leaks=self.residual_check(masked))
         return result, spans
+
+    def _mask_text(self, text: str, allow_url: bool) -> tuple[str, list[dict], int, int]:
+        results = self.analyze(text)
+        uncertain = sum(1 for r in results if r.score < self.min_conf)
+        count = len(results)
+        # remplacements calculés dans l'ordre de lecture ([X_1] avant [X_2])...
+        replacements = []
+        for r in results:
+            value = text[r.start:r.end]
+            rep = None
+            if allow_url and r.entity_type == "TARGET_URL":
+                structured = self._mask_url(value)
+                if structured:
+                    rep, n_unc, n_ent = structured
+                    uncertain += n_unc
+                    count += n_ent
+            if rep is None:
+                entity = "TARGET_IP" if r.entity_type == "IP_ADDRESS" else r.entity_type
+                rep = self.vault.token_for(entity, value)
+            replacements.append(rep)
+        # ...puis appliqués de la fin vers le début (les index restent valides)
+        masked = text
+        for r, rep in sorted(zip(results, replacements), key=lambda x: x[0].start, reverse=True):
+            masked = masked[:r.start] + rep + masked[r.end:]
+        spans = [{"start": r.start, "end": r.end, "entity": r.entity_type,
+                  "score": round(r.score, 2), "certain": r.score >= self.min_conf, "token": rep}
+                 for r, rep in zip(results, replacements)]
+        return masked, spans, uncertain, count
+
+    def _mask_url(self, url: str):
+        """Masquage STRUCTUREL d'une URL : https://[HOSTNAME_1]/admin
+
+        L'hôte reçoit le même jeton partout (le modèle voit que /index.php et /admin
+        sont sur le même serveur), le chemin reste lisible pour le raisonnement, et
+        tout ce qui est sensible DANS le chemin ou la requête est masqué à son tour.
+        Retourne (texte, incertitudes, entités) ou None si l'URL n'a pas la forme attendue.
+        """
+        m = _URL_PARTS.match(url)
+        if not m:
+            return None
+        host = m["host"]
+        kind = "TARGET_IP" if _IPV4.fullmatch(host) else "HOSTNAME"
+        out = m["scheme"]
+        if m["userinfo"]:
+            out += self.vault.token_for("SECRET", m["userinfo"]) + "@"
+        out += self.vault.token_for(kind, host) + (m["port"] or "")
+        n_unc, n_ent = 0, 1
+        if m["rest"]:
+            rest, _, n_unc, n_ent_rest = self._mask_text(m["rest"], allow_url=False)
+            out += rest
+            n_ent += n_ent_rest
+        return out, n_unc, n_ent
 
     # ------------------------------------------------------------------
     # 3) CONTRÔLE APRÈS MASQUAGE (second filet de sécurité)

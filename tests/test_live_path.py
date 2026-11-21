@@ -28,8 +28,7 @@ class FakeOpenAI(BaseHTTPRequestHandler):
         user = body["messages"][-1]["content"]
         reply = {"id": "fake-1", "object": "chat.completion", "created": 0, "model": body["model"],
                  "choices": [{"index": 0, "finish_reason": "stop",
-                              "message": {"role": "assistant", "content": "Analyse : corriger " +
-                                          " ".join(t for t in user.split() if t.startswith("["))}}],
+                              "message": {"role": "assistant", "content": "Analyse de : " + user}}],
                  "usage": {"prompt_tokens": 111, "completion_tokens": 22, "total_tokens": 133}}
         data = json.dumps(reply).encode()
         self.send_response(200)

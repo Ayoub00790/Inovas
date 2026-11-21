@@ -7,6 +7,7 @@ Les sections 1 à 5 forment la version « direction » ; le rapport complet
 from __future__ import annotations
 
 import json
+import re
 
 from ..core.context import Context
 from ..eval.outbox_audit import audit_outbox
@@ -16,6 +17,14 @@ from ..guardrails.injection import wrap_untrusted
 def _audit_events(ctx: Context) -> list[dict]:
     p = ctx.audit.path
     return [json.loads(l) for l in p.read_text(encoding="utf-8").splitlines()] if p.exists() else []
+
+
+def _demote(text: str) -> str:
+    """Les réponses de l'IA contiennent leurs propres titres (« ## 1. Exploitabilité »).
+    On les transforme en lignes en gras pour qu'ils ne se mélangent pas à la
+    numérotation du rapport (sinon la version « direction » les prendrait pour
+    des sections)."""
+    return re.sub(r"(?m)^\s*#{1,6}\s+(.+?)\s*#*\s*$", r"**\1**", text or "")
 
 
 def _fmt_cost(v) -> str:
@@ -45,7 +54,7 @@ def run(ctx: Context) -> None:
     L = [f"# Rapport de test d'intrusion — {a.get('client', '')}",
          f"Mission : {ctx.settings['engagement']['id']}  ·  Mandat : {a.get('reference', '')}  ·  "
          f"Date : {ctx.started_at[:10]}" + ("  ·  Données de démonstration" if ctx.demo else ""), "",
-         "## 1. Synthèse exécutive", ctx.executive_summary, "",
+         "## 1. Synthèse exécutive", _demote(ctx.executive_summary), "",
          "## 2. Vulnérabilités priorisées",
          "| # | ID | Constat | Actif | Sévérité | CVSS | EPSS | Décision | Vérifiée |",
          "|---|---|---|---|---|---|---|---|---|",
@@ -75,8 +84,10 @@ def run(ctx: Context) -> None:
          f"| LLM cloud ({ctx.llm.cloud_model}, {ctx.llm.cloud_mode}) | {u['cloud']['calls']} | "
          f"{u['cloud']['prompt_tokens']} | {u['cloud']['completion_tokens']} | {u['cloud']['latency_ms']} ms | "
          f"{_fmt_cost(u['cloud']['cost_usd'])} |",
-         f"Durée totale de la mission : {ctx.budget.elapsed():.1f} s"
-         + ("  ·  tokens estimés (mode simulé)" if u['local']['estimated'] or u['cloud']['estimated'] else ""),
+         f"Durée totale de la mission (validations humaines comprises) : {ctx.budget.elapsed():.1f} s"
+         + "".join(f"  ·  tokens du {name} estimés (IA simulée)"
+                   for name, key in (("SLM local", "local"), ("LLM cloud", "cloud"))
+                   if u[key]["estimated"] and u[key]["calls"]),
          "", "## 6. Surface d'attaque",
          "| Hôte | Port | Service | Produit / version |", "|---|---|---|---|",
          *[f"| {s.host} | {s.port}/{s.protocol} | {s.name} | {s.product} {s.version} |"
@@ -84,7 +95,7 @@ def run(ctx: Context) -> None:
          "", "## 7. Analyses détaillées"]
     for f in ctx.findings:
         if f.analysis:
-            L += [f"### {f.id} — {f.title}", f"Élément observé : `{f.evidence}`", "", f.analysis, ""]
+            L += [f"### {f.id} — {f.title}", f"Élément observé : `{f.evidence}`", "", _demote(f.analysis), ""]
     L += ["## 8. Preuves", "Voir `evidence_index.json` (empreintes SHA-256), `audit.jsonl`, "
           "`usage.jsonl` et `cloud_outbox.jsonl`."]
 

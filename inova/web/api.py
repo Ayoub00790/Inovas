@@ -21,7 +21,7 @@ import yaml
 from ..core.config import (ROOT, build_profile, load_dotenv, load_yaml, validate_scope)
 from ..core.models import PentestProfile, SafePrompt
 from ..core.results import list_missions, load_mission, resolve_run
-from ..llm.client import LLMClient
+from ..llm.client import TOKEN_RE, LLMClient
 from ..router.aiguilleur import Aiguilleur
 from ..router.reasoner import SYSTEM
 
@@ -199,12 +199,10 @@ class InovaAPI:
             pas = self.passerelle()
             res, spans = pas.mask_detailed(text)
             safe = res.uncertain_spans <= pas.max_uncertain and not res.residual_leaks
-            seen, mapping = set(), []
-            for s in spans:
-                if s["token"] not in seen:
-                    seen.add(s["token"])
-                    mapping.append({"token": s["token"], "entity": s["entity"],
-                                    "value": pas.vault.lookup(s["token"])})
+            # table de correspondance : chaque jeton présent dans le texte masqué
+            # (une URL masquée par morceaux en contient plusieurs)
+            mapping = [{"token": t, "entity": t[1:].rsplit("_", 1)[0], "value": pas.vault.lookup(t)}
+                       for t in dict.fromkeys(TOKEN_RE.findall(res.masked_text))]
             cloud_raw = restored = None
             if safe and p.get("simulate_cloud", True):
                 llm = LLMClient(self.settings)

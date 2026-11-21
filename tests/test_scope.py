@@ -29,3 +29,10 @@ def test_priorisation_ssvc(scope):
                      severity="low", cvss=3.1, epss=0.0)
     assert decide(critique, scope) == "ACT"
     assert decide(faible, scope) == "TRACK"
+
+
+def test_titres_de_l_ia_ne_cassent_pas_le_rapport():
+    from inova.phases.p7_rapport import _demote
+    txt = "## 1. Exploitabilité réelle\nTexte\n### Détail\n- point"
+    out = _demote(txt)
+    assert "##" not in out and "**1. Exploitabilité réelle**" in out and "- point" in out

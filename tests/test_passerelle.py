@@ -84,3 +84,22 @@ def test_cloud_refuse_un_texte_brut(settings):
         llm.cloud("texte brut non masqué", "system")
     with pytest.raises(UnsafePromptError):
         llm.cloud(SafePrompt("contrefait", _issuer=object()), "system")
+
+
+def test_url_masquee_par_morceaux(passerelle):
+    """Même hôte -> même jeton : le modèle peut relier les constats d'un même serveur."""
+    t = ("F-001 sur https://demo.inova-lab.local/index.php ; F-003 sur https://demo.inova-lab.local/admin ; "
+         "F-002 sur http://10.10.0.20:8080/cgi-bin/ et SSH sur 10.10.0.20")
+    _, r = passerelle.to_safe_prompt(t)
+    host = r.masked_text.split("https://")[1].split("/")[0]
+    assert host.startswith("[") and r.masked_text.count(f"https://{host}/") == 2
+    assert "/index.php" in r.masked_text and "/admin" in r.masked_text
+    assert r.masked_text.count("[TARGET_IP_") == 2 and len(set(
+        x.split("]")[0] for x in r.masked_text.split("[TARGET_IP_")[1:])) == 1
+    assert passerelle.restore(r.masked_text) == t
+
+
+def test_secrets_dans_une_url_masques(passerelle):
+    _, r = passerelle.to_safe_prompt("https://user:Secr3t@demo.inova-lab.local/SinistresPro/x?token=abcdef123456")
+    for s in ("Secr3t", "demo.inova-lab.local", "SinistresPro", "abcdef123456"):
+        assert s not in r.masked_text

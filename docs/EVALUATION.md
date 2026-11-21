@@ -41,6 +41,23 @@ Les **noms de personnes dans un tableau** (sortie sqlmap) échappaient au petit 
 `md` les détecte, ainsi que des noms écrits en minuscules et des adresses. C'est ce qui fait passer la
 fuite effective standard de 3,0 % à **0 %**. Coût : ~40 Mo à télécharger.
 
+## Constat de la première mission réelle (Claude Haiku 5.5) : le masquage peut gêner le raisonnement
+
+Lors de la première mission avec un vrai LLM, le modèle a écrit : « *les jetons [TARGET_URL_n] sont
+différents, donc la corrélation n'est pas établie* ». En masquant chaque URL **entière**, la passerelle
+cachait que `/index.php`, `/admin` et `/.git/config` étaient sur le **même serveur** : la
+confidentialité était assurée, mais au prix d'une perte de raisonnement (les enchaînements entre failles).
+
+Correction : **masquage structurel des URL**. L'hôte reçoit un jeton cohérent partout
+(`https://[HOSTNAME_1]/admin`, `http://[TARGET_IP_1]:8080/cgi-bin/` et « SSH sur [TARGET_IP_1] »),
+le chemin reste lisible, et ce qu'il contient de sensible (identifiants, `token=`, termes du client)
+est masqué à son tour. Mesure après correction : **toujours 0 % de fuite effective** sur les cas
+standard, sur-masquage 0 %.
+
+Enseignement pour le mémoire : le compromis n'est pas seulement « masquer plus = plus sûr ». Un
+masquage trop grossier détruit les **relations** dont le modèle a besoin ; un bon masquage cache les
+**valeurs** mais préserve la **structure** (même hôte, même IP, même chemin).
+
 ## Limites restantes (assumées, à présenter dans le mémoire)
 
 | Cas | Pourquoi il fuit encore | Piste |
