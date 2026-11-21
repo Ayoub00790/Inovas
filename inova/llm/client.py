@@ -96,6 +96,7 @@ class LLMClient:
                                    {"role": "user", "content": user}]}
             if temperature is not None:
                 kwargs["temperature"] = float(temperature)
+            t0 = time.perf_counter()     # on chronomètre l'appel seul, pas le chargement de LiteLLM
             resp = litellm.completion(**kwargs)
             content = resp.choices[0].message.content or ""
             usage = getattr(resp, "usage", None)
