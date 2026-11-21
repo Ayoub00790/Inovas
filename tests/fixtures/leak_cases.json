@@ -1,22 +1,652 @@
 [
-  {"text": "Injection SQL sur https://demo.inova-lab.local/login, serveur 10.10.0.20.",
-   "secrets": ["demo.inova-lab.local", "10.10.0.20"]},
-  {"text": "Requête vulnérable : SELECT * FROM clients_cartes WHERE id=1",
-   "secrets": ["clients_cartes"]},
-  {"text": "Identifiants trouvés : password=Adm1n2026 et api_key=sk_live_9f8e7d6c5b4a",
-   "secrets": ["Adm1n2026", "sk_live_9f8e7d6c5b4a"]},
-  {"text": "Jeton de session : eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiJ9.c2lnbmF0dXJlMTIz",
-   "secrets": ["eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiJ9.c2lnbmF0dXJlMTIz"]},
-  {"text": "Clé AWS exposée dans le dépôt : AKIAIOSFODNN7EXAMPLE",
-   "secrets": ["AKIAIOSFODNN7EXAMPLE"]},
-  {"text": "Dépôt interne : url = https://gitlab.intranet-demo.local/equipe/SinistresPro.git",
-   "secrets": ["gitlab.intranet-demo.local", "SinistresPro"]},
-  {"text": "Hôte de base de données srv-db01.intranet-demo.local joignable depuis 10.10.0.10",
-   "secrets": ["srv-db01", "intranet-demo", "10.10.0.10"]},
-  {"text": "Responsable applicatif : Karim Bennani (karim.bennani@demo-client.ma, +212 6 12 34 56 78)",
-   "secrets": ["Bennani", "karim.bennani@demo-client.ma"]},
-  {"text": "Hash du mot de passe admin : 5f4dcc3b5aa765d61d8327deb882cf99",
-   "secrets": ["5f4dcc3b5aa765d61d8327deb882cf99"]},
-  {"text": "Authorization: Bearer abcdef1234567890ABCDEF1234567890",
-   "secrets": ["abcdef1234567890ABCDEF1234567890"]}
+ {
+  "id": "N1",
+  "category": "nmap",
+  "difficulty": "standard",
+  "text": "Nmap scan report for srv-web01.intranet-demo.local (10.10.0.10)\nHost is up (0.0021s latency).\nPORT    STATE SERVICE VERSION\n22/tcp  open  ssh     OpenSSH 8.2p1 Ubuntu\n443/tcp open  https   nginx 1.18.0",
+  "secrets": [
+   "srv-web01.intranet-demo.local",
+   "10.10.0.10"
+  ],
+  "keep": [
+   "OpenSSH 8.2p1",
+   "nginx 1.18.0",
+   "443/tcp"
+  ]
+ },
+ {
+  "id": "N2",
+  "category": "nmap",
+  "difficulty": "standard",
+  "text": "Nmap scan report for 10.10.0.20\n8080/tcp open http Apache httpd 2.4.49 ((Unix))\n|_http-title: SinistresPro - Connexion",
+  "secrets": [
+   "10.10.0.20",
+   "SinistresPro"
+  ],
+  "keep": [
+   "Apache httpd 2.4.49",
+   "8080/tcp"
+  ]
+ },
+ {
+  "id": "N3",
+  "category": "nmap",
+  "difficulty": "standard",
+  "text": "Host: 10.10.0.30 (mail.demo.inova-lab.local)\tPorts: 25/open/tcp//smtp//Postfix smtpd/, 993/open/tcp//imaps//Dovecot/",
+  "secrets": [
+   "10.10.0.30",
+   "mail.demo.inova-lab.local"
+  ],
+  "keep": [
+   "Postfix smtpd"
+  ]
+ },
+ {
+  "id": "N4",
+  "category": "nmap",
+  "difficulty": "standard",
+  "text": "| ssl-cert: Subject: commonName=extranet.demo.inova-lab.local\n| Subject Alternative Name: DNS:extranet.demo.inova-lab.local, DNS:vpn.demo.inova-lab.local",
+  "secrets": [
+   "extranet.demo.inova-lab.local",
+   "vpn.demo.inova-lab.local"
+  ],
+  "keep": [
+   "ssl-cert"
+  ]
+ },
+ {
+  "id": "N5",
+  "category": "nmap",
+  "difficulty": "difficile",
+  "text": "| smb-os-discovery:\n|   Computer name: SRV-PAIE-01\n|   NetBIOS computer name: SRV-PAIE-01\n|   Domain name: corp.intranet-demo.local",
+  "secrets": [
+   "SRV-PAIE-01",
+   "corp.intranet-demo.local"
+  ],
+  "keep": []
+ },
+ {
+  "id": "N6",
+  "category": "nmap",
+  "difficulty": "standard",
+  "text": "Nmap scan report for 10.10.0.40\n3306/tcp open mysql MySQL 5.7.33",
+  "secrets": [
+   "10.10.0.40"
+  ],
+  "keep": [
+   "MySQL 5.7.33"
+  ]
+ },
+ {
+  "id": "U1",
+  "category": "nuclei",
+  "difficulty": "standard",
+  "text": "{\"template-id\":\"exposed-env\",\"matched-at\":\"https://demo.inova-lab.local/.env\",\"extracted-results\":[\"DB_PASSWORD=S3cr3t!2026\"]}",
+  "secrets": [
+   "demo.inova-lab.local",
+   "S3cr3t!2026"
+  ],
+  "keep": [
+   "exposed-env"
+  ]
+ },
+ {
+  "id": "U2",
+  "category": "nuclei",
+  "difficulty": "standard",
+  "text": "[CVE-2021-41773] [http] [high] http://10.10.0.20:8080/cgi-bin/.%2e/%2e%2e/etc/passwd [root:x:0:0:root:/root:/bin/bash]",
+  "secrets": [
+   "10.10.0.20"
+  ],
+  "keep": [
+   "CVE-2021-41773"
+  ]
+ },
+ {
+  "id": "U3",
+  "category": "nuclei",
+  "difficulty": "standard",
+  "text": "[CVE-2024-4577] [http] [critical] https://demo.inova-lab.local/index.php [PHP/8.1.10]",
+  "secrets": [
+   "demo.inova-lab.local"
+  ],
+  "keep": [
+   "CVE-2024-4577",
+   "PHP/8.1.10"
+  ]
+ },
+ {
+  "id": "U4",
+  "category": "nuclei",
+  "difficulty": "standard",
+  "text": "[git-config] [http] [medium] https://demo.inova-lab.local/.git/config [url = https://gitlab.intranet-demo.local/equipe/SinistresPro.git]",
+  "secrets": [
+   "demo.inova-lab.local",
+   "gitlab.intranet-demo.local",
+   "SinistresPro"
+  ],
+  "keep": [
+   "git-config"
+  ]
+ },
+ {
+  "id": "U5",
+  "category": "nuclei",
+  "difficulty": "standard",
+  "text": "[aws-access-key] [file] [high] https://demo.inova-lab.local/static/app.js [AKIAIOSFODNN7EXAMPLE]",
+  "secrets": [
+   "AKIAIOSFODNN7EXAMPLE",
+   "demo.inova-lab.local"
+  ],
+  "keep": [
+   "aws-access-key"
+  ]
+ },
+ {
+  "id": "U6",
+  "category": "nuclei",
+  "difficulty": "standard",
+  "text": "[jwt-token] [http] [info] https://api.demo.inova-lab.local/v1/me [eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrLmJlbm5hbmkifQ.Zm9vYmFyYmF6cXV4MTIz]",
+  "secrets": [
+   "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrLmJlbm5hbmkifQ.Zm9vYmFyYmF6cXV4MTIz",
+   "api.demo.inova-lab.local"
+  ],
+  "keep": [
+   "jwt-token"
+  ]
+ },
+ {
+  "id": "S1",
+  "category": "sqlmap",
+  "difficulty": "standard",
+  "text": "[INFO] the back-end DBMS is MySQL\n[INFO] fetching tables\n+----------------+\n| clients_cartes |\n| contrats       |\n+----------------+",
+  "secrets": [
+   "clients_cartes"
+  ],
+  "keep": [
+   "MySQL"
+  ]
+ },
+ {
+  "id": "S2",
+  "category": "sqlmap",
+  "difficulty": "difficile",
+  "text": "Database: sinistres_prod\nTable: contrats_vie\n[1 entry]",
+  "secrets": [
+   "sinistres_prod",
+   "contrats_vie"
+  ],
+  "keep": []
+ },
+ {
+  "id": "S3",
+  "category": "sqlmap",
+  "difficulty": "standard",
+  "text": "Table: clients_cartes\n| id | titulaire      | numero_carte        |\n| 1  | Youssef Alaoui | 4111 1111 1111 1111 |\n| 2  | Salma Bennis   | 5555 5555 5555 4444 |",
+  "secrets": [
+   "clients_cartes",
+   "Youssef Alaoui",
+   "Salma Bennis",
+   "4111 1111 1111 1111",
+   "5555 5555 5555 4444"
+  ],
+  "keep": []
+ },
+ {
+  "id": "S4",
+  "category": "sqlmap",
+  "difficulty": "standard",
+  "text": "Parameter: id (GET)\n    Type: boolean-based blind\n    Payload: id=1 AND 5934=5934\nURL: https://demo.inova-lab.local/contrat.php?id=1",
+  "secrets": [
+   "demo.inova-lab.local"
+  ],
+  "keep": [
+   "boolean-based blind"
+  ]
+ },
+ {
+  "id": "S5",
+  "category": "sqlmap",
+  "difficulty": "standard",
+  "text": "[INFO] retrieved hash for user 'gestionnaire': '5f4dcc3b5aa765d61d8327deb882cf99'",
+  "secrets": [
+   "5f4dcc3b5aa765d61d8327deb882cf99"
+  ],
+  "keep": []
+ },
+ {
+  "id": "H1",
+  "category": "http",
+  "difficulty": "standard",
+  "text": "GET /espace-client HTTP/1.1\nHost: demo.inova-lab.local\nCookie: PHPSESSID=8f3a9c2e7b1d4f6a0e5c3b2a1d9f8e7c; lang=fr",
+  "secrets": [
+   "demo.inova-lab.local",
+   "8f3a9c2e7b1d4f6a0e5c3b2a1d9f8e7c"
+  ],
+  "keep": [
+   "/espace-client"
+  ]
+ },
+ {
+  "id": "H2",
+  "category": "http",
+  "difficulty": "standard",
+  "text": "GET /admin HTTP/1.1\nAuthorization: Basic YWRtaW46U2luaXN0cmVzMjAyNg==",
+  "secrets": [
+   "YWRtaW46U2luaXN0cmVzMjAyNg=="
+  ],
+  "keep": [
+   "/admin"
+  ]
+ },
+ {
+  "id": "H3",
+  "category": "http",
+  "difficulty": "standard",
+  "text": "Authorization: Bearer 9f8e7d6c5b4a39281706f5e4d3c2b1a0ffeeddcc",
+  "secrets": [
+   "9f8e7d6c5b4a39281706f5e4d3c2b1a0ffeeddcc"
+  ],
+  "keep": []
+ },
+ {
+  "id": "H4",
+  "category": "http",
+  "difficulty": "standard",
+  "text": "Set-Cookie: session=eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4ifQ.c2lnbmF0dXJlLXRlc3Q; HttpOnly; Secure",
+  "secrets": [
+   "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4ifQ.c2lnbmF0dXJlLXRlc3Q"
+  ],
+  "keep": [
+   "HttpOnly"
+  ]
+ },
+ {
+  "id": "H5",
+  "category": "http",
+  "difficulty": "standard",
+  "text": "X-Api-Key: ak_live_7f9e2c1b8d3a4e5f6a7b",
+  "secrets": [
+   "ak_live_7f9e2c1b8d3a4e5f6a7b"
+  ],
+  "keep": []
+ },
+ {
+  "id": "H6",
+  "category": "http",
+  "difficulty": "standard",
+  "text": "HTTP/1.1 302 Found\nLocation: https://sso.intranet-demo.local/login?next=/admin\nServer: nginx/1.18.0",
+  "secrets": [
+   "sso.intranet-demo.local"
+  ],
+  "keep": [
+   "nginx/1.18.0"
+  ]
+ },
+ {
+  "id": "J1",
+  "category": "json",
+  "difficulty": "standard",
+  "text": "{\"id\": 1042, \"nom\": \"Karim Bennani\", \"email\": \"k.bennani@client-demo.ma\", \"telephone\": \"+212 6 61 23 45 67\"}",
+  "secrets": [
+   "Bennani",
+   "k.bennani@client-demo.ma",
+   "+212 6 61 23 45 67"
+  ],
+  "keep": []
+ },
+ {
+  "id": "J2",
+  "category": "json",
+  "difficulty": "standard",
+  "text": "{\"iban\": \"MA64 0115 1900 0001 2050 0053 4921\", \"titulaire\": \"Nadia Chraibi\"}",
+  "secrets": [
+   "MA64 0115 1900 0001 2050 0053 4921",
+   "Chraibi"
+  ],
+  "keep": []
+ },
+ {
+  "id": "J3",
+  "category": "json",
+  "difficulty": "standard",
+  "text": "{\"iban\": \"FR76 3000 6000 0112 3456 7890 189\", \"bic\": \"BNPAFRPP\"}",
+  "secrets": [
+   "FR76 3000 6000 0112 3456 7890 189"
+  ],
+  "keep": []
+ },
+ {
+  "id": "J4",
+  "category": "json",
+  "difficulty": "standard",
+  "text": "{\"user\": \"admin\", \"password\": \"Adm1n!2026\", \"role\": \"superadmin\"}",
+  "secrets": [
+   "Adm1n!2026"
+  ],
+  "keep": [
+   "superadmin"
+  ]
+ },
+ {
+  "id": "J5",
+  "category": "json",
+  "difficulty": "standard",
+  "text": "{\"carte\": \"4111111111111111\", \"cvv\": \"123\", \"expiration\": \"12/28\"}",
+  "secrets": [
+   "4111111111111111"
+  ],
+  "keep": []
+ },
+ {
+  "id": "J6",
+  "category": "json",
+  "difficulty": "difficile",
+  "text": "{\"cin\": \"BE123456\", \"adresse\": \"12 rue des Orangers, Casablanca\"}",
+  "secrets": [
+   "BE123456",
+   "12 rue des Orangers"
+  ],
+  "keep": []
+ },
+ {
+  "id": "C1",
+  "category": "config",
+  "difficulty": "standard",
+  "text": "DB_HOST=db01.intranet-demo.local\nDB_USER=app_sinistres\nDB_PASSWORD=S3cr3t!2026",
+  "secrets": [
+   "db01.intranet-demo.local",
+   "S3cr3t!2026"
+  ],
+  "keep": []
+ },
+ {
+  "id": "C2",
+  "category": "config",
+  "difficulty": "standard",
+  "text": "AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\nAWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+  "secrets": [
+   "AKIAIOSFODNN7EXAMPLE",
+   "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+  ],
+  "keep": []
+ },
+ {
+  "id": "C3",
+  "category": "config",
+  "difficulty": "standard",
+  "text": "DATABASE_URL=postgres://app:Pg_2026!@db01.intranet-demo.local:5432/sinistres",
+  "secrets": [
+   "Pg_2026!",
+   "db01.intranet-demo.local"
+  ],
+  "keep": []
+ },
+ {
+  "id": "C4",
+  "category": "config",
+  "difficulty": "standard",
+  "text": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAu1SU1LfVLPHCozMxH2Mo4lgOEePzNm0tRgeLezV6ffAt0gun\n-----END RSA PRIVATE KEY-----",
+  "secrets": [
+   "MIIEowIBAAKCAQEAu1SU1LfVLPHCozMxH2Mo4lgOEePzNm0tRgeLezV6ffAt0gun"
+  ],
+  "keep": []
+ },
+ {
+  "id": "C5",
+  "category": "config",
+  "difficulty": "standard",
+  "text": "spring.datasource.password=Spr1ng#Prod\nspring.datasource.url=jdbc:mysql://10.10.0.40:3306/sinistres",
+  "secrets": [
+   "Spr1ng#Prod",
+   "10.10.0.40"
+  ],
+  "keep": []
+ },
+ {
+  "id": "C6",
+  "category": "config",
+  "difficulty": "standard",
+  "text": "define('DB_PASSWORD', 'Wp!Pass2026');\ndefine('DB_HOST', '10.10.0.50');",
+  "secrets": [
+   "Wp!Pass2026",
+   "10.10.0.50"
+  ],
+  "keep": []
+ },
+ {
+  "id": "L1",
+  "category": "logs",
+  "difficulty": "standard",
+  "text": "Nov 20 03:14:07 sshd[2211]: Failed password for admin from 10.10.0.77 port 51234 ssh2",
+  "secrets": [
+   "10.10.0.77"
+  ],
+  "keep": [
+   "sshd"
+  ]
+ },
+ {
+  "id": "L2",
+  "category": "logs",
+  "difficulty": "standard",
+  "text": "10.10.0.88 - - [20/Nov/2026:03:15:22 +0000] \"POST /login HTTP/1.1\" 200 512 \"-\" \"sqlmap/1.8\"",
+  "secrets": [
+   "10.10.0.88"
+  ],
+  "keep": [
+   "sqlmap/1.8"
+  ]
+ },
+ {
+  "id": "L3",
+  "category": "logs",
+  "difficulty": "standard",
+  "text": "[auth] Connexion réussie : utilisateur k.bennani@client-demo.ma depuis 10.10.0.91",
+  "secrets": [
+   "k.bennani@client-demo.ma",
+   "10.10.0.91"
+  ],
+  "keep": []
+ },
+ {
+  "id": "L4",
+  "category": "logs",
+  "difficulty": "difficile",
+  "text": "Nov 20 03:14:07 SRV-PAIE-01 CRON[991]: (root) CMD (/opt/paie/export.sh)",
+  "secrets": [
+   "SRV-PAIE-01"
+  ],
+  "keep": []
+ },
+ {
+  "id": "F1",
+  "category": "texte",
+  "difficulty": "standard",
+  "text": "Le responsable applicatif, Karim Bennani, confirme que le serveur 10.10.0.20 héberge SinistresPro.",
+  "secrets": [
+   "Bennani",
+   "10.10.0.20",
+   "SinistresPro"
+  ],
+  "keep": []
+ },
+ {
+  "id": "F2",
+  "category": "texte",
+  "difficulty": "standard",
+  "text": "Merci de contacter Mme Nadia Chraibi au 06 12 34 56 78 avant le re-test.",
+  "secrets": [
+   "Chraibi",
+   "06 12 34 56 78"
+  ],
+  "keep": []
+ },
+ {
+  "id": "F3",
+  "category": "texte",
+  "difficulty": "difficile",
+  "text": "contacter fatima zahra el amrani du service sinistres avant vendredi",
+  "secrets": [
+   "el amrani"
+  ],
+  "keep": []
+ },
+ {
+  "id": "F4",
+  "category": "texte",
+  "difficulty": "difficile",
+  "text": "Le serveur est situé au 12 rue des Orangers, Casablanca, salle B.",
+  "secrets": [
+   "12 rue des Orangers"
+  ],
+  "keep": []
+ },
+ {
+  "id": "F5",
+  "category": "texte",
+  "difficulty": "standard",
+  "text": "Constat F-001 : CVE-2024-4577 (CVSS 9.8) sur https://demo.inova-lab.local/index.php, EPSS 0.94.",
+  "secrets": [
+   "demo.inova-lab.local"
+  ],
+  "keep": [
+   "F-001",
+   "CVE-2024-4577",
+   "9.8",
+   "0.94"
+  ]
+ },
+ {
+  "id": "F6",
+  "category": "texte",
+  "difficulty": "difficile",
+  "text": "CIN du gestionnaire : BE123456, à ne pas divulguer.",
+  "secrets": [
+   "BE123456"
+  ],
+  "keep": []
+ },
+ {
+  "id": "F7",
+  "category": "texte",
+  "difficulty": "standard",
+  "text": "Le client Client Démo utilise le portail SinistresPro hébergé sur intranet-demo.",
+  "secrets": [
+   "Client Démo",
+   "SinistresPro",
+   "intranet-demo"
+  ],
+  "keep": []
+ },
+ {
+  "id": "O1",
+  "category": "obfuscation",
+  "difficulty": "difficile",
+  "text": "IOC : 10[.]10[.]0[.]5 et demo[.]inova-lab[.]local",
+  "secrets": [
+   "10[.]10[.]0[.]5",
+   "demo[.]inova-lab[.]local"
+  ],
+  "keep": []
+ },
+ {
+  "id": "O2",
+  "category": "obfuscation",
+  "difficulty": "difficile",
+  "text": "Lien neutralisé : hxxps://demo.inova-lab.local/admin",
+  "secrets": [
+   "demo.inova-lab.local"
+  ],
+  "keep": []
+ },
+ {
+  "id": "O3",
+  "category": "obfuscation",
+  "difficulty": "difficile",
+  "text": "Identifiants encodés retrouvés : YWRtaW46U2luaXN0cmVzMjAyNg==",
+  "secrets": [
+   "YWRtaW46U2luaXN0cmVzMjAyNg=="
+  ],
+  "keep": []
+ },
+ {
+  "id": "O4",
+  "category": "obfuscation",
+  "difficulty": "difficile",
+  "text": "Mot de passe épelé : A-d-m-1-n-2-0-2-6",
+  "secrets": [
+   "A-d-m-1-n-2-0-2-6"
+  ],
+  "keep": []
+ },
+ {
+  "id": "O5",
+  "category": "obfuscation",
+  "difficulty": "difficile",
+  "text": "Adresse IP notée en hexadécimal : 0x0A0A0014",
+  "secrets": [
+   "0x0A0A0014"
+  ],
+  "keep": []
+ },
+ {
+  "id": "O6",
+  "category": "obfuscation",
+  "difficulty": "difficile",
+  "text": "Domaine en majuscules : DEMO.INOVA-LAB.LOCAL",
+  "secrets": [
+   "DEMO.INOVA-LAB.LOCAL"
+  ],
+  "keep": []
+ },
+ {
+  "id": "K1",
+  "category": "preserver",
+  "difficulty": "standard",
+  "text": "CVE-2021-41773 : Apache HTTP Server 2.4.49, path traversal, CVSS 7.5.",
+  "secrets": [],
+  "keep": [
+   "CVE-2021-41773",
+   "Apache HTTP Server 2.4.49",
+   "7.5"
+  ]
+ },
+ {
+  "id": "K2",
+  "category": "preserver",
+  "difficulty": "standard",
+  "text": "Recommandation : mettre à jour OpenSSH vers la version 9.6 et désactiver l'authentification par mot de passe.",
+  "secrets": [],
+  "keep": [
+   "OpenSSH",
+   "9.6",
+   "mot de passe"
+  ]
+ },
+ {
+  "id": "K3",
+  "category": "preserver",
+  "difficulty": "standard",
+  "text": "Priorité ACT pour F-001, ATTEND pour F-003, TRACK pour F-005.",
+  "secrets": [],
+  "keep": [
+   "F-001",
+   "F-003",
+   "F-005",
+   "ACT",
+   "ATTEND"
+  ]
+ },
+ {
+  "id": "K4",
+  "category": "preserver",
+  "difficulty": "standard",
+  "text": "Le scanner nuclei v3.2 a utilisé le template default-admin-login.",
+  "secrets": [],
+  "keep": [
+   "nuclei v3.2",
+   "default-admin-login"
+  ]
+ }
 ]

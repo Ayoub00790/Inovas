@@ -23,7 +23,8 @@ def test_passerelle_cycle_complet(api):
     assert r["safe"]
     for secret in ("demo.inova-lab.local", "10.10.0.20", "Adm1n2026"):
         assert secret not in r["masked"] and secret not in r["cloud_raw"]
-    assert "password=Adm1n2026" in r["restored"]          # réinjection locale
+    assert "password=[SECRET_" in r["masked"]             # seule la valeur est masquée
+    assert "Adm1n2026" in r["restored"]                   # réinjection locale
     assert "Adm1n2026.." not in r["restored"]             # ponctuation finale préservée
 
 

@@ -55,7 +55,9 @@ ALLOW_LIST = ["SQL", "XSS", "CSRF", "SSRF", "RCE", "LFI", "IDOR", "CVE", "CVSS",
 _DIGIT = re.compile(r"\d")
 
 _IPV4 = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
-_SECRET = re.compile(r"(?i)\b(?:password|passwd|pwd|api[_-]?key|secret|token)\s*[:=]\s*(?!\[)\S+")
+# clé=valeur sensible restée en clair (la valeur ne commence pas par un jeton « [ »)
+_SECRET = re.compile(r"(?i)\b[\w.-]*(?:password|passwd|pwd|api[_-]?key|secret|token)[\w.-]*[\"']?"
+                     r"\s*[:=]\s*[\"']?(?![\[\"'\s])\S")
 
 
 class Passerelle:
@@ -78,6 +80,9 @@ class Passerelle:
         }).create_engine()
         registry = RecognizerRegistry(supported_languages=languages)
         registry.load_predefined_recognizers(languages=languages, nlp_engine=nlp)
+        # remplacés par des versions multilingues (cartes) et FR/MA (téléphones)
+        for name in ("PhoneRecognizer", "CreditCardRecognizer"):
+            registry.remove_recognizer(name)
         for rec in build_pentest_recognizers(languages, scope):
             registry.add_recognizer(rec)
         self.analyzer = AnalyzerEngine(registry=registry, nlp_engine=nlp,
@@ -100,9 +105,16 @@ class Passerelle:
 
     @staticmethod
     def _false_person(r, text: str) -> bool:
-        """Le NER prend parfois "Constat F-001" pour un nom : un nom ne contient pas de chiffre.
-        (Les IP, URL, secrets... restent couverts par leurs propres détecteurs.)"""
-        return r.entity_type == "PERSON" and bool(_DIGIT.search(text[r.start:r.end]))
+        """Faux noms de personne fréquents du NER :
+        - « Constat F-001 » : un nom ne contient pas de chiffre ;
+        - « default-admin-login » : identifiant technique (tout en minuscules avec - _ / .).
+        Les IP, URL, secrets... restent couverts par leurs propres détecteurs."""
+        if r.entity_type != "PERSON":
+            return False
+        span = text[r.start:r.end]
+        if _DIGIT.search(span):
+            return True
+        return span == span.lower() and any(c in span for c in "-_/.")
 
     @staticmethod
     def _merge_overlaps(results):
