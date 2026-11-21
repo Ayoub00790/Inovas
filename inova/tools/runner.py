@@ -48,6 +48,8 @@ class ToolRunner:
 
         out = self.evidence / f"{template}_{int(time.time() * 1000)}.out"
         cmd = TEMPLATES[template](target, str(out), extra)
+        if tool == "nmap" and self.guard.excluded:         # une plage peut contenir un hôte exclu
+            cmd[-1:-1] = ["--exclude", ",".join(sorted(self.guard.excluded))]
         self.audit.event("tool", template=template, dry_run=self.dry_run)
 
         if self.dry_run:

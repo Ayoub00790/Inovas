@@ -30,6 +30,12 @@ class ScopeGuard:
         return (urlparse(target).hostname if "://" in target else target.split("/")[0]).lower()
 
     def is_in_scope(self, target: str) -> bool:
+        if "://" not in target and "/" in target:          # plage CIDR : entièrement incluse ?
+            try:
+                net = ipaddress.ip_network(target, strict=False)
+                return any(net.version == n.version and net.subnet_of(n) for n in self.networks)
+            except ValueError:
+                pass
         host = self._host(target)
         if host in self.excluded:
             return False

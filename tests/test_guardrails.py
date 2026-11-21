@@ -78,3 +78,18 @@ def test_outbox_propre(tmp_path, scope):
     (tmp_path / "cloud_outbox.jsonl").write_text(
         '{"phase": "exploitation", "sent": "faille sur [TARGET_URL_1] ([TARGET_IP_1])"}\n', encoding="utf-8")
     assert audit_outbox(tmp_path, scope, vault_values=["Adm1n2026"])["ok"]
+
+
+def test_plage_cidr_et_hotes_exclus(tmp_path, capsys):
+    import datetime as dt
+    from inova.core.audit import AuditLog
+    from inova.guardrails.scope import ScopeGuard
+    from inova.tools.runner import ToolRunner
+    today = dt.date.today().isoformat()
+    g = ScopeGuard({"authorization": {"valid_from": today, "valid_until": today},
+                    "targets": {"ip_ranges": ["10.10.0.0/24"]}, "excluded": ["10.10.0.1"]})
+    assert g.is_in_scope("10.10.0.0/24") and g.is_in_scope("10.10.0.128/25")
+    assert not g.is_in_scope("10.10.0.0/16")                 # plage plus large que le mandat
+    ToolRunner({"tools": {"dry_run": True, "allowlist": ["nmap"]}}, g, tmp_path,
+               AuditLog(tmp_path)).run("nmap", "10.10.0.0/24")
+    assert "--exclude 10.10.0.1 10.10.0.0/24" in capsys.readouterr().out
