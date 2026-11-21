@@ -64,6 +64,7 @@ class Finding:
     # Remplis en phase 5
     verified: Optional[bool] = None
     analysis: str = ""
+    alerts: list[str] = field(default_factory=list)   # injections / actions signalées
 
 
 @dataclass

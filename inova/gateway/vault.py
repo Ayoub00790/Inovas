@@ -70,6 +70,10 @@ class Vault:
         """Réinjecte les vraies valeurs (jetons inconnus laissés tels quels)."""
         return TOKEN_RE.sub(lambda m: self._reverse.get(m.group(0), m.group(0)), text)
 
+    def values(self) -> list[str]:
+        """Toutes les valeurs réelles masquées (pour le contrôle de l'outbox, en LOCAL)."""
+        return list(self._forward)
+
     def lookup(self, token: str) -> str | None:
         """Valeur réelle d'un jeton (usage LOCAL uniquement : interface sur 127.0.0.1)."""
         return self._reverse.get(token)

@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
+from typing import Callable, Optional
 
 from .core.audit import AuditLog
+from .core.budget import Budget
 from .core.config import load_yaml
 from .core.context import Context
 from .core.models import Route
+from .core.results import save_mission
 from .guardrails.scope import OutOfScopeError, ScopeGuard
 from .llm.client import LLMClient
 from .phases import (p1_config, p2_recon, p3_vulnscan, p4_priorisation,
@@ -16,18 +19,15 @@ from .phases import (p1_config, p2_recon, p3_vulnscan, p4_priorisation,
 from .router.reasoner import Reasoner
 from .tools.runner import ToolRunner
 
-PHASES = [
-    ("2 · Reconnaissance", p2_recon),
-    ("3 · Recherche de vulnérabilités", p3_vulnscan),
-    ("4 · Priorisation", p4_priorisation),
-    ("5 · Exploitation (confirmation)", p5_exploitation),
-    ("6 · Preuves", p6_preuves),
-    ("7 · Rapport", p7_rapport),
-]
+PHASE_NAMES = ["Configuration + aiguillage", "Reconnaissance", "Recherche de vulnérabilités",
+               "Priorisation", "Exploitation (confirmation)", "Preuves", "Rapport"]
+PHASES = [p2_recon, p3_vulnscan, p4_priorisation, p5_exploitation, p6_preuves, p7_rapport]
 
 
-def _title(t: str) -> None:
-    print(f"\n{'=' * 70}\n PHASE {t}\n{'=' * 70}")
+def _title(i: int, ctx: Context) -> None:
+    print(f"\n{'=' * 70}\n PHASE {i + 1} · {PHASE_NAMES[i]}\n{'=' * 70}")
+    if ctx.on_phase:
+        ctx.on_phase(i, PHASE_NAMES[i])
 
 
 def build_context(settings: dict, scope: dict, demo: bool, auto_approve: bool) -> Context:
@@ -36,11 +36,13 @@ def build_context(settings: dict, scope: dict, demo: bool, auto_approve: bool) -
     run_dir = Path(eng.get("output_dir", "runs")) / f"{eng['id']}_{stamp}"
     ctx = Context(settings=settings, scope=scope, run_dir=run_dir, audit=AuditLog(run_dir),
                   demo=demo, auto_approve=auto_approve and demo,
-                  fixtures_dir=Path(__file__).resolve().parent.parent / "tests" / "fixtures")
+                  fixtures_dir=Path(__file__).resolve().parent.parent / "tests" / "fixtures",
+                  started_at=time.strftime("%Y-%m-%dT%H:%M:%S"))
     ctx.guard = ScopeGuard(scope)
     if not ctx.guard.authorization_valid():
         raise OutOfScopeError("Le mandat n'est pas valide à la date d'aujourd'hui : arrêt.")
-    ctx.llm = LLMClient(settings)
+    ctx.budget = Budget(settings)
+    ctx.llm = LLMClient(settings, usage_log=run_dir / "usage.jsonl", budget=ctx.budget)
     return ctx
 
 
@@ -48,28 +50,33 @@ def run(settings_path: str, scope_path: str, demo: bool = False, auto_approve: b
     return run_with(load_yaml(settings_path), load_yaml(scope_path), demo, auto_approve)
 
 
-def run_with(settings: dict, scope: dict, demo: bool = False, auto_approve: bool = False) -> Context:
+def run_with(settings: dict, scope: dict, demo: bool = False, auto_approve: bool = False,
+             approver: Optional[Callable[[str, str], bool]] = None,
+             on_phase: Optional[Callable[[int, str], None]] = None) -> Context:
     ctx = build_context(settings, scope, demo, auto_approve)
+    ctx.approver, ctx.on_phase = approver, on_phase
 
-    _title("1 · Configuration + aiguillage")
+    _title(0, ctx)
     p1_config.run(ctx)
 
     # La passerelle (Presidio) n'est chargée que si le pentest part au cloud
-    passerelle = None
     if ctx.decision.route == Route.CLOUD:
         from .gateway.passerelle import Passerelle
         from .gateway.vault import Vault
         vault = Vault(ctx.settings["gateway"].get("vault_dir", ".inova_vault"),
                       ctx.settings["engagement"]["id"])
-        passerelle = Passerelle(ctx.settings, ctx.scope, vault,
-                                ctx.settings["engagement"].get("language", "fr"))
+        ctx.passerelle = Passerelle(ctx.settings, ctx.scope, vault,
+                                    ctx.settings["engagement"].get("language", "fr"))
 
-    ctx.reasoner = Reasoner(ctx.decision, passerelle, ctx.llm, ctx.audit)
+    ctx.reasoner = Reasoner(ctx.decision, ctx.passerelle, ctx.llm, ctx.audit, guard=ctx.guard)
     ctx.runner = ToolRunner(ctx.settings, ctx.guard, ctx.run_dir, ctx.audit)
 
-    for title, phase in PHASES:
-        _title(title)
+    for i, phase in enumerate(PHASES, start=1):
+        _title(i, ctx)
         phase.run(ctx)
 
+    save_mission(ctx)
+    if ctx.on_phase:
+        ctx.on_phase(len(PHASE_NAMES), "terminée")
     print(f"\nMission terminée. Dossier : {ctx.run_dir}")
     return ctx

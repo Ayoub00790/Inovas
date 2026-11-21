@@ -8,11 +8,25 @@ engagement:
   output_dir: "runs"          # où sont écrits preuves, rapports, journaux
 
 llm:
-  mode: "mock"                # mock (démo, sans modèle) | live (LiteLLM)
+  # Chaque modèle a son propre mode : on peut brancher le vrai cloud
+  # avant d'avoir installé Ollama, et inversement.
+  local_mode: "mock"          # mock (simulé) | live (Ollama via LiteLLM)
+  cloud_mode: "mock"          # mock (simulé) | live (API du fournisseur via LiteLLM)
   local_model: "ollama/qwen2.5:7b"          # SLM local (aiguilleur + chemin local)
   local_api_base: "http://localhost:11434"
   cloud_model: "openai/gpt-4o"              # LLM externe (chemin cloud)
+  cloud_api_base: null        # laisser null sauf passerelle d'entreprise / Azure
   temperature: 0.2
+  timeout_s: 120
+
+budget:                       # plafonds par mission (au-delà : repli local)
+  max_cloud_calls: 20
+  max_total_tokens: 200000
+  max_mission_minutes: 60
+
+pricing:                      # tarifs du fournisseur cloud, en dollars par million de tokens
+  cloud_input_per_million: 0.0    # À RENSEIGNER avec la grille tarifaire du fournisseur
+  cloud_output_per_million: 0.0   # (0 = coût affiché « non renseigné »)
 
 router:                       # l'aiguilleur (SLM local)
   complexity_threshold: 0.55  # au-dessus -> pentest "lourd"
@@ -24,6 +38,9 @@ gateway:                      # passerelle Presidio
   uncertain_band: 0.35        # score entre 0.35 et 0.60 -> incertain -> fail-closed
   max_uncertain_spans: 0      # au-delà : on refuse d'envoyer au cloud
   vault_dir: ".inova_vault"   # table de correspondance chiffrée (LOCALE)
+  spacy_models:               # le premier modèle installé de chaque liste est utilisé
+    fr: ["fr_core_news_md", "fr_core_news_sm"]
+    en: ["en_core_web_sm"]
 
 tools:
   dry_run: true               # true : affiche les commandes sans les exécuter

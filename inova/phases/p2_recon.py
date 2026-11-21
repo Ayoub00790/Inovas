@@ -7,6 +7,7 @@ from pathlib import Path
 
 from ..core.context import Context
 from ..core.models import Service
+from ..guardrails.injection import wrap_untrusted
 
 
 def parse_nmap_xml(path: Path) -> list[Service]:
@@ -45,9 +46,10 @@ def run(ctx: Context) -> None:
     for s in ctx.services:
         print(f"   {s.host}:{s.port}/{s.protocol}  {s.name}  {s.product} {s.version}".rstrip())
 
-    # IA légère, toujours LOCALE : résumer la surface d'attaque
+    # IA légère, toujours LOCALE : résumer la surface d'attaque.
+    # Les bannières de service sont écrites par la cible -> données non fiables.
     listing = "\n".join(f"{s.host}:{s.port} {s.name} {s.product} {s.version}" for s in ctx.services)
     ctx.recon_summary = ctx.reasoner.think(
         phase="reconnaissance",
         task="Résume la surface d'attaque et signale les services à examiner en priorité.",
-        context=listing, allow_cloud=False)
+        context=wrap_untrusted("nmap", listing), allow_cloud=False)

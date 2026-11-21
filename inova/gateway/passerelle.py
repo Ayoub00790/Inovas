@@ -28,7 +28,22 @@ from .recognizers import PENTEST_ENTITIES, build_pentest_recognizers  # noqa: E4
 from .vault import Vault  # noqa: E402
 
 PII_ENTITIES = ["PERSON", "EMAIL_ADDRESS", "PHONE_NUMBER", "CREDIT_CARD", "IBAN_CODE", "IP_ADDRESS"]
-SPACY_MODELS = {"fr": "fr_core_news_sm", "en": "en_core_web_sm"}
+DEFAULT_MODELS = {"fr": ["fr_core_news_md", "fr_core_news_sm"], "en": ["en_core_web_sm"]}
+
+
+def pick_spacy_models(settings: dict) -> dict[str, str]:
+    """Pour chaque langue, le premier modèle spaCy INSTALLÉ de la liste de préférence."""
+    import spacy
+    wanted = settings.get("gateway", {}).get("spacy_models") or DEFAULT_MODELS
+    chosen = {}
+    for lang, names in wanted.items():
+        names = [names] if isinstance(names, str) else list(names)
+        found = next((n for n in names if spacy.util.is_package(n)), None)
+        if found:
+            chosen[lang] = found
+    if "fr" not in chosen and "en" not in chosen:
+        raise RuntimeError("Aucun modèle spaCy installé. Lance : python -m spacy download fr_core_news_sm")
+    return chosen
 
 # Mots techniques que le NER prend parfois pour des noms propres
 ALLOW_LIST = ["SQL", "XSS", "CSRF", "SSRF", "RCE", "LFI", "IDOR", "CVE", "CVSS", "EPSS",
@@ -53,10 +68,13 @@ class Passerelle:
         self.scope = scope
         self.vault = vault
 
-        languages = list(SPACY_MODELS)
+        self.models = pick_spacy_models(settings)
+        languages = list(self.models)
+        if self.language not in languages:
+            raise RuntimeError(f"Modèle spaCy manquant pour la langue « {self.language} ».")
         nlp = NlpEngineProvider(nlp_configuration={
             "nlp_engine_name": "spacy",
-            "models": [{"lang_code": l, "model_name": SPACY_MODELS[l]} for l in languages],
+            "models": [{"lang_code": l, "model_name": m} for l, m in self.models.items()],
         }).create_engine()
         registry = RecognizerRegistry(supported_languages=languages)
         registry.load_predefined_recognizers(languages=languages, nlp_engine=nlp)

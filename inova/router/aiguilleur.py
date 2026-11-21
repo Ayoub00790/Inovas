@@ -65,7 +65,7 @@ class Aiguilleur:
     def decide(self, profile: PentestProfile) -> RouteDecision:
         c, why_c = complexity_score(profile)
         s, why_s = sensitivity_score(profile)
-        if self.use_slm and self.llm is not None and self.llm.mode != "mock":
+        if self.use_slm and self.llm is not None and self.llm.local_mode == "live":
             c, s = self._slm_refine(profile, c, s)
 
         if c < self.c_thr:
@@ -86,7 +86,7 @@ class Aiguilleur:
             '{"complexity": 0..1, "sensitivity": 0..1}.\n'
             f"Profil : {profile}")
         try:
-            raw = self.llm.local("Tu es un expert en tests d'intrusion.", prompt)
+            raw = self.llm.local("Tu es un expert en tests d'intrusion.", prompt, phase="aiguillage")
             data = json.loads(re.search(r"\{.*\}", raw, re.S).group(0))
             c = (c + float(data["complexity"])) / 2
             # prudence : la sensibilité ne peut qu'augmenter, jamais baisser sous les règles
