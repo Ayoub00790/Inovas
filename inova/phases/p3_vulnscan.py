@@ -38,8 +38,9 @@ def parse_nuclei_jsonl(path: Path, start: int = 1) -> list[Finding]:
         cls = info.get("classification") or {}
         cves = cls.get("cve-id") or []
         asset = r.get("matched-at") or r.get("host", "")
-        evidence = "; ".join(r.get("extracted-results") or []) or r.get("matcher-name", "") \
-            or _body_excerpt(r.get("response", "")) or info.get("description", "").strip()
+        extracted = "; ".join(r.get("extracted-results") or [])
+        parts = [extracted] if extracted else [r.get("matcher-name", ""), _body_excerpt(r.get("response", ""))]
+        evidence = " — ".join(p for p in parts if p) or info.get("description", "").strip()
         findings.append(Finding(
             id=f"F-{i:03d}", title=info.get("name", r.get("template-id", "?")),
             asset=asset, severity=info.get("severity", "info"),

@@ -14,6 +14,7 @@ from ..eval.outbox_audit import audit_outbox
 from ..guardrails.injection import wrap_untrusted
 
 
+RETEST = {True: "reproduit", False: "non reproduit", None: "non testé"}
 SSVC = {"ACT": "corriger immédiatement", "ATTEND": "corriger rapidement",
         "TRACK*": "surveiller de près", "TRACK": "suivi normal"}
 
@@ -48,7 +49,7 @@ def _fmt_cost(v, calls: int = 1) -> str:
 
 def run(ctx: Context) -> None:
     # Libellés explicites : « (TRACK) » seul a été lu par un LLM comme la méthode HTTP TRACK.
-    top = "\n".join(f"- {f.id} {f.title} sur {f.asset} · gravité {f.severity} · CVSS {f.cvss} · "
+    top = "\n".join(f"- {f.id} {f.title} sur {f.asset} · gravité {f.severity} · CVSS {f.cvss or 'non renseigné'} · "
                     f"priorisation SSVC : {f.decision} ({SSVC.get(f.decision, '')})" for f in ctx.findings[:5])
     if ctx.findings:
         ctx.executive_summary = ctx.reasoner.think(
@@ -81,12 +82,14 @@ def run(ctx: Context) -> None:
          f"Date : {ctx.started_at[:10]}" + ("  ·  Données de démonstration" if ctx.demo else ""), "",
          "## 1. Synthèse exécutive", _strip_title(_demote(ctx.executive_summary), "Synthèse exécutive"), "",
          "## 2. Vulnérabilités priorisées",
-         "| # | ID | Constat | Actif | Sévérité | CVSS | EPSS | Décision | Vérifiée |",
+         "| # | ID | Constat | Actif | Sévérité | CVSS | EPSS | Décision | Re-test |",
          "|---|---|---|---|---|---|---|---|---|",
-         *[f"| {f.priority_rank} | {f.id} | {f.title} | {f.asset} | {f.severity} | {f.cvss} | "
-           f"{f.epss:.2f} | {f.decision} | {'oui' if f.verified else 'non'} |" for f in ctx.findings],
+         *[f"| {f.priority_rank} | {f.id} | {f.title} | {f.asset} | {f.severity} | {f.cvss or '—'} | "
+           f"{f.epss:.2f} | {f.decision} | {RETEST[f.verified]} |" for f in ctx.findings],
          "", "Décisions : **ACT** corriger immédiatement · **ATTEND** corriger rapidement · "
-         "**TRACK\\*** surveiller de près · **TRACK** suivi normal.",
+         "**TRACK\\*** surveiller de près · **TRACK** suivi normal. CVSS « — » : score non fourni par "
+         "le scanner. Re-test « reproduit » : le test du scanner se reproduit, ce qui ne prouve pas à lui "
+         "seul l'exploitabilité (voir l'analyse).",
          "", "## 3. Aiguillage et confidentialité",
          f"- Route : **{d.route.value}** (complexité {d.complexity}, sensibilité {d.sensitivity})",
          *[f"  - {r}" for r in d.reasons],

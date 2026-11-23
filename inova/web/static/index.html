@@ -880,11 +880,11 @@ function renderMission(r) {
     </tbody></table></div><p class="lock">Durée totale ${r.budget ? r.budget.elapsed_s : "?"} s · plafonds : ${r.budget ? r.budget.max_cloud_calls : "?"} appels cloud, ${fmtInt(r.budget ? r.budget.max_tokens : 0)} tokens.</p></div>`;
   const services = `<div class="tw"><table><thead><tr><th>Hôte</th><th>Port</th><th>Service</th></tr></thead><tbody>${
     r.services.map(s => `<tr><td class="mono">${esc(s.host)}</td><td>${s.port}/${esc(s.protocol)}</td><td>${esc(s.name)} <span style="color:var(--muted)">${esc(s.product)} ${esc(s.version)}</span></td></tr>`).join("") || `<tr><td colspan="3" class="empty">Aucun service</td></tr>`}</tbody></table></div>`;
-  const findings = `<div class="tw"><table><thead><tr><th>#</th><th>Constat</th><th class="num">CVSS</th><th class="num">EPSS</th><th>Décision</th><th>Vérifiée</th></tr></thead><tbody>${
+  const findings = `<div class="tw"><table><thead><tr><th>#</th><th>Constat</th><th class="num">CVSS</th><th class="num">EPSS</th><th>Décision</th><th>Re-test</th></tr></thead><tbody>${
     r.findings.map(f => `<tr><td>${f.priority_rank}</td><td><b>${esc(f.id)}</b> ${esc(f.title)}<div class="mono" style="color:var(--muted)">${esc(f.asset)}</div>${
       (f.alerts || []).map(a => `<span class="chip c-warn" style="margin-top:4px">⚠ ${esc(a)}</span>`).join(" ")}</td>
-      <td class="num">${f.cvss}</td><td class="num">${f.epss.toFixed(2)}</td><td><span class="dec ${decCls(f.decision)}">${esc(f.decision)}</span></td>
-      <td>${f.verified ? "✅" : f.verified === false ? "refusée" : "—"}</td></tr>`).join("") || `<tr><td colspan="6" class="empty">Aucun constat</td></tr>`}</tbody></table></div>`;
+      <td class="num">${f.cvss || "—"}</td><td class="num">${f.epss.toFixed(2)}</td><td><span class="dec ${decCls(f.decision)}">${esc(f.decision)}</span></td>
+      <td>${f.verified ? `<span class="chip c-ok">reproduit</span>` : f.verified === false ? `<span class="chip c-warn">non reproduit</span>` : `<span class="muted">non testé</span>`}</td></tr>`).join("") || `<tr><td colspan="6" class="empty">Aucun constat</td></tr>`}</tbody></table></div>`;
   const PH = {reconnaissance: "Phase 2 · Reconnaissance", exploitation: "Phase 5 · Exploitation", rapport: "Phase 7 · Rapport"};
   const exchanges = tr.map(t => {
     const head = t.fail_closed
@@ -956,7 +956,7 @@ function lanes(findings) {
     return `<div class="lane"><div class="who"><b>${esc(host)}</b><span>${plural(fs.length, "constat", "constats")}</span></div><div class="pills">${
       fs.map(f => `<div class="fp" style="--sev:var(--s-${SEV.includes(f.severity) ? f.severity : "info"})" title="${esc(f.asset)}">
         <span class="t"><b>${esc(f.id)}</b> ${esc(f.title)}</span>
-        <span class="m">${esc(SEV_FR[f.severity] || f.severity)}, CVSS ${f.cvss} <span class="dec ${decCls(f.decision)}">${esc(f.decision)}</span>${f.verified ? " vérifiée" : ""}</span></div>`).join("")}</div></div>`;
+        <span class="m">${esc(SEV_FR[f.severity] || f.severity)}, CVSS ${f.cvss || "—"} <span class="dec ${decCls(f.decision)}">${esc(f.decision)}</span>${f.verified ? " reproduit" : ""}</span></div>`).join("")}</div></div>`;
   }).join("");
   return sum + `<div class="mt">${rows}</div>`;
 }

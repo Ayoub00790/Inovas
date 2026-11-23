@@ -92,3 +92,12 @@ def test_tous_les_fichiers_lus_et_ecrits_en_utf8():
             if "encoding" not in args and "rb" not in args and "wb" not in args:
                 bad.append(f"{f.name}: {m.group(0)[:60]}")
     assert bad == []
+
+
+def test_constat_sans_cvss_classe_par_gravite():
+    from inova.core.models import Finding
+    from inova.phases.p4_priorisation import ORDER, SEV_ORDER
+    mk = lambda i, sev, cvss: Finding(id=i, title=i, asset="x", severity=sev, cvss=cvss, decision="ATTEND")  # noqa: E731
+    fs = sorted([mk("haute", "high", 7.5), mk("critique-sans-cvss", "critical", 0.0)],
+                key=lambda f: (ORDER[f.decision], SEV_ORDER.get(f.severity, 5), -f.cvss, -f.epss))
+    assert fs[0].id == "critique-sans-cvss"

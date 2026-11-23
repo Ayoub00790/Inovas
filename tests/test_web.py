@@ -62,8 +62,10 @@ def test_mission_interactive_autoriser_puis_refuser(api):
         time.sleep(0.05)
     assert s["status"] == "done", s.get("error")
     assert [d["approved"] for d in s["decisions"]] == [True, False]
-    verified = {f["id"]: f["verified"] for f in s["result"]["findings"] if f["decision"] in ("ACT", "ATTEND")}
-    assert sorted(verified.values(), key=str) == [False, True]
+    checked = [f for f in s["result"]["findings"] if f["decision"] in ("ACT", "ATTEND")]
+    # re-test autorisé : reproduit ; re-test refusé : « non testé » (None), pas « non reproduit »
+    assert sorted((f["verified"] for f in checked), key=str) == [None, True]
+    assert any("re-test refusé par le pentesteur" in f["alerts"] for f in checked)
     # la page piégée du panneau d'administration a été neutralisée
     assert any(f["alerts"] for f in s["result"]["findings"])
     assert s["result"]["outbox_check"]["ok"]

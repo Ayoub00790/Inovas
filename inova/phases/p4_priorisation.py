@@ -17,6 +17,7 @@ from ..core.context import Context
 from ..core.models import Finding
 
 ORDER = {"ACT": 0, "ATTEND": 1, "TRACK*": 2, "TRACK": 3}
+SEV_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
 
 
 def fetch_epss(cves: list[str]) -> dict[str, float]:
@@ -72,7 +73,9 @@ def run(ctx: Context) -> None:
 
     for f in ctx.findings:
         f.decision = decide(f, ctx.scope)
-    ctx.findings.sort(key=lambda f: (ORDER[f.decision], -f.cvss, -f.epss))
+    # beaucoup de tests nuclei (identifiants par défaut, RCE de frameworks) n'ont pas de score CVSS :
+    # à décision égale, on classe d'abord par gravité, puis par CVSS et EPSS
+    ctx.findings.sort(key=lambda f: (ORDER[f.decision], SEV_ORDER.get(f.severity, 5), -f.cvss, -f.epss))
     for rank, f in enumerate(ctx.findings, start=1):
         f.priority_rank = rank
         print(f"   #{rank}  {f.decision:<7} {f.id}  CVSS {f.cvss:>4}  EPSS {f.epss:.2f}  {f.title}")
