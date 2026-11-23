@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>INOVA — Dossier technique et cahier des charges</title>
+<style>
+@font-face{font-family:"Source Sans 3";src:url("../../inova/web/static/fonts/source-sans-3.woff2") format("woff2");font-weight:200 900}
+@font-face{font-family:"Source Serif 4";src:url("../../inova/web/static/fonts/source-serif-4.woff2") format("woff2");font-weight:200 900}
+:root{--axa:#00008F;--red:#FF1721;--ink:#17173A;--muted:#5A5E7C;--line:#DDE0EB;--soft:#F5F6FA;--local:#0A7A55;--home:#EEF7F2;--away:#EEF0FA;--warn:#9A5B00;--warn-soft:#FFF3E0;--deny:#B3102C}
+@page{size:A4;margin:18mm 17mm 20mm 17mm}
+@page:first{margin:0}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Source Sans 3","Segoe UI",sans-serif;color:var(--ink);font-size:10.4pt;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-feature-settings:"kern","lnum"}
+h1,h2,h3,h4{font-family:"Source Serif 4",Georgia,serif;color:var(--axa);font-weight:600;line-height:1.2}
+h2{font-size:19pt;margin:0 0 4mm;padding-bottom:2mm;border-bottom:2px solid var(--red);break-after:avoid}
+h3{font-size:13pt;margin:6mm 0 2mm;break-after:avoid}
+h4{font-size:11pt;color:var(--ink);margin:4mm 0 1.5mm;break-after:avoid}
+p{margin:0 0 2.6mm}
+ul,ol{margin:0 0 2.6mm;padding-left:5mm}
+li{margin-bottom:1mm}
+code{font-family:"Cascadia Mono",Consolas,"Liberation Mono",monospace;font-size:8.6pt;background:var(--soft);border:1px solid var(--line);border-radius:3px;padding:0 3px}
+pre{font-family:"Cascadia Mono",Consolas,"Liberation Mono",monospace;font-size:8.4pt;background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:3mm 4mm;white-space:pre-wrap;line-height:1.45;break-inside:avoid;margin:0 0 3mm}
+table{width:100%;border-collapse:collapse;font-size:9.2pt;margin:1mm 0 4mm;break-inside:auto}
+th{background:#ECEEF8;color:var(--axa);text-align:left;font-weight:700;padding:2mm 2.4mm;border-bottom:1px solid #C9CDE6}
+td{padding:1.8mm 2.4mm;border-bottom:1px solid var(--line);vertical-align:top}
+tr{break-inside:avoid}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.chapter{break-before:page}
+.lead{font-family:"Source Serif 4",Georgia,serif;font-size:12pt;line-height:1.5;color:var(--ink);margin-bottom:4mm}
+.note{border-left:3px solid var(--axa);background:var(--away);padding:2.6mm 4mm;margin:2mm 0 4mm;break-inside:avoid}
+.note.warn{border-color:var(--warn);background:var(--warn-soft)}
+.note.ok{border-color:var(--local);background:var(--home)}
+.note b:first-child{color:var(--axa)}
+.note.warn b:first-child{color:var(--warn)}
+.note.ok b:first-child{color:var(--local)}
+.fig{margin:3mm 0 5mm;break-inside:avoid;text-align:center}
+.fig svg{width:100%;height:auto}
+.fig .cap{font-size:8.8pt;color:var(--muted);margin-top:1.5mm}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+.tag{display:inline-block;font-weight:700;font-size:8pt;color:#fff;border-radius:3px;padding:0 5px;letter-spacing:.02em}
+.t-local{background:var(--local)}.t-cloud{background:var(--axa)}.t-rest{background:var(--warn)}.t-act{background:var(--deny)}.t-att{background:#E07000}.t-trs{background:var(--axa)}.t-tr{background:#8B8FA8}
+.muted{color:var(--muted)}
+.req{font-weight:700;color:var(--axa);white-space:nowrap}
+
+/* couverture */
+.cover{height:297mm;width:210mm;background:var(--axa);color:#fff;position:relative;overflow:hidden;padding:30mm 22mm 24mm;display:flex;flex-direction:column}
+.cover .slash{position:absolute;width:8mm;height:130mm;background:var(--red);transform:rotate(38deg);right:34mm;bottom:-34mm}
+.cover .kicker{font-size:11pt;color:#C6C9EF;margin-bottom:10mm}
+.cover h1{font-family:"Source Serif 4",Georgia,serif;color:#fff;font-size:54pt;letter-spacing:.06em;margin:0;line-height:1}
+.cover .sub{font-family:"Source Serif 4",Georgia,serif;font-size:20pt;line-height:1.25;margin-top:8mm;max-width:130mm}
+.cover .q{margin-top:16mm;font-size:12pt;line-height:1.5;color:#E3E4FA;max-width:140mm;border-left:3px solid var(--red);padding-left:5mm}
+.cover .meta{margin-top:auto;font-size:10pt;color:#C6C9EF;line-height:1.7}
+.cover .meta b{color:#fff}
+/* sommaire */
+.toc{columns:2;column-gap:10mm;font-size:10pt}
+.toc div{break-inside:avoid;margin-bottom:1.6mm}
+.toc b{color:var(--axa);display:inline-block;min-width:7mm}
+</style>
+</head>
+<body>
+
+<!-- ============================== COUVERTURE ============================== -->
+<section class="cover">
+  <div class="slash"></div>
+  <div class="kicker">Dossier technique et cahier des charges · version 1.0 · 23 novembre 2026</div>
+  <h1>INOVA</h1>
+  <div class="sub">Plateforme de tests d'intrusion assistée par l'IA, à confidentialité maîtrisée</div>
+  <div class="q">« Comment bénéficier des capacités des modèles IA pour réaliser des tests d'intrusion, tout en maîtrisant les données auxquelles ils ont accès et les actions qu'ils peuvent proposer ? »</div>
+  <div class="meta"><b>Ayoub Benkhajjou</b><br>Projet académique et mémoire<br>Dépôt : github.com/Ayoub00790/Inovas<br>Document confidentiel : usage pédagogique</div>
+</section>
+
+<!-- ============================== SOMMAIRE ============================== -->
+<section class="chapter">
+<h2>Sommaire</h2>
+<div class="toc">
+  <div><b>1</b>Résumé</div>
+  <div><b>2</b>Contexte et problématique</div>
+  <div><b>3</b>Objectifs, livrables et périmètre</div>
+  <div><b>4</b>Exigences (cahier des charges)</div>
+  <div><b>5</b>Architecture générale</div>
+  <div><b>6</b>Déroulement d'une mission : les 7 phases</div>
+  <div><b>7</b>L'aiguilleur : local ou cloud</div>
+  <div><b>8</b>La passerelle de confidentialité</div>
+  <div><b>9</b>Le contrôle des actions</div>
+  <div><b>10</b>Priorisation des vulnérabilités</div>
+  <div><b>11</b>Pilotage, coûts et robustesse</div>
+  <div><b>12</b>Traçabilité et preuves</div>
+  <div><b>13</b>Interface web</div>
+  <div><b>14</b>Le rapport de mission</div>
+  <div><b>15</b>Technologies et organisation du code</div>
+  <div><b>16</b>Configuration</div>
+  <div><b>17</b>Installation et mise en service</div>
+  <div><b>18</b>Laboratoire de test</div>
+  <div><b>19</b>Tests automatisés</div>
+  <div><b>20</b>Résultats et évaluation</div>
+  <div><b>21</b>Retours d'expérience</div>
+  <div><b>22</b>Limites connues</div>
+  <div><b>23</b>Feuille de route</div>
+  <div><b>A</b>Glossaire</div>
+  <div><b>B</b>Aide-mémoire des commandes</div>
+</div>
+
+<h2 style="margin-top:12mm">1. Résumé</h2>
+<p class="lead">INOVA aide un pentesteur à exploiter un modèle d'IA pendant un test d'intrusion sans exposer les données du client et sans laisser l'IA agir seule.</p>
+<p>La plateforme enchaîne sept phases, de la configuration au rapport. Les outils de sécurité classiques (nmap, nuclei) détectent les services et les vulnérabilités ; l'IA analyse, priorise, cherche des enchaînements entre failles et rédige. Deux mécanismes encadrent cette IA :</p>
+<ul>
+  <li><b>La maîtrise des données.</b> Un <b>aiguilleur</b> décide, avant la mission, si le raisonnement se fait sur un petit modèle local (SLM) ou sur un grand modèle externe (LLM cloud). Sur la route cloud, une <b>passerelle</b> fondée sur Microsoft Presidio remplace chaque valeur sensible par un jeton (<code>[HOSTNAME_1]</code>, <code>[SECRET_2]</code>…) avant tout envoi, puis réinjecte les vraies valeurs dans la réponse, sur la machine. En cas de doute, rien ne sort (principe <i>fail-closed</i>).</li>
+  <li><b>La maîtrise des actions.</b> Le texte de l'IA est un conseil, jamais une commande. Les seules actions exécutables sont construites par le code, restent dans le périmètre du mandat, sont non destructives et exigent une validation humaine.</li>
+</ul>
+<p>Résultats obtenus à ce jour :</p>
+<ul>
+  <li><b>0 % de fuite effective</b> sur les 67 valeurs sensibles des cas standard d'un corpus de 56 cas (modèle <code>fr_core_news_md</code>) ;</li>
+  <li><b>aucune valeur réelle</b> retrouvée dans les envois au cloud lors des missions réelles (contrôle automatique de l'outbox) ;</li>
+  <li>un coût cloud de <b>0,0003 à 0,005 $ par mission</b> avec Claude Haiku 5.5 ;</li>
+  <li>une chaîne complète validée sur un laboratoire réel (OWASP Juice Shop et applications Vulhub) ;</li>
+  <li><b>52 tests automatisés</b>.</li>
+</ul>
+</section>
+
+<!-- ============================== 2. CONTEXTE ============================== -->
+<section class="chapter">
+<h2>2. Contexte et problématique</h2>
+<h3>2.1 Le constat</h3>
+<p>Les grands modèles de langage savent déjà assister un test d'intrusion : interpréter la sortie d'un scanner, relier deux failles, proposer une vérification ou rédiger un rapport. Les travaux de recherche sur PentestGPT (arXiv 2308.06782) montrent qu'un LLM améliore nettement la progression d'un testeur, mais qu'il perd le fil sur les tâches longues et que les petits modèles raisonnent moins bien que les grands.</p>
+<p>Dans une entreprise comme un assureur, deux obstacles empêchent pourtant d'envoyer un pentest à un modèle externe :</p>
+<ol>
+  <li><b>Les données.</b> Un pentest manipule des adresses IP internes, des noms de serveurs, des identifiants, des extraits de bases de données, parfois des données personnelles de clients. Les envoyer à un fournisseur externe est incompatible avec la confidentialité attendue, le RGPD et la loi marocaine 09-08.</li>
+  <li><b>Les actions.</b> Un modèle peut proposer une commande destructive, viser une machine hors du mandat, ou être manipulé par un texte piégé caché dans la cible (injection de prompt).</li>
+</ol>
+<h3>2.2 La problématique</h3>
+<div class="note"><b>Problématique.</b> Comment bénéficier des capacités des modèles IA pour réaliser des tests d'intrusion, tout en maîtrisant les données auxquelles ils ont accès et les actions qu'ils peuvent proposer ?</div>
+<h3>2.3 Les options étudiées</h3>
+<table>
+<tr><th>Option</th><th>Principe</th><th>Limite principale</th></tr>
+<tr><td>Tout en local (SLM)</td><td>Un petit modèle tourne sur la machine du pentesteur : rien ne sort.</td><td>Qualité de raisonnement nettement inférieure (constaté en mission, voir §20.3).</td></tr>
+<tr><td>Tout au cloud, sans protection</td><td>Le grand modèle reçoit les données brutes.</td><td>Inacceptable pour des données client.</td></tr>
+<tr><td>LiteLLM + Presidio</td><td>Accès unifié aux modèles et anonymisation par détection d'entités.</td><td>Presidio ne connaît pas les données d'un pentest (IP, secrets, URL…) : il faut l'étendre.</td></tr>
+<tr><td>LLM Guard, Gorget</td><td>Filtres d'entrée et de sortie pour LLM.</td><td>Orientés chatbot ; pas de réinjection cohérente des valeurs.</td></tr>
+<tr><td>DontFeedTheAI</td><td>Masquage de données sensibles avant un LLM.</td><td>Pas de décision local / cloud ni de contrôle des actions.</td></tr>
+</table>
+<h3>2.4 La solution retenue</h3>
+<p>Une <b>architecture hybride avec aiguillage</b> : le modèle local décide du chemin selon deux critères (complexité du pentest et sensibilité des données). Les pentests simples restent en local. Les pentests lourds partent au cloud à travers la passerelle de masquage. Les pentests lourds sur des données trop sensibles restent en local, avec une validation humaine renforcée. Tout le système est <i>fail-closed</i> : en cas de doute, la donnée ne sort pas.</p>
+</section>
+
+<!-- ============================== 3. OBJECTIFS ============================== -->
+<section class="chapter">
+<h2>3. Objectifs, livrables et périmètre</h2>
+<h3>3.1 Objectifs</h3>
+<table>
+<tr><th>Objectif</th><th>Indicateur de réussite</th></tr>
+<tr><td>Profiter du raisonnement d'un grand modèle sur les pentests complexes</td><td>Analyses qui relient les failles d'un même hôte, plan de vérification et remédiation exploitables</td></tr>
+<tr><td>Ne laisser sortir aucune donnée réelle</td><td>Fuite effective = 0 sur les cas standard ; outbox sans valeur réelle à chaque mission</td></tr>
+<tr><td>Ne laisser l'IA exécuter aucune action</td><td>100 % des actions actives validées par un humain ; propositions dangereuses signalées</td></tr>
+<tr><td>Rester dans le mandat</td><td>Aucune commande sur une cible hors périmètre (refus par le code)</td></tr>
+<tr><td>Mesurer le coût et la valeur</td><td>Tokens, durée et coût de chaque appel ; durée de chaque phase</td></tr>
+</table>
+<h3>3.2 Les trois livrables</h3>
+<table>
+<tr><th>Livrable</th><th>Contenu</th><th>État</th></tr>
+<tr><td><b>1. Prototype</b></td><td>La plateforme INOVA : moteur de mission, passerelle, garde-fous, interface web, rapport, tests.</td><td>Fonctionnel, validé sur laboratoire réel</td></tr>
+<tr><td><b>2. Cadre de garde-fous éthiques</b></td><td>Règles, matrice des responsabilités, correspondance RGPD et loi 09-08, procédures d'incident. Chaque règle est reliée à son mécanisme, à son test et à une preuve de mission.</td><td>À rédiger (matière réunie)</td></tr>
+<tr><td><b>3. Analyse ROI</b></td><td>Comparaison avec un pentest manuel : temps, coût des tokens, matériel, supervision humaine.</td><td>À réaliser (mesures disponibles)</td></tr>
+</table>
+<h3>3.3 Périmètre</h3>
+<div class="two">
+<div><h4>Inclus</h4><ul>
+<li>Tests web et réseau en boîte noire ou grise sur un périmètre autorisé</li>
+<li>Reconnaissance (nmap), détection de vulnérabilités connues (nuclei)</li>
+<li>Analyse, priorisation, enchaînements et rédaction par l'IA</li>
+<li>Re-tests ciblés non destructifs après validation humaine</li>
+<li>Rapport technique et rapport de direction, en PDF</li>
+</ul></div>
+<div><h4>Exclu</h4><ul>
+<li>Exploitation offensive, charges malveillantes, persistance</li>
+<li>Tests de déni de service, intrusifs ou de fuzzing</li>
+<li>Toute cible sans mandat signé et en cours de validité</li>
+<li>Données réelles de clients dans le laboratoire ou les tests</li>
+<li>Exécution d'une commande rédigée par l'IA</li>
+</ul></div>
+</div>
+<h3>3.4 Acteurs</h3>
+<table>
+<tr><th>Acteur</th><th>Rôle dans INOVA</th></tr>
+<tr><td>Pentesteur</td><td>Configure le périmètre, lance la mission, valide ou refuse chaque action, relit le rapport.</td></tr>
+<tr><td>Client et son RSSI</td><td>Signent le mandat, fixent les dates, les cibles, les exclusions, la classification des données et la criticité des actifs.</td></tr>
+<tr><td>SLM local (Ollama)</td><td>Aiguillage, raisonnements sur données réelles, repli en cas de doute.</td></tr>
+<tr><td>LLM cloud (Claude, GPT…)</td><td>Raisonnements lourds, sur texte masqué uniquement.</td></tr>
+<tr><td>Outils (nmap, nuclei)</td><td>Collecte des faits techniques, lancés uniquement par le code.</td></tr>
+</table>
+</section>
+
+<!-- ============================== 4. EXIGENCES ============================== -->
+<section style="margin-top:9mm">
+<h2>4. Exigences (cahier des charges)</h2>
+<h3>4.1 Exigences fonctionnelles</h3>
+<table>
+<tr><th style="width:15mm">Réf.</th><th>Exigence</th><th style="width:42mm">Réalisation</th></tr>
+<tr><td class="req">EF-01</td><td>Saisir et valider un périmètre : client, mandat, dates, domaines, plages IP, URL, exclusions, classification, secteur, termes sensibles, criticité des actifs.</td><td>Onglet Périmètre, <code>validate_scope</code></td></tr>
+<tr><td class="req">EF-02</td><td>Décider avant la mission de la route LOCAL, CLOUD ou LOCAL_RESTRICTED, avec ses justifications.</td><td>Aiguilleur (§7)</td></tr>
+<tr><td class="req">EF-03</td><td>Recenser les services exposés.</td><td>Phase 2, nmap <code>-sV</code></td></tr>
+<tr><td class="req">EF-04</td><td>Détecter les vulnérabilités connues sur toutes les URL du périmètre.</td><td>Phase 3, nuclei en un seul passage</td></tr>
+<tr><td class="req">EF-05</td><td>Prioriser selon le risque réel (exploitation, exposition, criticité).</td><td>Phase 4, arbre SSVC</td></tr>
+<tr><td class="req">EF-06</td><td>Analyser chaque constat prioritaire : exploitabilité, enchaînements, impact, vérification, remédiation.</td><td>Phase 5</td></tr>
+<tr><td class="req">EF-07</td><td>Re-tester un constat de façon ciblée après accord humain.</td><td>Phase 5, <code>nuclei -id</code></td></tr>
+<tr><td class="req">EF-08</td><td>Indexer et sceller les preuves.</td><td>Phase 6, SHA-256</td></tr>
+<tr><td class="req">EF-09</td><td>Produire un rapport technique et un rapport de direction exportables en PDF.</td><td>Phase 7 et interface</td></tr>
+<tr><td class="req">EF-10</td><td>Consulter l'historique et le tableau de bord des missions.</td><td>Onglets Tableau de bord et Historique</td></tr>
+<tr><td class="req">EF-11</td><td>Mesurer le taux de fuite de la passerelle sur un corpus.</td><td><code>eval-leaks</code>, onglet Taux de fuite</td></tr>
+<tr><td class="req">EF-12</td><td>Démontrer le masquage sur un texte libre (avant, envoyé, réponse, réinjecté).</td><td>Onglet Passerelle</td></tr>
+</table>
+<h3>4.2 Exigences de confidentialité et de sécurité</h3>
+<table>
+<tr><th style="width:15mm">Réf.</th><th>Exigence</th><th style="width:42mm">Réalisation</th></tr>
+<tr><td class="req">ES-01</td><td>Aucune donnée réelle n'est envoyée au cloud.</td><td>Passerelle, <code>SafePrompt</code>, outbox</td></tr>
+<tr><td class="req">ES-02</td><td>Un masquage incertain ou incomplet bloque l'envoi (<i>fail-closed</i>).</td><td>Bande d'incertitude, contrôle résiduel</td></tr>
+<tr><td class="req">ES-03</td><td>Le code refuse tout appel cloud avec un texte non issu de la passerelle.</td><td><code>UnsafePromptError</code></td></tr>
+<tr><td class="req">ES-04</td><td>La table de correspondance reste locale et chiffrée.</td><td>Coffre Fernet par mission</td></tr>
+<tr><td class="req">ES-05</td><td>Le texte venu de la cible ne peut pas donner d'ordres à l'IA.</td><td>Balisage, détection, neutralisation</td></tr>
+<tr><td class="req">ES-06</td><td>Aucune commande n'est lancée hors du mandat (dates, cibles, exclusions).</td><td><code>ScopeGuard</code></td></tr>
+<tr><td class="req">ES-07</td><td>Aucune action active sans validation humaine ; refus par défaut après 15 min.</td><td>Carte de validation</td></tr>
+<tr><td class="req">ES-08</td><td>Seuls des outils autorisés, lancés sans shell, sans test destructif ni serveur tiers.</td><td>Liste blanche, <code>-etags</code>, <code>-ni</code></td></tr>
+<tr><td class="req">ES-09</td><td>Plafonds par mission : appels cloud, tokens, durée.</td><td><code>Budget</code></td></tr>
+<tr><td class="req">ES-10</td><td>Interface accessible uniquement depuis la machine.</td><td>127.0.0.1, contrôle d'origine, CSP</td></tr>
+<tr><td class="req">ES-11</td><td>Les clés d'API ne sont jamais versionnées.</td><td><code>.env</code> ignoré par git</td></tr>
+</table>
+<h3>4.3 Exigences non fonctionnelles</h3>
+<table>
+<tr><th style="width:15mm">Réf.</th><th>Exigence</th><th style="width:42mm">Réalisation</th></tr>
+<tr><td class="req">ENF-01</td><td>Traçabilité complète et rejouable de chaque mission.</td><td>audit, usage, outbox, mission.json</td></tr>
+<tr><td class="req">ENF-02</td><td>Fonctionnement sans clé ni Internet (mode démo).</td><td>Modes <code>mock</code>, fixtures</td></tr>
+<tr><td class="req">ENF-03</td><td>Compatibilité Windows, Linux et macOS.</td><td>Python 3.12+, UTF-8 partout</td></tr>
+<tr><td class="req">ENF-04</td><td>Indépendance vis-à-vis du fournisseur d'IA.</td><td>LiteLLM</td></tr>
+<tr><td class="req">ENF-05</td><td>Continuité de service si un modèle ne répond pas.</td><td>Nouvel essai puis repli local</td></tr>
+<tr><td class="req">ENF-06</td><td>Coût maîtrisé et mesuré.</td><td>Réponses bornées, <code>usage.jsonl</code></td></tr>
+<tr><td class="req">ENF-07</td><td>Qualité vérifiée en continu.</td><td>52 tests pytest</td></tr>
+</table>
+</section>
+
+<!-- ============================== 5. ARCHITECTURE ============================== -->
+<section class="chapter">
+<h2>5. Architecture générale</h2>
+<p>Tout s'exécute sur la machine du pentesteur, sauf l'appel au LLM cloud. La frontière entre les deux est le cœur du projet : seul du texte masqué la franchit, et la table qui permet de retrouver les vraies valeurs ne la franchit jamais.</p>
+<div class="fig">
+<svg viewBox="0 0 760 400" xmlns="http://www.w3.org/2000/svg" font-family="Source Sans 3, sans-serif">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#00008F"/></marker>
+  <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#0A7A55"/></marker></defs>
+  <rect x="0" y="0" width="540" height="400" fill="#EEF7F2"/>
+  <rect x="540" y="0" width="220" height="400" fill="#EEF0FA"/>
+  <line x1="560" y1="0" x2="520" y2="400" stroke="#FF1721" stroke-width="5"/>
+  <text x="16" y="24" font-family="Source Serif 4, serif" font-size="17" font-weight="600" fill="#075A3F">Machine du pentesteur</text>
+  <text x="600" y="24" font-family="Source Serif 4, serif" font-size="17" font-weight="600" fill="#00008F">Cloud</text>
+  <g font-size="12.5">
+    <rect x="16" y="44" width="150" height="54" rx="6" fill="#fff" stroke="#C9CDE6"/><text x="91" y="66" text-anchor="middle" font-weight="700">Périmètre</text><text x="91" y="84" text-anchor="middle" fill="#5A5E7C">mandat, cibles, classes</text>
+    <rect x="16" y="120" width="150" height="54" rx="6" fill="#fff" stroke="#C9CDE6"/><text x="91" y="142" text-anchor="middle" font-weight="700">Outils</text><text x="91" y="160" text-anchor="middle" fill="#5A5E7C">nmap, nuclei</text>
+    <rect x="16" y="196" width="150" height="54" rx="6" fill="#fff" stroke="#C9CDE6"/><text x="91" y="218" text-anchor="middle" font-weight="700">Garde-fous</text><text x="91" y="236" text-anchor="middle" fill="#5A5E7C">périmètre, actions</text>
+    <rect x="16" y="272" width="150" height="54" rx="6" fill="#fff" stroke="#FF1721" stroke-width="1.6"/><text x="91" y="294" text-anchor="middle" font-weight="700" fill="#C8102E">Validation humaine</text><text x="91" y="312" text-anchor="middle" fill="#5A5E7C">autoriser / refuser</text>
+    <rect x="200" y="44" width="150" height="70" rx="6" fill="#fff" stroke="#0A7A55" stroke-width="1.6"/><text x="275" y="68" text-anchor="middle" font-weight="700" fill="#075A3F">Aiguilleur</text><text x="275" y="86" text-anchor="middle" fill="#5A5E7C">complexité × sensibilité</text><text x="275" y="102" text-anchor="middle" fill="#5A5E7C">→ route</text>
+    <rect x="200" y="150" width="150" height="70" rx="6" fill="#fff" stroke="#C9CDE6"/><text x="275" y="174" text-anchor="middle" font-weight="700">Orchestrateur</text><text x="275" y="192" text-anchor="middle" fill="#5A5E7C">7 phases</text><text x="275" y="208" text-anchor="middle" fill="#5A5E7C">raisonneur</text>
+    <rect x="200" y="256" width="150" height="70" rx="6" fill="#fff" stroke="#0A7A55" stroke-width="1.6"/><text x="275" y="280" text-anchor="middle" font-weight="700" fill="#075A3F">SLM local</text><text x="275" y="298" text-anchor="middle" fill="#5A5E7C">Ollama, qwen2.5</text><text x="275" y="314" text-anchor="middle" fill="#5A5E7C">données réelles</text>
+    <rect x="380" y="120" width="140" height="130" rx="6" fill="#fff" stroke="#00008F" stroke-width="1.6"/><text x="450" y="144" text-anchor="middle" font-weight="700" fill="#00008F">Passerelle</text><text x="450" y="164" text-anchor="middle" fill="#5A5E7C">Presidio étendu</text><text x="450" y="182" text-anchor="middle" fill="#5A5E7C">masquage, contrôle</text><text x="450" y="200" text-anchor="middle" fill="#5A5E7C">fail-closed</text><text x="450" y="218" text-anchor="middle" fill="#5A5E7C">réinjection</text>
+    <rect x="380" y="276" width="140" height="50" rx="6" fill="#fff" stroke="#C9CDE6"/><text x="450" y="298" text-anchor="middle" font-weight="700">Coffre chiffré</text><text x="450" y="315" text-anchor="middle" fill="#5A5E7C">jeton ↔ valeur</text>
+    <rect x="590" y="140" width="150" height="90" rx="6" fill="#fff" stroke="#00008F" stroke-width="1.6"/><text x="665" y="166" text-anchor="middle" font-weight="700" fill="#00008F">LLM externe</text><text x="665" y="184" text-anchor="middle" fill="#5A5E7C">Claude, GPT…</text><text x="665" y="202" text-anchor="middle" fill="#5A5E7C">via LiteLLM</text><text x="665" y="218" text-anchor="middle" fill="#5A5E7C">texte masqué seul</text>
+    <rect x="16" y="346" width="504" height="40" rx="6" fill="#fff" stroke="#C9CDE6"/><text x="268" y="371" text-anchor="middle"><tspan font-weight="700">Traçabilité :</tspan> audit.jsonl · usage.jsonl · cloud_outbox.jsonl · preuves scellées · rapport</text>
+  </g>
+  <path d="M166 71 H198" stroke="#00008F" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M275 114 V148" stroke="#00008F" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M166 147 H198" stroke="#00008F" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M166 223 Q185 210 198 200" stroke="#00008F" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M198 205 Q182 270 168 292" stroke="#C8102E" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M275 220 V254" stroke="#0A7A55" stroke-width="1.6" marker-end="url(#g)"/>
+  <path d="M350 175 H378" stroke="#00008F" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M450 250 V274" stroke="#00008F" stroke-width="1.4" marker-end="url(#a)"/>
+  <path d="M520 165 H588" stroke="#00008F" stroke-width="2" marker-end="url(#a)"/><text x="572" y="157" text-anchor="middle" font-size="11" fill="#00008F">masqué</text>
+  <path d="M588 205 H522" stroke="#0A7A55" stroke-width="2" marker-end="url(#g)"/><text x="568" y="222" text-anchor="middle" font-size="11" fill="#075A3F">jetons</text>
+</svg>
+<div class="cap">Figure 1 : architecture hybride. Le trait rouge est la frontière : seuls des jetons la franchissent.</div>
+</div>
+<h3>5.1 Les trois routes</h3>
+<table>
+<tr><th>Route</th><th>Quand</th><th>Où raisonne l'IA</th><th>Ce qui sort</th></tr>
+<tr><td><span class="tag t-local">LOCAL</span></td><td>Pentest simple</td><td>SLM local, données réelles</td><td>Rien</td></tr>
+<tr><td><span class="tag t-cloud">CLOUD</span></td><td>Pentest lourd, données peu sensibles</td><td>LLM cloud pour les étapes autorisées (analyse, rapport), SLM local pour le reste</td><td>Texte masqué uniquement</td></tr>
+<tr><td><span class="tag t-rest">LOCAL_RESTRICTED</span></td><td>Pentest lourd, données très sensibles</td><td>SLM local, validation humaine renforcée</td><td>Rien</td></tr>
+</table>
+<h3>5.2 Principes de conception</h3>
+<ol>
+<li><b>Fail-closed</b> : tout doute (détection incertaine, fuite résiduelle, plafond atteint, cloud indisponible) se règle en restant local.</li>
+<li><b>Le code agit, l'IA conseille</b> : aucune commande n'est tirée d'une réponse de l'IA.</li>
+<li><b>Masquer les valeurs, garder la structure</b> : un même hôte garde le même jeton partout, pour que l'IA puisse relier les failles.</li>
+<li><b>Tout est mesuré</b> : chaque appel, chaque envoi, chaque décision est journalisé et vérifiable après coup.</li>
+<li><b>Défense en profondeur</b> : chaque risque est couvert par plusieurs mécanismes indépendants.</li>
+</ol>
+</section>
+
+<!-- ============================== 6. PHASES ============================== -->
+<section class="chapter">
+<h2>6. Déroulement d'une mission : les 7 phases</h2>
+<div class="fig">
+<svg viewBox="0 0 760 110" xmlns="http://www.w3.org/2000/svg" font-family="Source Sans 3, sans-serif">
+  <line x1="54" y1="34" x2="706" y2="34" stroke="#00008F" stroke-width="2"/>
+  <g font-size="12" text-anchor="middle">
+  <circle cx="54" cy="34" r="17" fill="#00008F"/><text x="54" y="39" fill="#fff" font-weight="700">1</text><text x="54" y="70" font-weight="700">Configuration</text><text x="54" y="85" fill="#5A5E7C">aiguillage</text>
+  <circle cx="163" cy="34" r="17" fill="#00008F"/><text x="163" y="39" fill="#fff" font-weight="700">2</text><text x="163" y="70" font-weight="700">Reconnaissance</text><text x="163" y="85" fill="#0A7A55">IA locale</text>
+  <circle cx="272" cy="34" r="17" fill="#00008F"/><text x="272" y="39" fill="#fff" font-weight="700">3</text><text x="272" y="70" font-weight="700">Vulnérabilités</text><text x="272" y="85" fill="#5A5E7C">nuclei</text>
+  <circle cx="380" cy="34" r="17" fill="#00008F"/><text x="380" y="39" fill="#fff" font-weight="700">4</text><text x="380" y="70" font-weight="700">Priorisation</text><text x="380" y="85" fill="#5A5E7C">règles SSVC</text>
+  <circle cx="489" cy="34" r="17" fill="#fff" stroke="#FF1721" stroke-width="3"/><text x="489" y="39" fill="#C8102E" font-weight="700">5</text><text x="489" y="70" font-weight="700">Exploitation</text><text x="489" y="85" fill="#00008F">IA + validation</text>
+  <circle cx="598" cy="34" r="17" fill="#00008F"/><text x="598" y="39" fill="#fff" font-weight="700">6</text><text x="598" y="70" font-weight="700">Preuves</text><text x="598" y="85" fill="#5A5E7C">SHA-256</text>
+  <circle cx="706" cy="34" r="17" fill="#00008F"/><text x="706" y="39" fill="#fff" font-weight="700">7</text><text x="706" y="70" font-weight="700">Rapport</text><text x="706" y="85" fill="#00008F">IA</text>
+  </g>
+</svg>
+<div class="cap">Figure 2 : les sept phases. La phase 5 est la seule qui comporte une action active, donc une validation humaine.</div>
+</div>
+<table>
+<tr><th style="width:24mm">Phase</th><th>Ce qui se passe</th><th style="width:30mm">IA</th><th style="width:38mm">Garde-fous</th></tr>
+<tr><td><b>1. Configuration</b></td><td>Lecture du périmètre, calcul du profil du pentest, décision de route par l'aiguilleur, journalisation des raisons.</td><td>Règles (affinage local en option)</td><td>Mandat et dates vérifiés</td></tr>
+<tr><td><b>2. Reconnaissance</b></td><td>nmap <code>-sV --top-ports 1000</code> sur les domaines et plages autorisés ; lecture du XML (hôtes, ports, produits, versions) ; résumé de la surface d'attaque.</td><td>Toujours locale</td><td>Périmètre, exclusions (<code>--exclude</code>), bannières traitées comme non fiables</td></tr>
+<tr><td><b>3. Vulnérabilités</b></td><td>Vérification que chaque URL répond, puis un seul passage de nuclei sur toutes les URL (<code>-l</code>) ; lecture du JSONL : titre, gravité, CVE, CVSS, EPSS, test, preuve (valeurs extraites ou extrait de la réponse).</td><td>Aucune</td><td>Tests <code>dos</code>, <code>intrusive</code>, <code>fuzz</code> exclus ; Interactsh désactivé ; journal de l'outil</td></tr>
+<tr><td><b>4. Priorisation</b></td><td>Récupération des scores EPSS publics (seuls des identifiants CVE sont envoyés), décision ACT / ATTEND / TRACK* / TRACK, classement.</td><td>Aucune (règles explicites)</td><td>Criticité fixée par le client</td></tr>
+<tr><td><b>5. Exploitation (confirmation)</b></td><td>Pour les constats prioritaires (jusqu'à 5) : analyse par l'IA en 300 mots maximum (exploitabilité, enchaînements, impact, vérification non destructive, remédiation), puis proposition d'un re-test ciblé <code>nuclei -id</code>.</td><td>Cloud masqué si route CLOUD, sinon locale</td><td>Validation humaine, revue des actions, cible hors périmètre signalée, plafond de durée</td></tr>
+<tr><td><b>6. Preuves</b></td><td>Empreinte SHA-256 de chaque fichier de preuve ; index des constats et de leur état de vérification.</td><td>Aucune</td><td>Intégrité des preuves</td></tr>
+<tr><td><b>7. Rapport</b></td><td>Synthèse exécutive (ou texte factuel si aucun constat), rapport en 8 sections, contrôle automatique de l'outbox, enregistrement de la mission.</td><td>Cloud masqué si route CLOUD</td><td>Décisions SSVC explicitées pour éviter les contresens, contrôle de l'outbox</td></tr>
+</table>
+<div class="note"><b>Modes de fonctionnement.</b> La source « Démo » rejoue des sorties nmap et nuclei d'un laboratoire fictif, dont une page piégée par une instruction cachée. La source « Outils réels » lance nmap et nuclei sur le périmètre, si <code>tools.dry_run</code> vaut <code>false</code>. Le SLM local et le LLM cloud ont chacun un mode simulé (<code>mock</code>) ou réel (<code>live</code>).</div>
+</section>
+
+<!-- ============================== 7. AIGUILLEUR ============================== -->
+<section class="chapter">
+<h2>7. L'aiguilleur : local ou cloud</h2>
+<p>L'aiguilleur répond à deux questions, dans cet ordre : <b>le modèle local en est-il capable ?</b> (complexité) et, sinon, <b>les données peuvent-elles sortir, une fois masquées ?</b> (sensibilité). Les scores sont calculés par des règles explicites, reproductibles et défendables devant un jury. En option, le SLM local peut les affiner : la complexité est alors moyennée, et la sensibilité ne peut qu'augmenter.</p>
+<div class="two">
+<div>
+<h4>Score de complexité</h4>
+<table>
+<tr><th>Élément</th><th class="n">Valeur</th></tr>
+<tr><td>Web boîte noire</td><td class="n">0,25</td></tr>
+<tr><td>Web boîte grise, API</td><td class="n">0,40</td></tr>
+<tr><td>Multi-applications</td><td class="n">0,60</td></tr>
+<tr><td>Tests authentifiés</td><td class="n">+0,15</td></tr>
+<tr><td>Application sur mesure</td><td class="n">+0,15</td></tr>
+<tr><td>Enchaînement de failles requis</td><td class="n">+0,25</td></tr>
+<tr><td>Par cible au-delà de la première</td><td class="n">+0,03 (max 0,15)</td></tr>
+</table>
+</div>
+<div>
+<h4>Score de sensibilité</h4>
+<table>
+<tr><th>Élément</th><th class="n">Valeur</th></tr>
+<tr><td>Public</td><td class="n">0,10</td></tr>
+<tr><td>Interne</td><td class="n">0,40</td></tr>
+<tr><td>Confidentiel</td><td class="n">0,65</td></tr>
+<tr><td>Secret</td><td class="n">0,95</td></tr>
+<tr><td>Secteur assurance</td><td class="n">+0,10</td></tr>
+<tr><td>Banque, santé / défense</td><td class="n">+0,15 / +0,20</td></tr>
+<tr><td>Termes sensibles déclarés</td><td class="n">+0,05</td></tr>
+</table>
+</div>
+</div>
+<div class="fig">
+<svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg" font-family="Source Sans 3, sans-serif" style="max-width:120mm">
+  <rect x="50" y="10" width="248" height="250" fill="#E8F5EE"/>
+  <rect x="298" y="10" width="202" height="75" fill="#FFF1DC"/>
+  <rect x="298" y="85" width="202" height="175" fill="#E9EBF8"/>
+  <line x1="298" y1="10" x2="298" y2="260" stroke="#17173A" stroke-dasharray="4 4"/>
+  <line x1="298" y1="85" x2="500" y2="85" stroke="#17173A" stroke-dasharray="4 4"/>
+  <line x1="50" y1="260" x2="500" y2="260" stroke="#9AA0BC"/><line x1="50" y1="10" x2="50" y2="260" stroke="#9AA0BC"/>
+  <g font-size="13" font-weight="700" text-anchor="middle"><text x="174" y="130" fill="#0A7A55">LOCAL</text><text x="399" y="180" fill="#00008F">CLOUD</text><text x="399" y="45" fill="#9A5B00">LOCAL RESTREINT</text></g>
+  <g font-size="11" text-anchor="middle" fill="#5A5E7C"><text x="174" y="148">le modèle local suffit</text><text x="399" y="198">via la passerelle</text><text x="399" y="62">rien ne sort</text>
+  <text x="298" y="276">0,55</text><text x="50" y="276">0</text><text x="500" y="276">1</text><text x="275" y="294">Complexité du pentest</text>
+  <text x="40" y="89" text-anchor="end">0,70</text><text x="40" y="264" text-anchor="end">0</text><text x="40" y="14" text-anchor="end">1</text>
+  <text transform="translate(14 135) rotate(-90)">Sensibilité des données</text></g>
+</svg>
+<div class="cap">Figure 3 : matrice de décision. Seuils par défaut : complexité 0,55 et sensibilité 0,70 (réglables).</div>
+</div>
+<p><b>Exemple.</b> Un pentest web en boîte grise, authentifié, sur une application sur mesure avec enchaînement de failles, pour un assureur aux données « internes » : complexité 0,40 + 0,15 + 0,15 + 0,25 = 0,95 ; sensibilité 0,40 + 0,10 + 0,05 = 0,55. Le pentest est lourd et les données peuvent sortir masquées : route <span class="tag t-cloud">CLOUD</span>. La même mission classée « secret » donne une sensibilité de 1,0 : route <span class="tag t-rest">LOCAL_RESTRICTED</span>.</p>
+</section>
+
+<!-- ============================== 8. PASSERELLE ============================== -->
+<section class="chapter">
+<h2>8. La passerelle de confidentialité</h2>
+<p>La passerelle est le seul chemin vers le cloud. Elle s'appuie sur Microsoft Presidio (détection d'entités par motifs et par modèle de langue spaCy), étendu aux données propres à un pentest.</p>
+<div class="fig">
+<svg viewBox="0 0 760 120" xmlns="http://www.w3.org/2000/svg" font-family="Source Sans 3, sans-serif">
+  <defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#00008F"/></marker></defs>
+  <g font-size="11.5" text-anchor="middle">
+  <rect x="4" y="20" width="98" height="60" rx="6" fill="#EEF7F2" stroke="#0A7A55"/><text x="53" y="46" font-weight="700">Texte réel</text><text x="53" y="63" fill="#5A5E7C">sortie d'outil</text>
+  <rect x="122" y="20" width="98" height="60" rx="6" fill="#fff" stroke="#C9CDE6"/><text x="171" y="46" font-weight="700">1. Neutraliser</text><text x="171" y="63" fill="#5A5E7C">injections</text>
+  <rect x="240" y="20" width="98" height="60" rx="6" fill="#fff" stroke="#C9CDE6"/><text x="289" y="46" font-weight="700">2. Détecter</text><text x="289" y="63" fill="#5A5E7C">Presidio étendu</text>
+  <rect x="358" y="20" width="98" height="60" rx="6" fill="#fff" stroke="#C9CDE6"/><text x="407" y="46" font-weight="700">3. Masquer</text><text x="407" y="63" fill="#5A5E7C">jetons cohérents</text>
+  <rect x="476" y="20" width="98" height="60" rx="6" fill="#fff" stroke="#C8102E"/><text x="525" y="46" font-weight="700" fill="#C8102E">4. Contrôler</text><text x="525" y="63" fill="#5A5E7C">ou fail-closed</text>
+  <rect x="594" y="20" width="76" height="60" rx="6" fill="#EEF0FA" stroke="#00008F"/><text x="632" y="46" font-weight="700" fill="#00008F">5. Cloud</text><text x="632" y="63" fill="#5A5E7C">SafePrompt</text>
+  <rect x="686" y="20" width="70" height="60" rx="6" fill="#EEF7F2" stroke="#0A7A55"/><text x="721" y="46" font-weight="700">6. Réinjecter</text><text x="721" y="63" fill="#5A5E7C">en local</text>
+  </g>
+  <g stroke="#00008F" stroke-width="1.6"><path d="M102 50H120" marker-end="url(#b)"/><path d="M220 50H238" marker-end="url(#b)"/><path d="M338 50H356" marker-end="url(#b)"/><path d="M456 50H474" marker-end="url(#b)"/><path d="M574 50H592" marker-end="url(#b)"/><path d="M670 50H684" marker-end="url(#b)"/></g>
+  <text x="525" y="108" text-anchor="middle" font-size="11" fill="#C8102E">doute → raisonnement en local, rien ne sort</text>
+</svg>
+<div class="cap">Figure 4 : traitement d'un texte sur la route cloud.</div>
+</div>
+<h3>8.1 Ce qui est détecté</h3>
+<table>
+<tr><th>Entité</th><th>Exemples de formats reconnus</th></tr>
+<tr><td>Adresses IP de la cible</td><td>IPv4, IPv4 « neutralisée » <code>10[.]10[.]0[.]5</code> ; contrôle supplémentaire des IP du périmètre</td></tr>
+<tr><td>URL et noms d'hôtes</td><td><code>http(s)://…</code>, <code>hxxp://…</code>, noms de domaine complets, domaines neutralisés</td></tr>
+<tr><td>Secrets</td><td>Paires clé/valeur (<code>.env</code>, JSON, YAML), <code>define()</code> PHP, identifiants dans une URI, en-têtes Basic et Bearer, JWT, clés AWS, blocs de clé privée entiers</td></tr>
+<tr><td>Empreintes</td><td>Hachages de mots de passe</td></tr>
+<tr><td>Objets de base de données</td><td>Requêtes SQL, sorties sqlmap (<code>Database:</code>, <code>Table:</code>)</td></tr>
+<tr><td>Données personnelles</td><td>Noms de personnes (spaCy), adresses postales, CIN marocaine (confirmée par le contexte), téléphones FR/MA/BE/CH/US/GB, cartes bancaires, IBAN dont marocain</td></tr>
+<tr><td>Termes du client</td><td>Nom du client et termes sensibles déclarés dans le périmètre (liste de refus, score forcé à 0,9)</td></tr>
+</table>
+<p>Une liste blanche protège le vocabulaire utile au raisonnement (CVE, CVSS, EPSS, Apache, PHP, SQL, RCE…), et un filtre écarte les faux noms de personnes (identifiants techniques contenant des chiffres ou des tirets).</p>
+<h3>8.2 Comment c'est masqué</h3>
+<ul>
+<li><b>Jetons cohérents.</b> Une même valeur reçoit toujours le même jeton (<code>[TARGET_IP_1]</code>) et deux valeurs différentes deux jetons différents : l'IA peut comparer sans connaître.</li>
+<li><b>Valeur seule pour les secrets.</b> <code>DB_PASSWORD=S3cr3t!</code> devient <code>DB_PASSWORD=[SECRET_1]</code> : la clé reste lisible et l'IA comprend de quoi il s'agit.</li>
+<li><b>Masquage structurel des URL.</b> <code>https://intranet.client.ma/admin</code> devient <code>https://[HOSTNAME_1]/admin</code> : l'hôte garde son jeton partout, le chemin reste lisible, et ce qu'il contient de sensible (identifiants, <code>token=</code>, termes du client) est masqué à son tour. C'est ce qui permet à l'IA de voir que trois failles sont sur le même serveur.</li>
+<li><b>Coffre chiffré.</b> La table jeton ↔ valeur est propre à chaque mission, chiffrée sur disque (Fernet, clé <code>INOVA_VAULT_KEY</code>) et jamais journalisée.</li>
+</ul>
+<h3>8.3 Fail-closed : quand rien ne sort</h3>
+<table>
+<tr><th>Situation</th><th>Réaction</th></tr>
+<tr><td>Une détection a un score entre 0,35 et 0,60 (incertaine)</td><td>Envoi refusé, raisonnement en local (<code>max_uncertain_spans: 0</code>)</td></tr>
+<tr><td>Après masquage, une IP du périmètre, un domaine, un terme sensible ou un motif de secret subsiste</td><td>Envoi refusé, raisonnement en local</td></tr>
+<tr><td>Un appel cloud avec un texte qui ne vient pas de la passerelle</td><td>Refus par le code (<code>UnsafePromptError</code>)</td></tr>
+<tr><td>Plafond de mission atteint</td><td>Plus aucun envoi, raisonnement en local</td></tr>
+<tr><td>Cloud trop lent ou indisponible</td><td>Un nouvel essai, puis raisonnement en local ; l'envoi tenté reste consigné</td></tr>
+</table>
+<h3>8.4 Le verrou SafePrompt et le contrôle de l'outbox</h3>
+<p>Le client LLM n'accepte vers le cloud qu'un objet <code>SafePrompt</code> émis par la passerelle : il est impossible, dans le code, d'envoyer du texte brut par erreur. Chaque texte envoyé est copié dans <code>cloud_outbox.jsonl</code>. En fin de mission, INOVA y cherche toutes les valeurs réelles masquées pendant la mission, les domaines et termes sensibles, les IP du périmètre et les secrets du laboratoire listés dans <code>config/secrets_labo.txt</code>. Le résultat, « aucune valeur sortie » ou la liste des fuites, figure dans le rapport : c'est une <b>mesure</b>, pas une promesse.</p>
+</section>
+
+<!-- ============================== 9. ACTIONS ============================== -->
+<section class="chapter">
+<h2>9. Le contrôle des actions</h2>
+<p>La seconde moitié de la problématique porte sur les actions que l'IA peut proposer. INOVA les encadre par cinq mécanismes indépendants.</p>
+<h3>9.1 Le périmètre (ScopeGuard)</h3>
+<ul>
+<li>Le mandat doit être en cours de validité (dates de début et de fin).</li>
+<li>Une cible doit appartenir aux domaines ou aux plages IP autorisés ; une plage CIDR doit y être <b>entièrement</b> incluse (un <code>/16</code> est refusé si le mandat couvre un <code>/24</code>).</li>
+<li>Les hôtes exclus sont refusés et passés à nmap avec <code>--exclude</code>.</li>
+<li>Pour un scan de plusieurs cibles, chacune est vérifiée ; une seule hors périmètre bloque tout.</li>
+</ul>
+<h3>9.2 Les outils</h3>
+<ul>
+<li>Liste blanche : <code>nmap</code>, <code>whatweb</code>, <code>nuclei</code>. Tout autre outil est refusé.</li>
+<li>Commandes construites par le code à partir de modèles fixes, lancées <b>sans shell</b> (pas d'injection de commande possible).</li>
+<li>Mode <code>dry_run</code> : les commandes sont affichées sans être exécutées.</li>
+<li>nuclei toujours lancé avec <code>-ni</code> (pas d'Interactsh : la cible ne contacte jamais de serveur public tiers) et <code>-etags dos,intrusive,fuzz</code> (aucun test destructif).</li>
+<li>Délai maximal par outil (15 minutes), code retour et journal complet enregistrés.</li>
+</ul>
+<h3>9.3 La défense contre l'injection de prompt</h3>
+<p>Les sorties des outils contiennent du texte écrit par la cible. INOVA :</p>
+<ol>
+<li>les encadre comme <code>&lt;&lt;&lt;DONNEES_NON_FIABLES source=…&gt;&gt;&gt;</code>, avec une règle système interdisant d'en suivre les instructions ;</li>
+<li>y détecte six familles d'injection, en français et en anglais : ignorer les instructions, changement de rôle, faux message système, demande d'exécution, exfiltration, révélation du prompt ;</li>
+<li>retire la ligne suspecte avant tout envoi, à un modèle local comme au cloud, et journalise l'évènement.</li>
+</ol>
+<h3>9.4 La revue des réponses de l'IA</h3>
+<p>Chaque réponse est relue. Sept familles de propositions dangereuses sont signalées : suppression massive, shell distant, téléchargement puis exécution, PowerShell encodé, destruction de données, déni de service, persistance. Tout hôte cité hors du périmètre est aussi signalé. Rien n'est exécuté : ces alertes informent l'humain et figurent dans le rapport.</p>
+<h3>9.5 La validation humaine</h3>
+<p>La seule action exécutable est <code>retest_template</code> : un re-test ciblé d'un test déjà détecté par nuclei (<code>nuclei -id &lt;test&gt;</code>), depuis la racine du site, dans le périmètre. Avant chaque re-test, l'interface affiche une carte « Validation humaine requise » avec l'action exacte. Le pentesteur autorise ou refuse ; sans réponse sous 15 minutes, c'est un refus. Chaque décision est enregistrée avec son auteur.</p>
+<div class="note"><b>Défense en profondeur.</b> Une instruction piégée doit franchir la détection, la règle système, la revue des réponses, l'absence d'exécution du texte de l'IA, la liste blanche, le périmètre et la validation humaine. Aucun mécanisme n'est supposé parfait ; c'est leur empilement qui protège.</div>
+</section>
+
+<!-- ============================== 10. PRIORISATION ============================== -->
+<section style="margin-top:9mm">
+<h2>10. Priorisation des vulnérabilités</h2>
+<p>Plutôt qu'une formule pondérée difficile à justifier, INOVA suit un arbre de décision inspiré de SSVC (Stakeholder-Specific Vulnerability Categorization), avec trois questions :</p>
+<table>
+<tr><th>Question</th><th>Source</th><th>Niveaux</th></tr>
+<tr><td>Exploitation</td><td>EPSS (probabilité d'exploitation dans les 30 jours, base publique FIRST), gravité</td><td><i>active</i> si EPSS ≥ 0,5 ; <i>poc</i> si EPSS ≥ 0,05, gravité critique, ou faille sans CVE confirmée en gravité haute ; sinon <i>none</i></td></tr>
+<tr><td>Exposition</td><td>Actif exposé sur Internet</td><td>oui / non</td></tr>
+<tr><td>Impact métier</td><td>Criticité de l'actif fixée par le client</td><td>haute / moyenne / basse</td></tr>
+</table>
+<table>
+<tr><th>Décision</th><th>Règle</th><th>Signification</th></tr>
+<tr><td><span class="tag t-act">ACT</span></td><td>exploitation active, actif exposé et criticité haute</td><td>corriger immédiatement</td></tr>
+<tr><td><span class="tag t-att">ATTEND</span></td><td>exploitation active et (exposé ou criticité haute), ou preuve de concept et criticité haute</td><td>corriger rapidement</td></tr>
+<tr><td><span class="tag t-trs">TRACK*</span></td><td>exploitation active ou preuve de concept, sans les conditions ci-dessus</td><td>surveiller de près</td></tr>
+<tr><td><span class="tag t-tr">TRACK</span></td><td>pas d'exploitation connue</td><td>suivi normal</td></tr>
+</table>
+<p>Les constats sont classés par décision, puis par CVSS et EPSS. La phase 5 analyse en priorité les ACT et ATTEND ; s'il n'y en a aucun, elle analyse les constats de gravité moyenne ou plus, pour que le rapport ne soit jamais vide. Seuls des identifiants CVE publics sont envoyés à l'API EPSS.</p>
+</section>
+
+<!-- ============================== 11. PILOTAGE ============================== -->
+<section class="chapter">
+<h2>11. Pilotage, coûts et robustesse</h2>
+<h3>11.1 Accès aux modèles</h3>
+<p>LiteLLM offre une interface unique vers le SLM local (Ollama) et vers le fournisseur cloud. Chaque modèle a son mode : <code>mock</code> (simulé, sans clé ni Internet) ou <code>live</code>. Les paramètres refusés par un modèle sont ignorés (<code>drop_params</code>), la télémétrie de LiteLLM est coupée et la grille de prix est lue localement.</p>
+<table>
+<tr><th>Réglage</th><th>Valeur par défaut</th><th>Rôle</th></tr>
+<tr><td><code>timeout_s</code></td><td class="n">120 s</td><td>Délai maximal d'un appel</td></tr>
+<tr><td><code>retries</code></td><td class="n">1</td><td>Nouvel essai si le réseau est lent ou l'API surchargée</td></tr>
+<tr><td><code>max_tokens</code></td><td class="n">1 500</td><td>Réponses bornées : plus rapides, moins chères</td></tr>
+<tr><td><code>temperature</code></td><td class="n">0,2</td><td>Réponses stables (par modèle, ou non envoyée)</td></tr>
+</table>
+<h3>11.2 Plafonds de mission</h3>
+<p>Au-delà de 20 appels cloud, 200 000 tokens ou 60 minutes, plus rien ne part au cloud : la mission continue en local. Ces plafonds protègent le budget et limitent l'exposition.</p>
+<h3>11.3 Mesure</h3>
+<p>Chaque appel est enregistré dans <code>usage.jsonl</code> : phase, cible (local ou cloud), modèle, tokens envoyés et reçus, durée, coût calculé d'après les tarifs saisis. Le rapport affiche aussi la <b>durée de chaque phase</b>, utile à l'analyse ROI.</p>
+<h3>11.4 Robustesse</h3>
+<table>
+<tr><th>Situation</th><th>Comportement</th></tr>
+<tr><td>Application cible arrêtée</td><td>Détectée avant nuclei ; scan ignoré et signalé dans le rapport (au lieu d'un faux « 0 constat »)</td></tr>
+<tr><td>Outil en échec</td><td>Code retour et journal enregistrés (<code>evidence/*.log</code>) ; avertissement dans le terminal et le rapport</td></tr>
+<tr><td>Cloud lent ou indisponible</td><td>Nouvel essai, puis repli local ; la mission continue</td></tr>
+<tr><td>Modèle local injoignable</td><td>Analyse marquée indisponible ; la mission continue</td></tr>
+<tr><td>Aucun constat</td><td>Synthèse factuelle sans appel à l'IA (évite un gabarit inventé)</td></tr>
+<tr><td>Caractères inattendus dans une sortie d'outil (Windows)</td><td>Toutes les lectures et écritures en UTF-8 ; un test l'impose dans tout le code</td></tr>
+</table>
+</section>
+
+<!-- ============================== 12. TRACABILITE ============================== -->
+<section class="chapter">
+<h2>12. Traçabilité et preuves</h2>
+<p>Chaque mission crée un dossier <code>runs/&lt;engagement&gt;_&lt;date&gt;/</code> :</p>
+<table>
+<tr><th>Fichier</th><th>Contenu</th></tr>
+<tr><td><code>audit.jsonl</code></td><td>Journal horodaté : route, masquage, fail-closed, injections, actions signalées, validations, résultats d'outils, cibles injoignables, durées de phase</td></tr>
+<tr><td><code>usage.jsonl</code></td><td>Chaque appel IA : tokens, durée, coût</td></tr>
+<tr><td><code>cloud_outbox.jsonl</code></td><td>Copie exacte de chaque texte envoyé au cloud (masqué)</td></tr>
+<tr><td><code>evidence/</code></td><td>Sorties brutes des outils, journaux, listes de cibles</td></tr>
+<tr><td><code>evidence_index.json</code></td><td>Empreinte SHA-256 de chaque preuve, index des constats</td></tr>
+<tr><td><code>rapport.md</code></td><td>Rapport technique complet</td></tr>
+<tr><td><code>mission.json</code>, <code>summary.json</code></td><td>Détail et résumé de la mission (historique, tableau de bord)</td></tr>
+</table>
+<p>Ce qui est parti au cloud est uniquement dans <code>cloud_outbox.jsonl</code>, sous forme masquée. Les textes réels échangés avec l'IA sont conservés sur la machine dans <code>mission.json</code>, pour l'historique de l'interface locale. La table de correspondance reste dans <code>.inova_vault/</code>, chiffrée. Les dossiers <code>runs/</code> et <code>.inova_vault/</code>, le fichier <code>.env</code>, le périmètre réel et les secrets du laboratoire sont exclus du dépôt git.</p>
+</section>
+
+<!-- ============================== 13. INTERFACE ============================== -->
+<section style="margin-top:9mm">
+<h2>13. Interface web</h2>
+<p>L'interface, aux couleurs d'AXA, est servie par un petit serveur Python intégré (bibliothèque standard), lancé par <code>python -m inova.main web</code>. Elle n'écoute que sur <code>127.0.0.1</code> : elle peut donc afficher les valeurs réelles et la table de correspondance, qui ne quittent pas la machine.</p>
+<table>
+<tr><th>Onglet</th><th>Contenu</th></tr>
+<tr><td>Tableau de bord</td><td>« La frontière » : raisonnements locaux, valeurs remplacées, replis, pièges neutralisés, envois masqués, valeurs réelles reçues par le cloud (0). Constats des dernières missions par gravité, routes choisies, coût cumulé, durée médiane, tokens.</td></tr>
+<tr><td>1. Périmètre</td><td>Saisie et validation du mandat, des cibles et de la classification.</td></tr>
+<tr><td>2. Aiguillage</td><td>Simulateur : carte complexité × sensibilité avec un point qui se déplace selon le profil, scores et raisons.</td></tr>
+<tr><td>3. Passerelle</td><td>Démonstration sur un texte libre : entités détectées, texte envoyé, réponse brute, réponse réinjectée, table de correspondance, verdict.</td></tr>
+<tr><td>4. Mission</td><td>Lancement (démo ou outils réels, classification, type), frise des 7 phases en direct, cartes de validation, frontière propre à la mission, constats par application, services, échanges avec l'IA.</td></tr>
+<tr><td>5. Rapport</td><td>Version technique ou direction, export PDF de qualité impression.</td></tr>
+<tr><td>Historique</td><td>Toutes les missions enregistrées, réouvrables.</td></tr>
+<tr><td>Taux de fuite</td><td>Lancement de l'évaluation de la passerelle et lecture des indicateurs.</td></tr>
+</table>
+<h4>Sécurité de l'interface</h4>
+<ul>
+<li>Écoute locale uniquement ; contrôle de l'en-tête Origin sur les requêtes d'API.</li>
+<li>Politique de sécurité du contenu (CSP) stricte ; aucune ressource externe : les polices sont fournies avec l'application.</li>
+<li>Taille des requêtes limitée ; noms de mission contrôlés (pas de traversée de répertoire).</li>
+<li>Une seule mission à la fois ; reprise du suivi après rechargement de la page.</li>
+</ul>
+</section>
+
+<!-- ============================== 14. RAPPORT ============================== -->
+<section class="chapter">
+<h2>14. Le rapport de mission</h2>
+<table>
+<tr><th>Section</th><th>Contenu</th><th>Version direction</th></tr>
+<tr><td>1. Synthèse exécutive</td><td>Cinq lignes rédigées par l'IA à partir des constats, sans rien affirmer d'autre</td><td>oui</td></tr>
+<tr><td>2. Vulnérabilités priorisées</td><td>Tableau : rang, constat, actif, gravité, CVSS, EPSS, décision, vérification</td><td>oui</td></tr>
+<tr><td>3. Aiguillage et confidentialité</td><td>Route, scores, raisons ; raisonnements locaux et cloud, replis, entités masquées</td><td>oui</td></tr>
+<tr><td>4. Sécurité de la mission</td><td>Pièges neutralisés, actions signalées, validations, plafonds, outils en échec, cibles injoignables, contrôle de l'outbox</td><td>oui</td></tr>
+<tr><td>5. Coût et performance</td><td>Appels, tokens, durées et coût par modèle ; durée de chaque phase</td><td>oui</td></tr>
+<tr><td>6. Surface d'attaque</td><td>Services relevés par nmap</td><td>non</td></tr>
+<tr><td>7. Analyses détaillées</td><td>Élément observé et analyse de chaque constat</td><td>non</td></tr>
+<tr><td>8. Preuves</td><td>Renvoi vers les fichiers scellés et les journaux</td><td>non</td></tr>
+</table>
+<p>L'export PDF produit une page d'en-tête bleue avec la mention « confidentiel ». Les titres générés par l'IA sont rétrogradés pour ne pas casser la numérotation, et les blocs de code sont mis en forme.</p>
+</section>
+
+<!-- ============================== 15. TECHNOLOGIES ============================== -->
+<section class="chapter">
+<h2>15. Technologies et organisation du code</h2>
+<table>
+<tr><th>Brique</th><th>Technologie</th><th>Usage</th></tr>
+<tr><td>Langage</td><td>Python 3.12+</td><td>Tout le moteur</td></tr>
+<tr><td>Anonymisation</td><td>Microsoft Presidio, spaCy (<code>fr_core_news_md</code>, <code>en_core_web_sm</code>), tldextract</td><td>Détection et masquage</td></tr>
+<tr><td>Chiffrement</td><td>cryptography (Fernet)</td><td>Coffre des correspondances</td></tr>
+<tr><td>Accès aux modèles</td><td>LiteLLM</td><td>SLM local et LLM cloud</td></tr>
+<tr><td>Modèle local</td><td>Ollama, qwen2.5 (3b ou 7b)</td><td>Aiguillage, route locale, repli</td></tr>
+<tr><td>Modèle cloud</td><td>Claude Haiku 5.5 (configurable)</td><td>Analyses et synthèse masquées</td></tr>
+<tr><td>Outils</td><td>nmap, nuclei (ProjectDiscovery)</td><td>Reconnaissance, détection</td></tr>
+<tr><td>Interface</td><td>http.server, HTML, CSS, JavaScript sans dépendance</td><td>Console web locale</td></tr>
+<tr><td>Laboratoire</td><td>Docker, OWASP Juice Shop, Vulhub</td><td>Cibles vulnérables</td></tr>
+<tr><td>Tests</td><td>pytest</td><td>52 tests</td></tr>
+</table>
+<pre>inovas/
+├── config/          settings.yaml, scope.example.yaml (scope.yaml et secrets_labo.txt : locaux)
+├── inova/
+│   ├── main.py            commandes : web, check, run, route, mask, eval-leaks
+│   ├── orchestrator.py    enchaînement des 7 phases
+│   ├── diagnostic.py      commande check
+│   ├── core/              modèles, configuration, contexte, audit, budget, résultats
+│   ├── router/            aiguilleur.py (route), reasoner.py (local, cloud, repli)
+│   ├── gateway/           passerelle.py, recognizers.py, vault.py
+│   ├── guardrails/        scope.py, injection.py, actions.py, approval.py
+│   ├── tools/             runner.py (liste blanche, sans shell, journaux)
+│   ├── phases/            p1_config … p7_rapport
+│   ├── llm/               client.py (LiteLLM, SafePrompt, mesure, plafonds)
+│   ├── eval/              leak_eval.py, outbox_audit.py
+│   └── web/               server.py, api.py, static/ (index.html, polices)
+├── lab/             docker-compose.yml (Vulhub), scope.lab.yaml, README
+├── docs/            CHECKLIST_REEL.md, EVALUATION.md, ROADMAP.md
+└── tests/           6 fichiers de tests + fixtures (nmap, nuclei, corpus de fuite)</pre>
+</section>
+
+<!-- ============================== 16. CONFIGURATION ============================== -->
+<section class="chapter">
+<h2>16. Configuration</h2>
+<h3>16.1 <code>config/settings.yaml</code></h3>
+<table>
+<tr><th>Section</th><th>Clés principales</th></tr>
+<tr><td><code>engagement</code></td><td><code>id</code>, <code>language</code> (fr | en), <code>output_dir</code></td></tr>
+<tr><td><code>llm</code></td><td><code>local_mode</code> et <code>cloud_mode</code> (mock | live), <code>local_model</code>, <code>local_api_base</code>, <code>cloud_model</code>, <code>temperature</code>, <code>timeout_s</code>, <code>retries</code>, <code>max_tokens</code></td></tr>
+<tr><td><code>budget</code></td><td><code>max_cloud_calls</code> (20), <code>max_total_tokens</code> (200 000), <code>max_mission_minutes</code> (60)</td></tr>
+<tr><td><code>pricing</code></td><td>Tarifs cloud en dollars par million de tokens (entrée, sortie)</td></tr>
+<tr><td><code>router</code></td><td><code>complexity_threshold</code> (0,55), <code>sensitivity_threshold</code> (0,70), <code>use_slm_refinement</code></td></tr>
+<tr><td><code>gateway</code></td><td><code>min_confidence</code> (0,60), <code>uncertain_band</code> (0,35), <code>max_uncertain_spans</code> (0), <code>vault_dir</code>, <code>spacy_models</code></td></tr>
+<tr><td><code>tools</code></td><td><code>dry_run</code>, <code>timeout_s</code> (900), <code>allowlist</code>, <code>nuclei_severity</code>, <code>nuclei_exclude_tags</code></td></tr>
+<tr><td><code>guardrails</code></td><td><code>require_approval_for</code>, <code>max_findings_to_verify</code> (5)</td></tr>
+</table>
+<h3>16.2 Le périmètre : <code>config/scope.yaml</code></h3>
+<pre>authorization:  client, reference (mandat), signed_by, valid_from, valid_until
+pentest:        type, authenticated, custom_application, exploitation_chaining,
+                data_classification (public | interne | confidentiel | secret), sector
+targets:        domains, ip_ranges, urls
+excluded:       hôtes interdits
+asset_criticality:  hôte → haute | moyenne | basse
+sensitive_terms:    termes à ne jamais laisser sortir</pre>
+<h3>16.3 Les secrets : <code>.env</code></h3>
+<p><code>ANTHROPIC_API_KEY</code> ou <code>OPENAI_API_KEY</code> pour le cloud, <code>INOVA_VAULT_KEY</code> pour le coffre (générée si absente). Le fichier n'est jamais versionné ; une variable d'environnement existante n'est jamais écrasée.</p>
+</section>
+
+<!-- ============================== 17. INSTALLATION ============================== -->
+<section class="chapter">
+<h2>17. Installation et mise en service</h2>
+<h3>17.1 Base (mode démo)</h3>
+<pre>git clone https://github.com/Ayoub00790/Inovas && cd Inovas
+python -m venv .venv && .venv\Scripts\Activate.ps1      (Windows)
+pip install -r requirements.txt
+python -m spacy download fr_core_news_md
+python -m pytest -q
+python -m inova.main web</pre>
+<h3>17.2 Mise en service réelle, en trois phases</h3>
+<table>
+<tr><th>Phase</th><th>Étapes</th><th>Critère de réussite</th></tr>
+<tr><td><b>A. Cloud réel</b></td><td><code>pip install -r requirements-live.txt</code> ; clé dans <code>.env</code> ; <code>cloud_mode: live</code>, modèle et tarifs ; <code>python -m inova.main check</code></td><td>Le diagnostic répond « Tout est prêt » ; une mission démo coûte quelques millièmes de dollar ; outbox sans fuite</td></tr>
+<tr><td><b>B. Modèle local</b></td><td>Installer Ollama ; <code>ollama pull qwen2.5:3b</code> (ou 7b) ; <code>local_mode: live</code> ; <code>check</code></td><td>Mission « Secret » 100 % locale : aucun envoi, 0 $</td></tr>
+<tr><td><b>C. Laboratoire réel</b></td><td>Docker, Juice Shop et Vulhub sur 127.0.0.1 ; nmap et nuclei dans le PATH ; <code>dry_run: false</code> ; périmètre du laboratoire ; <code>secrets_labo.txt</code></td><td>Mission sur outils réels avec constats, validations et outbox propre</td></tr>
+</table>
+<div class="note warn"><b>Règles d'usage.</b> Ne jamais mettre une clé d'API dans le code ou dans une conversation. Ne scanner que le laboratoire, ou une cible couverte par un mandat signé. Ne jamais placer de vraies données client dans le laboratoire ou les tests. Ne jamais désactiver la passerelle. Garder la recharge automatique du compte cloud désactivée.</div>
+</section>
+
+<!-- ============================== 18. LABORATOIRE ============================== -->
+<section class="chapter">
+<h2>18. Laboratoire de test</h2>
+<p>Le laboratoire tourne sur la machine du pentesteur, dans Docker, et n'écoute que sur <code>127.0.0.1</code>. Il réunit OWASP Juice Shop et cinq applications Vulhub choisies parce qu'elles contiennent des CVE réelles que nuclei sait détecter, souvent avec un EPSS élevé : elles alimentent toute la chaîne (décisions ACT, enchaînements, validations).</p>
+<table>
+<tr><th>Port</th><th>Application</th><th>Faille attendue</th><th>Gravité</th></tr>
+<tr><td class="n">3000</td><td>OWASP Juice Shop</td><td>Métriques Prometheus exposées</td><td>moyenne</td></tr>
+<tr><td class="n">8081</td><td>Apache 2.4.49</td><td>CVE-2021-41773, CVE-2021-42013 (traversée, exécution de code)</td><td>haute / critique</td></tr>
+<tr><td class="n">8082</td><td>phpMyAdmin 4.8.1</td><td>CVE-2018-12613 (inclusion de fichier)</td><td>haute</td></tr>
+<tr><td class="n">8083</td><td>Tomcat 8</td><td>Console d'administration avec identifiants par défaut</td><td>haute</td></tr>
+<tr><td class="n">8084</td><td>ThinkPHP 5.0.23</td><td>Exécution de code à distance</td><td>critique</td></tr>
+<tr><td class="n">9200</td><td>Elasticsearch 1.4.2</td><td>CVE-2015-1427 (exécution de code)</td><td>haute</td></tr>
+</table>
+<pre>cd lab
+docker compose up -d --build
+copy scope.lab.yaml ..\config\scope.yaml
+docker compose down          (après chaque séance)</pre>
+<div class="note warn"><b>Attention.</b> Plusieurs de ces applications permettent une vraie exécution de code. Elles ne doivent jamais être exposées au réseau ni réutilisées hors du laboratoire.</div>
+</section>
+
+<!-- ============================== 19. TESTS ============================== -->
+<section class="chapter">
+<h2>19. Tests automatisés</h2>
+<p>52 tests, lancés par <code>python -m pytest -q</code>, sans clé ni Internet.</p>
+<table>
+<tr><th>Fichier</th><th>Ce qui est vérifié</th></tr>
+<tr><td><code>test_passerelle.py</code></td><td>Fuite effective nulle sur les cas standard (modèle md), au plus 5 % quel que soit le modèle ; aucun secret technique ne sort ; éléments utiles préservés ; valeur seule masquée ; jetons cohérents ; aller-retour exact ; masquage structurel des URL ; secrets dans une URL ; fail-closed ; refus d'un texte brut vers le cloud</td></tr>
+<tr><td><code>test_live_path.py</code></td><td>Vrai chemin LiteLLM contre un faux serveur compatible OpenAI : le serveur ne reçoit aucune valeur réelle ; tokens et coût mesurés ; plafond d'appels ; paramètre refusé ignoré ; cloud trop lent → repli local sans planter</td></tr>
+<tr><td><code>test_guardrails.py</code></td><td>Injection détectée et neutralisée ; actions dangereuses signalées ; périmètre, CIDR entièrement inclus, exclusions passées à nmap ; nuclei sans Interactsh et sans tests destructifs ; plusieurs cibles en un passage ; outil en échec journalisé</td></tr>
+<tr><td><code>test_aiguilleur.py</code></td><td>Routes attendues pour des profils types ; seuils</td></tr>
+<tr><td><code>test_web.py</code></td><td>API de l'interface : validation interactive (autoriser, refuser), validation du périmètre, protection de l'historique</td></tr>
+<tr><td><code>test_scope.py</code></td><td>Rapport (titres, coût sans appel, preuves), cible injoignable, sélection des constats, encodage UTF-8 imposé dans tout le code</td></tr>
+</table>
+</section>
+
+<!-- ============================== 20. RESULTATS ============================== -->
+<section class="chapter">
+<h2>20. Résultats et évaluation</h2>
+<h3>20.1 Taux de fuite de la passerelle</h3>
+<p>Corpus de 56 cas fictifs (84 valeurs sensibles, 41 éléments à préserver) : sorties nmap, nuclei, sqlmap, en-têtes HTTP, JSON, fichiers de configuration, journaux, texte libre en français, obfuscations. 13 cas sont marqués difficiles <i>a priori</i>.</p>
+<table>
+<tr><th>Itération</th><th>Modèle FR</th><th class="n">Fuite effective standard</th><th class="n">Cas difficiles</th><th class="n">Global</th><th class="n">Replis</th><th class="n">Sur-masquage</th></tr>
+<tr><td>1. détecteurs initiaux</td><td>sm</td><td class="n">20,9 % (14/67)</td><td class="n">76,5 %</td><td class="n">32,1 %</td><td class="n">1,8 %</td><td class="n">2,4 %</td></tr>
+<tr><td>2. détecteurs améliorés</td><td>sm</td><td class="n">3,0 % (2/67)</td><td class="n">29,4 %</td><td class="n">8,3 %</td><td class="n">0,0 %</td><td class="n">0,0 %</td></tr>
+<tr><td>2. détecteurs améliorés</td><td>md</td><td class="n"><b>0,0 % (0/67)</b></td><td class="n">29,4 %</td><td class="n">6,0 %</td><td class="n">0,0 %</td><td class="n">0,0 %</td></tr>
+</table>
+<p>La <b>fuite effective</b> compte les valeurs qui seraient réellement sorties : présentes après masquage dans un texte que la passerelle a accepté d'envoyer. C'est l'indicateur de confidentialité.</p>
+<div class="note warn"><b>Mise en garde.</b> Les détecteurs de l'itération 2 ont été conçus après avoir vu les échecs de l'itération 1, par la même personne qui a écrit le corpus. Le 0 % mesure la couverture des formats connus et surestime probablement la performance sur des données inédites. Un jeu de test indépendant, issu du laboratoire et jamais utilisé pour régler les détecteurs, est prévu.</div>
+<h3>20.2 Missions réelles</h3>
+<table>
+<tr><th>Mission</th><th>Route</th><th>Constats</th><th>Confidentialité</th><th class="n">Coût</th><th class="n">Durée</th></tr>
+<tr><td>Démo, Claude Haiku 5.5</td><td><span class="tag t-cloud">CLOUD</span></td><td>5 ; piège neutralisé ; cible hors périmètre signalée</td><td>35 entités masquées ; outbox propre</td><td class="n">≈ 0,005 $</td><td class="n">quelques s</td></tr>
+<tr><td>Démo « Secret », qwen2.5:3b</td><td><span class="tag t-rest">RESTREINT</span></td><td>5 ; mêmes garde-fous</td><td>aucun envoi</td><td class="n">0 $</td><td class="n">66 s d'IA</td></tr>
+<tr><td>Juice Shop, outils réels</td><td><span class="tag t-cloud">CLOUD</span></td><td>1 (métriques exposées)</td><td>4 entités ; outbox vérifiée contre 14 valeurs</td><td class="n">0,0017 $</td><td class="n">310 s</td></tr>
+<tr><td>Laboratoire Vulhub</td><td><span class="tag t-cloud">CLOUD</span></td><td>9 ou plus, dont Apache CVE-2021-42013 (CVSS 9,8 ; EPSS 0,9996), ThinkPHP, Elasticsearch</td><td>repli local en cas d'incident cloud</td><td class="n">—</td><td class="n">—</td></tr>
+</table>
+<h3>20.3 Local contre cloud</h3>
+<p>Sur la même mission, le petit modèle local (3 milliards de paramètres) garantit l'absence de toute sortie mais commet des erreurs que le grand modèle ne fait pas : définition inventée d'EPSS, correctif erroné (PHP 8.2.5, encore vulnérable à CVE-2024-4577), action offensive rangée dans la remédiation, enchaînements faibles, conclusions contradictoires. Cela confirme le constat de PentestGPT et justifie l'aiguillage : le cloud masqué pour la qualité, le local pour les données les plus sensibles, avec une validation humaine renforcée.</p>
+<h3>20.4 Couverture de détection</h3>
+<p>Sur Juice Shop, qui contient plus de 100 failles volontaires, surtout logiques, nuclei n'en a détecté qu'une. Les scanners à signatures trouvent les CVE et erreurs de configuration connues, pas les failles de logique applicative. L'IA ne voit que ce que les outils trouvent : INOVA assiste le pentesteur, il ne le remplace pas.</p>
+<table>
+<tr><th>Axe évalué</th><th class="n">Note</th><th>Justification</th></tr>
+<tr><td>Couverture (failles trouvées sur Juice Shop)</td><td class="n">2/10</td><td>1 faille sur plus de 100</td></tr>
+<tr><td>Qualité des constats et des analyses (cloud)</td><td class="n">8/10</td><td>Constats exacts, analyses ancrées dans les preuves</td></tr>
+<tr><td>Confidentialité et garde-fous</td><td class="n">9/10</td><td>Aucune fuite mesurée ; jeu de test indépendant à venir</td></tr>
+</table>
+</section>
+
+<!-- ============================== 21. RETOURS ============================== -->
+<section class="chapter">
+<h2>21. Retours d'expérience</h2>
+<p>Les incidents rencontrés en conditions réelles, et la correction apportée à chacun. Ils alimentent directement le cadre de garde-fous (livrable 2).</p>
+<table>
+<tr><th style="width:38mm">Constat</th><th>Cause</th><th style="width:52mm">Correction et enseignement</th></tr>
+<tr><td>L'IA ne reliait pas les failles d'un même serveur</td><td>Chaque URL entière recevait un jeton différent</td><td>Masquage structurel des URL. Protéger les valeurs sans détruire la structure</td></tr>
+<tr><td>Le modèle local propose une attaque comme « remédiation »</td><td>Petit modèle, raisonnement faible</td><td>Validation humaine renforcée sur la route restreinte ; la revue des actions ne voit pas une suggestion écrite en phrases</td></tr>
+<tr><td>nuclei faisait contacter un serveur public par la cible</td><td>Interactsh activé par défaut</td><td><code>-ni</code>. La fuite peut venir des outils, pas seulement du LLM</td></tr>
+<tr><td>Un test nuclei tentait de faire planter le serveur</td><td>Modèle étiqueté <code>intrusive</code></td><td><code>-etags dos,intrusive,fuzz</code>. Même un outil reconnu peut être destructif</td></tr>
+<tr><td>Rapport « 0 constat » trompeur</td><td>Outil en échec silencieux ; application arrêtée</td><td>Journal et code retour des outils ; contrôle d'accessibilité</td></tr>
+<tr><td>L'IA a inventé un risque « méthode HTTP TRACK »</td><td>Le code de priorisation TRACK était ambigu</td><td>Décisions écrites en clair. Le contexte fourni peut induire une hallucination ; relecture humaine du rapport</td></tr>
+<tr><td>Re-test toujours négatif</td><td>Le test visait <code>/metrics/metrics</code></td><td>Re-test depuis la racine du site</td></tr>
+<tr><td>Plantage sous Windows</td><td>Lecture d'une sortie d'outil en cp1252</td><td>UTF-8 partout, imposé par un test</td></tr>
+<tr><td>Mission arrêtée par un délai cloud</td><td>API lente, prompts longs</td><td>Nouvel essai, repli local, réponses bornées</td></tr>
+<tr><td>Mission très longue</td><td>nuclei lancé une fois par site ; analyses longues</td><td>Un seul passage nuclei, analyses de 300 mots, durées par phase mesurées</td></tr>
+</table>
+</section>
+
+<!-- ============================== 22. LIMITES ============================== -->
+<section class="chapter">
+<h2>22. Limites connues</h2>
+<table>
+<tr><th>Limite</th><th>Pourquoi</th><th>Piste</th></tr>
+<tr><td>Nom d'hôte Windows sans domaine (<code>SRV-PAIE-01</code>)</td><td>Indiscernable d'un code produit sans contexte</td><td>Inventaire des hôtes du client dans la liste de refus</td></tr>
+<tr><td>Identifiants en base64 sans préfixe <code>Basic</code></td><td>Ressemble à n'importe quel jeton</td><td>Décodage puis nouvelle analyse</td></tr>
+<tr><td>Mot de passe épelé, IP en hexadécimal</td><td>Obfuscation volontaire</td><td>Hors de portée d'un masquage par motifs : vigilance humaine</td></tr>
+<tr><td>Faible couverture des failles logiques</td><td>Scanners à signatures</td><td>Exploration (katana), scan selon les technologies, ZAP passif, tests authentifiés</td></tr>
+<tr><td>Suggestions intrusives écrites en phrases</td><td>La revue détecte des commandes et des hôtes</td><td>Réponses structurées et contrôle des affirmations</td></tr>
+<tr><td>Hallucinations</td><td>Propre aux modèles de langue</td><td>Réponses ancrées dans les preuves, contrôle automatique des CVE et versions citées</td></tr>
+<tr><td>Textes réels en clair dans <code>mission.json</code></td><td>Conservés pour l'historique local, sans chiffrement contrairement au coffre</td><td>Chiffrer ce fichier avec la clé du coffre, ou n'y garder que le texte masqué</td></tr>
+<tr><td>Évaluation de la passerelle optimiste</td><td>Corpus et détecteurs écrits ensemble</td><td>Jeu de test indépendant</td></tr>
+</table>
+</section>
+
+<!-- ============================== 23. FEUILLE DE ROUTE ============================== -->
+<section class="chapter">
+<h2>23. Feuille de route</h2>
+<table>
+<tr><th>Étape</th><th>Travaux</th><th>État</th></tr>
+<tr><td>Prototype et mise en service</td><td>Passerelle, garde-fous, 7 phases, interface, cloud réel, modèle local, laboratoire</td><td>Fait</td></tr>
+<tr><td>Fiabilité de détection</td><td>Mesure rappel / précision sur le laboratoire (liste des failles attendues) ; katana ; scan selon les technologies ; confirmation par deux sources ; contrôle des affirmations de l'IA</td><td>Proposé</td></tr>
+<tr><td>Consolidation de la passerelle</td><td>Jeu de test indépendant ; noms d'hôtes Windows ; base64 ; masquage des captures d'écran</td><td>À faire</td></tr>
+<tr><td>Calibrage de l'aiguilleur</td><td>Affinage par le SLM ; seuils calibrés sur 10 à 15 profils ; rebascule en local si beaucoup de secrets sont observés</td><td>À faire</td></tr>
+<tr><td>Validation expérimentale</td><td>Comparer tout local, INOVA et cloud sans masquage (mode réservé au laboratoire) : vulnérabilités, enchaînements, durée, tokens, coût, fuites. Attendu : INOVA proche du cloud en qualité et égal au local en fuite</td><td>En cours</td></tr>
+<tr><td>Livrable 2</td><td>Cadre de garde-fous : règles reliées au code, aux tests et aux preuves ; responsabilités ; RGPD et loi 09-08 ; procédures d'incident ; checklist avant mission ; réaction automatique à une fuite détectée</td><td>À rédiger</td></tr>
+<tr><td>Livrable 3</td><td>Analyse ROI : durée d'un pentest manuel de référence contre INOVA ; coûts des tokens, du matériel et de la supervision</td><td>À réaliser</td></tr>
+</table>
+</section>
+
+<!-- ============================== ANNEXES ============================== -->
+<section class="chapter">
+<h2>Annexe A. Glossaire</h2>
+<table>
+<tr><th style="width:36mm">Terme</th><th>Définition</th></tr>
+<tr><td>Aiguilleur</td><td>Composant qui choisit la route (local, cloud, local restreint) avant la mission.</td></tr>
+<tr><td>CVE, CVSS</td><td>Identifiant public d'une vulnérabilité ; score de gravité de 0 à 10.</td></tr>
+<tr><td>EPSS</td><td>Probabilité qu'une CVE soit exploitée dans les 30 jours (FIRST).</td></tr>
+<tr><td>Fail-closed</td><td>En cas de doute, le système choisit l'option sûre : ici, ne rien envoyer.</td></tr>
+<tr><td>Fuite effective</td><td>Valeur sensible présente dans un texte réellement envoyé au cloud.</td></tr>
+<tr><td>Injection de prompt</td><td>Texte placé dans une donnée pour détourner les instructions d'un modèle d'IA.</td></tr>
+<tr><td>Jeton</td><td>Étiquette qui remplace une valeur sensible, par exemple <code>[HOSTNAME_1]</code>.</td></tr>
+<tr><td>LLM, SLM</td><td>Grand modèle de langue (cloud) ; petit modèle de langue (local).</td></tr>
+<tr><td>Outbox</td><td>Copie de tout ce qui est parti vers le cloud, contrôlée en fin de mission.</td></tr>
+<tr><td>Passerelle</td><td>Composant qui masque avant l'envoi et réinjecte après la réponse.</td></tr>
+<tr><td>Presidio</td><td>Bibliothèque open source de Microsoft de détection et d'anonymisation de données.</td></tr>
+<tr><td>SafePrompt</td><td>Objet qui atteste qu'un texte est passé par la passerelle ; seul accepté par le cloud.</td></tr>
+<tr><td>SSVC</td><td>Méthode de priorisation des vulnérabilités par arbre de décision.</td></tr>
+<tr><td>Vault (coffre)</td><td>Table chiffrée jeton ↔ valeur réelle, propre à une mission.</td></tr>
+</table>
+<h2 style="margin-top:10mm">Annexe B. Aide-mémoire des commandes</h2>
+<table>
+<tr><th>Commande</th><th>Effet</th></tr>
+<tr><td><code>python -m inova.main web</code></td><td>Lance l'interface (127.0.0.1)</td></tr>
+<tr><td><code>python -m inova.main check</code></td><td>Diagnostic : modèle local, passerelle Presidio, modèle cloud et clé</td></tr>
+<tr><td><code>python -m inova.main run</code></td><td>Mission en ligne de commande</td></tr>
+<tr><td><code>python -m inova.main route</code></td><td>Décision de l'aiguilleur pour le périmètre</td></tr>
+<tr><td><code>python -m inova.main mask</code></td><td>Masquage d'un texte</td></tr>
+<tr><td><code>python -m inova.main eval-leaks</code></td><td>Mesure du taux de fuite</td></tr>
+<tr><td><code>python -m pytest -q</code></td><td>Tests automatisés</td></tr>
+<tr><td><code>docker compose up -d --build</code> / <code>down</code></td><td>Démarre / arrête le laboratoire (dossier <code>lab</code>)</td></tr>
+</table>
+</section>
+
+</body>
+</html>
