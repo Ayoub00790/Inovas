@@ -43,6 +43,7 @@ class Service:
     name: str
     product: str = ""
     version: str = ""
+    address: str = ""                     # adresse IP (le nom d'hôte peut sortir du périmètre)
 
 
 @dataclass
@@ -65,6 +66,10 @@ class Finding:
     verified: Optional[bool] = None
     analysis: str = ""
     alerts: list[str] = field(default_factory=list)   # injections / actions signalées
+    # Fiabilité (phase 4) : confirmée | à confirmer | douteuse ; doublon éventuel
+    confidence: str = "à confirmer"
+    confidence_notes: list[str] = field(default_factory=list)
+    duplicate_of: Optional[str] = None
 
 
 @dataclass

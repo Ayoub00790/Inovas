@@ -27,7 +27,12 @@ class ScopeGuard:
 
     @staticmethod
     def _host(target: str) -> str:
-        return (urlparse(target).hostname if "://" in target else target.split("/")[0]).lower()
+        if "://" in target:
+            return (urlparse(target).hostname or "").lower()
+        h = target.split("/")[0]
+        if h.count(":") == 1:                          # hôte:port (service réseau)
+            h = h.split(":")[0]
+        return h.lower()
 
     def is_in_scope(self, target: str) -> bool:
         if "://" not in target and "/" in target:          # plage CIDR : entièrement incluse ?

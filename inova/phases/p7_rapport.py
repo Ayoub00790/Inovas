@@ -82,14 +82,18 @@ def run(ctx: Context) -> None:
          f"Date : {ctx.started_at[:10]}" + ("  ·  Données de démonstration" if ctx.demo else ""), "",
          "## 1. Synthèse exécutive", _strip_title(_demote(ctx.executive_summary), "Synthèse exécutive"), "",
          "## 2. Vulnérabilités priorisées",
-         "| # | ID | Constat | Actif | Sévérité | CVSS | EPSS | Décision | Re-test |",
-         "|---|---|---|---|---|---|---|---|---|",
+         "| # | ID | Constat | Actif | Sévérité | CVSS | EPSS | Décision | Re-test | Fiabilité |",
+         "|---|---|---|---|---|---|---|---|---|---|",
          *[f"| {f.priority_rank} | {f.id} | {f.title} | {f.asset} | {f.severity} | {f.cvss or '—'} | "
-           f"{f.epss:.2f} | {f.decision} | {RETEST[f.verified]} |" for f in ctx.findings],
+           f"{f.epss:.2f} | {f.decision} | {RETEST[f.verified]} | "
+           f"{('doublon de ' + f.duplicate_of) if f.duplicate_of else f.confidence} |" for f in ctx.findings],
          "", "Décisions : **ACT** corriger immédiatement · **ATTEND** corriger rapidement · "
          "**TRACK\\*** surveiller de près · **TRACK** suivi normal. CVSS « — » : score non fourni par "
          "le scanner. Re-test « reproduit » : le test du scanner se reproduit, ce qui ne prouve pas à lui "
-         "seul l'exploitabilité (voir l'analyse).",
+         "seul l'exploitabilité (voir l'analyse). Fiabilité : « confirmée » = version confirmée par une "
+         "deuxième source ou re-test reproduit ; « douteuse » = contradiction relevée.",
+         *([""] + [f"- **{f.id}** : " + " ; ".join(f.confidence_notes)
+                   for f in ctx.findings if f.confidence_notes] if any(f.confidence_notes for f in ctx.findings) else []),
          "", "## 3. Aiguillage et confidentialité",
          f"- Route : **{d.route.value}** (complexité {d.complexity}, sensibilité {d.sensitivity})",
          *[f"  - {r}" for r in d.reasons],
@@ -106,6 +110,12 @@ def run(ctx: Context) -> None:
          f"- Plafonds de mission atteints : {count('budget_atteint')}",
          *[f"- ⚠ Cible injoignable au moment du scan : {e['url']} (aucun test lancé)"
            for e in ev if e["event"] == "cible_injoignable"],
+         *[f"- ⚠ Application en mauvais état : {e['url']} ({e['etat']}) : résultats peut-être incomplets"
+           for e in ev if e["event"] == "application_en_erreur"],
+         *[f"- Exploration (katana) : {e['urls_decouvertes']} répertoire(s) découvert(s) et testé(s)"
+           for e in ev if e["event"] == "exploration"],
+         *[f"- ⚠ Outil indisponible : {e['outil']} ({e['raison']})"
+           for e in ev if e["event"] == "outil_indisponible"],
          *[f"- ⚠ Outil en échec : {e['template']} (code {e['returncode']}) — voir evidence/*.log"
            for e in ev if e["event"] == "tool_result" and e.get("returncode") != 0],
          *[f"- {f.id} : {al}" for f in ctx.findings for al in f.alerts],

@@ -26,11 +26,22 @@ TEMPLATES = {
     # -duc : pas de vérification de mise à jour pendant la mission.
     "nuclei":        lambda t, out, sev: ["nuclei", "-u", t, "-severity", sev or "medium,high,critical",
                                           "-ni", "-duc", "-jsonl", "-o", out],
+    # services non web (bases de données, SSH, SMB…) : modèles réseau de nuclei sur hôte:port
+    "nuclei_net":    lambda t, out, sev: ["nuclei", "-u", t, "-pt", "tcp,javascript,ssl",
+                                          "-severity", sev or "medium,high,critical",
+                                          "-ni", "-duc", "-jsonl", "-o", out],
+    # pages découvertes par l'exploration : seulement les tests adaptés aux technologies vues (-as)
+    "nuclei_deep":   lambda t, out, sev: ["nuclei", "-u", t, "-as", "-severity", sev or "medium,high,critical",
+                                          "-ni", "-duc", "-jsonl", "-o", out],
+    # exploration (lecture seule) : découvre pages et API à tester ; JavaScript analysé (-jc)
+    "katana":        lambda t, out, depth: ["katana", "-u", t, "-d", depth or "2", "-jc", "-silent",
+                                            "-ef", "png,jpg,jpeg,gif,svg,ico,css,woff,woff2,ttf,map",
+                                            "-ct", "120s", "-rl", "50", "-o", out],
     # re-test ciblé d'UN seul test déjà détecté (vérification, pas d'attaque)
     "nuclei_verify": lambda t, out, tid: ["nuclei", "-u", t, "-id", tid, "-ni", "-duc",
                                           "-jsonl", "-o", out],
 }
-TOOL_OF = {"nuclei_verify": "nuclei"}
+TOOL_OF = {"nuclei_verify": "nuclei", "nuclei_net": "nuclei", "nuclei_deep": "nuclei"}
 
 
 class ToolRunner:
@@ -43,6 +54,9 @@ class ToolRunner:
         # non-destructivité : jamais de tests de déni de service, intrusifs (écriture, envoi de
         # fichiers) ou de fuzzing, même s'ils existent dans la base de nuclei
         self.nuclei_exclude_tags = str(t.get("nuclei_exclude_tags", "dos,intrusive,fuzz"))
+        # rythme maximal (requêtes/s) : une cible fragile saturée (ex. Elasticsearch en 429)
+        # répond mal et peut masquer des failles
+        self.nuclei_rate_limit = t.get("nuclei_rate_limit")
         self.guard = guard
         self.audit = audit
         self.evidence = run_dir / "evidence"
@@ -57,16 +71,18 @@ class ToolRunner:
             self.guard.check(t)                        # garde-fou périmètre, cible par cible
 
         out = self.evidence / f"{template}_{int(time.time() * 1000)}.out"
-        if template == "nuclei" and not extra:
+        if template in ("nuclei", "nuclei_net", "nuclei_deep") and not extra:
             extra = self.nuclei_severity
         cmd = TEMPLATES[template](targets[0], str(out), extra)
         if len(targets) > 1:                           # un seul nuclei pour toutes les cibles :
             lst = out.with_suffix(".cibles.txt")       # il les teste en parallèle (bien plus rapide)
             lst.write_text("\n".join(targets) + "\n", encoding="utf-8")
             i = cmd.index("-u")
-            cmd[i:i + 2] = ["-l", str(lst)]
+            cmd[i:i + 2] = ["-list" if tool == "katana" else "-l", str(lst)]
         if tool == "nuclei" and self.nuclei_exclude_tags:
             cmd += ["-etags", self.nuclei_exclude_tags]
+        if tool == "nuclei" and self.nuclei_rate_limit:
+            cmd += ["-rl", str(int(self.nuclei_rate_limit))]
         if tool == "nmap" and self.guard.excluded:         # une plage peut contenir un hôte exclu
             cmd[-1:-1] = ["--exclude", ",".join(sorted(self.guard.excluded))]
         self.audit.event("tool", template=template, dry_run=self.dry_run)

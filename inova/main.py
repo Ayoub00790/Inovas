@@ -7,6 +7,7 @@
     python -m inova.main route                décision de l'aiguilleur
     python -m inova.main mask "texte"         démonstration de la passerelle
     python -m inova.main eval-leaks           taux de fuite sur le corpus de test
+    python -m inova.main eval-detection       rappel et précision de la dernière mission (laboratoire)
 
 --scope est facultatif : config/scope.yaml s'il existe, sinon config/scope.example.yaml.
 """
@@ -53,6 +54,9 @@ def main() -> None:
     e.add_argument("--scope", default=None)
     e.add_argument("--corpus", default=str(ROOT / "tests" / "fixtures" / "leak_cases.json"))
     e.add_argument("--model", default=None, help="forcer un modèle spaCy français (ex. fr_core_news_sm)")
+    dt = sub.add_parser("eval-detection", help="rappel et précision d'une mission sur le laboratoire")
+    dt.add_argument("--run", default=None, help="dossier de mission (par défaut : la dernière)")
+    dt.add_argument("--expected", default=str(ROOT / "lab" / "attendu.yaml"))
 
     a = ap.parse_args()
     scope = getattr(a, "scope", None) or default_scope()
@@ -94,6 +98,12 @@ def main() -> None:
         if a.model:
             settings.setdefault("gateway", {})["spacy_models"] = {"fr": [a.model], "en": ["en_core_web_sm"]}
         print_report(run_eval(settings, load_yaml(scope), a.corpus, save=True))
+
+    elif a.cmd == "eval-detection":
+        from .eval.detection import evaluate_run, print_report as show
+        settings = load_yaml(a.settings)
+        runs_root = ROOT / settings["engagement"].get("output_dir", "runs")
+        show(evaluate_run(runs_root, a.run, a.expected))
 
 
 if __name__ == "__main__":

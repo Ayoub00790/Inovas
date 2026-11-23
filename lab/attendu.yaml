@@ -1,0 +1,45 @@
+# ============================================================
+# Vérité terrain du laboratoire INOVA (docker-compose.yml + Juice Shop)
+# Sert à mesurer la détection : python -m inova.main eval-detection
+#
+# Une règle reconnaît un constat par son port ET par l'un de ces critères :
+#   preuves         : identifiant du test nuclei (template-id) ou CVE
+#   titre_contient  : morceau du titre du constat
+# ============================================================
+
+# Failles volontairement présentes : elles forment le RAPPEL
+attendues:
+  - id: JS-METRICS
+    nom: Juice Shop, métriques Prometheus exposées
+    port: 3000
+    preuves: [prometheus-metrics]
+  - id: APACHE-TRAVERSAL
+    nom: Apache 2.4.49, traversée / exécution de code
+    port: 8081
+    preuves: [CVE-2021-41773, CVE-2021-42013]
+  - id: PMA-LFI
+    nom: phpMyAdmin 4.8.1, inclusion de fichier
+    port: 8082
+    preuves: [CVE-2018-12613]
+  - id: TOMCAT-DEFAULT
+    nom: Tomcat, identifiants par défaut
+    port: 8083
+    preuves: [tomcat-default-login]
+  - id: THINKPHP-RCE
+    nom: ThinkPHP 5.0.23, exécution de code
+    port: 8084
+    preuves: [thinkphp-5023-rce]
+  - id: ES-RCE
+    nom: Elasticsearch 1.4.2, exécution de code
+    port: 9200
+    preuves: [CVE-2015-1427]
+
+# Failles réelles, mais secondaires : comptées comme justes, pas dans le rappel
+aussi_valides:
+  - {port: 8082, preuves: [package-json]}
+  - {port: 9200, preuves: [elasticsearch], titre_contient: [information disclosure]}
+  - {port: 8083, titre_contient: [cross-site scripting, examples]}
+
+# Faux positifs constatés (vérifiés à la main)
+faux_positifs:
+  - {port: 8084, preuves: [thinkphp-2-rce], titre_contient: ["< 3.2.4"]}

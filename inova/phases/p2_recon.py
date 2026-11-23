@@ -27,7 +27,8 @@ def parse_nmap_xml(path: Path) -> list[Service]:
                 host=host_id, port=int(port.get("portid")), protocol=port.get("protocol", "tcp"),
                 name=svc.get("name", "") if svc is not None else "",
                 product=svc.get("product", "") if svc is not None else "",
-                version=svc.get("version", "") if svc is not None else ""))
+                version=svc.get("version", "") if svc is not None else "",
+                address=addr_el.get("addr") if addr_el is not None else ""))
     return services
 
 

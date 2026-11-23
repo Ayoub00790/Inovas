@@ -89,6 +89,8 @@ et **aucun** fichier `cloud_outbox.jsonl` n'est créé.
    `tools.nuclei_severity: "low,medium,high,critical"` (par défaut : medium,high,critical).
    Par défaut, les tests `dos`, `intrusive` et `fuzz` sont exclus (`tools.nuclei_exclude_tags`) :
    INOVA reste non destructif. Plusieurs cibles sont testées en un seul passage de nuclei.
+   Pour élargir la détection : `crawl: true` (katana, à ajouter à `allowlist`), `network_scan: true`
+   (par défaut), `nuclei_rate_limit: 50`. Mesure : `python -m inova.main eval-detection` (voir lab/README.md).
    INOVA lance toujours nuclei avec `-ni` : pas d'Interactsh, donc aucune cible ne contacte un
    serveur public tiers (oast.live…) pendant la mission.
 5. Créer `config\secrets_labo.txt` (ignoré par git) et y lister, une par ligne, les valeurs sensibles

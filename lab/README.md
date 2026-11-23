@@ -32,3 +32,27 @@ Copier `scope.lab.yaml` dans `config\scope.yaml` (ou saisir les URL dans l'ongle
 - Ne jamais réutiliser ces images ailleurs qu'en laboratoire.
 
 Images et configurations : [Vulhub](https://github.com/vulhub/vulhub), licence MIT (`LICENSE.vulhub`).
+
+## Mesurer la détection (rappel et précision)
+`attendu.yaml` est la vérité terrain du laboratoire : les failles réellement présentes.
+Après une mission sur les outils réels :
+```powershell
+python -m inova.main eval-detection
+```
+- **rappel** : failles attendues trouvées / failles attendues ;
+- **précision** : constats justes / constats annoncés, en fourchette tant que des constats restent
+  « à qualifier » (ajoute-les dans `aussi_valides` ou `faux_positifs` après vérification manuelle).
+Les doublons signalés par INOVA ne comptent qu'une fois. Le résultat est aussi écrit dans
+`runs/<mission>/detection.json`.
+
+## Élargir la détection (réglages de `config/settings.yaml`, section `tools`)
+```yaml
+tools:
+  allowlist: ["nmap", "whatweb", "nuclei", "katana"]
+  crawl: true                # exploration katana, puis nuclei -as sur les répertoires découverts
+  crawl_max_urls: 25
+  network_scan: true         # services non web vus par nmap (MySQL, SMB…) : modèles réseau de nuclei
+  nuclei_rate_limit: 50      # requêtes/s : évite de saturer une cible fragile (Elasticsearch)
+```
+katana s'installe comme nuclei : `katana_..._windows_amd64.zip` sur
+https://github.com/projectdiscovery/katana/releases, décompressé dans `C:\Tools`.
