@@ -9,19 +9,26 @@
 # ============================================================
 name: inova-lab
 
+# Les services redémarrent avec Docker Desktop (après un redémarrage du PC)
+x-restart: &restart
+  restart: unless-stopped
+
 services:
   # Apache 2.4.49 : traversée de répertoires / RCE (CVE-2021-41773, CVE-2021-42013)
   apache:
+    <<: *restart
     build: ./apache
     ports: ["127.0.0.1:8081:80"]
 
   # phpMyAdmin 4.8.1 : inclusion de fichier local (CVE-2018-12613)
   phpmyadmin:
+    <<: *restart
     image: vulhub/phpmyadmin:4.8.1
     volumes: ["./phpmyadmin/config.inc.php:/var/www/html/config.inc.php"]
     ports: ["127.0.0.1:8082:80"]
     depends_on: [mysql]
   mysql:
+    <<: *restart
     image: mysql:5.5
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
@@ -31,6 +38,7 @@ services:
 
   # Tomcat 8 : console d'administration avec identifiants par défaut
   tomcat:
+    <<: *restart
     image: vulhub/tomcat:8.0
     volumes:
       - ./tomcat/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
@@ -40,10 +48,12 @@ services:
 
   # ThinkPHP 5.0.23 : exécution de code à distance
   thinkphp:
+    <<: *restart
     image: vulhub/thinkphp:5.0.23
     ports: ["127.0.0.1:8084:80"]
 
   # Elasticsearch 1.4.2 : évasion du bac à sable Groovy (CVE-2015-1427)
   elasticsearch:
+    <<: *restart
     image: vulhub/elasticsearch:1.4.2
     ports: ["127.0.0.1:9200:9200"]
