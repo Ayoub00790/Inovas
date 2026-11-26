@@ -115,3 +115,16 @@ def test_outbox_valeur_courte_comparee_en_mot_entier(tmp_path):
     res = audit_outbox(tmp_path, {"targets": {}}, vault_values=["test"])
     assert [l["entry"] for l in res["leaks"]] == [1]          # seule la vraie occurrence compte
     assert res["leaks"][0]["source"] == "valeur masquée"
+
+
+def test_valeur_masquee_partout_et_chemins_non_pris_pour_des_noms(passerelle):
+    """Mission réelle : « nologin » masqué sur une ligne de /etc/passwd, laissé en clair sur
+    les autres -> alerte de l'outbox. Une valeur détectée doit être masquée PARTOUT, et un
+    composant de chemin n'est pas un nom de personne."""
+    passwd = ("daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\\n"
+              "games:x:5:60:games:/usr/games:/usr/sbin/nologin")
+    _, r = passerelle.to_safe_prompt(passwd)
+    assert "PERSON" not in r.masked_text                       # nologin n'est pas une personne
+    t = "Karim Bennani a validé. Contact : Karim Bennani (RSSI)."
+    _, r2 = passerelle.to_safe_prompt(t)
+    assert "Bennani" not in r2.masked_text                     # les deux occurrences sont masquées

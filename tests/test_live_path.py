@@ -140,3 +140,35 @@ def test_cloud_trop_lent_repli_local_sans_planter(settings, passerelle, monkeypa
         assert "10.10.0.20" not in outbox                  # même en cas d'erreur, rien de réel n'est sorti
     finally:
         srv.shutdown()
+
+
+def test_reponse_vide_par_budget_epuise_relancee(settings, passerelle, monkeypatch):
+    """Claude Haiku 5.5 a renvoyé 1500 tokens… et un texte vide (budget consommé avant la réponse).
+    INOVA relance une fois avec un budget plus large et compte les deux appels."""
+    import litellm
+    seen = []
+
+    def resp(content, finish, ct):
+        class U:
+            prompt_tokens, completion_tokens = 100, ct
+
+        class C:
+            finish_reason = finish
+
+            class message:
+                pass
+        C.message.content = content
+        return type("R", (), {"choices": [C], "usage": U})
+
+    def fake_completion(**kw):
+        seen.append(kw["max_tokens"])
+        return resp("", "length", 1500) if len(seen) == 1 else resp("Analyse complète.", "stop", 400)
+
+    monkeypatch.setattr(litellm, "completion", fake_completion)
+    s = live_settings(settings, None)
+    s["llm"].update(cloud_model="anthropic/claude-haiku-5-5", max_tokens=1500)
+    llm = LLMClient(s)
+    safe, _ = passerelle.to_safe_prompt("Faille sur 10.10.0.23")
+    assert llm.cloud(safe, "system") == "Analyse complète."
+    assert seen == [1500, 4500]
+    assert llm.calls[-1]["completion_tokens"] == 1900

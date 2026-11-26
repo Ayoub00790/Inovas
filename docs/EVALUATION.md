@@ -111,6 +111,23 @@ Enseignements :
   serveur public (Interactsh) → désactivé (`-ni`) ; un outil en échec ou une cible arrêtée
   produisait un rapport « 0 constat » trompeur → contrôle d'accessibilité et journal des outils.
 
+## Mission « après » (exploration, services réseau, fiabilité) : ce que les journaux ont montré
+
+- **Alerte de l'outbox « nol… »** : le modèle de langue a pris `nologin` (dernière ligne d'un
+  `/etc/passwd`) pour un nom de personne et l'a masqué **sur cette ligne seulement** ; les lignes
+  précédentes l'envoyaient en clair. Valeur sans sensibilité, mais vrai défaut de cohérence, que le
+  contrôle de l'outbox a **détecté**. Corrections : une valeur détectée est masquée **partout** dans
+  le texte ; un composant de chemin (`/usr/sbin/nologin`) n'est plus pris pour un nom. Taux de fuite
+  inchangé (0 % standard), sur-masquage 0 %.
+- **Analyses vides** : 4 réponses de Claude Haiku 5.5 sur 5 ont consommé les 1 500 tokens autorisés
+  **sans texte** (budget épuisé avant la réponse). Corrections : budget 3 000, nouvel essai avec un
+  budget plus large si la réponse est vide, analyse marquée « indisponible » au lieu d'une section
+  silencieusement absente.
+- **nuclei arrêté à 15 min** (rythme limité à 50 req/s) : Juice Shop et CVE-2018-12613 non testés.
+  Correction : délai propre à nuclei (1 h).
+- **Faux positif probable** : CVE-2019-11043 (nginx + PHP-FPM) signalé sur un Apache + mod_php,
+  et « reproduit » au re-test : reproduire un test ne prouve pas l'exploitabilité.
+
 ## Limites restantes (assumées, à présenter dans le mémoire)
 
 | Cas | Pourquoi il fuit encore | Piste |

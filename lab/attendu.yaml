@@ -39,7 +39,11 @@ aussi_valides:
   - {port: 8082, preuves: [package-json]}
   - {port: 9200, preuves: [elasticsearch], titre_contient: [information disclosure]}
   - {port: 8083, titre_contient: [cross-site scripting, examples]}
+  # phpMyAdmin configuré sans authentification (auth_type « config ») : accès et import réels
+  - {port: 8082, preuves: [phpmyadmin-unauth-access, pma-server-import]}
 
 # Faux positifs constatés (vérifiés à la main)
 faux_positifs:
-  - {port: 8084, preuves: [thinkphp-2-rce], titre_contient: ["< 3.2.4"]}
+  - {port: 8084, preuves: [thinkphp-2-rce, CVE-2019-9082], titre_contient: ["< 3.2.4"]}
+  # CVE-2019-11043 vise nginx + PHP-FPM ; ce conteneur est Apache 2.4.25 + mod_php (vu par nmap)
+  - {port: 8082, preuves: [CVE-2019-11043]}

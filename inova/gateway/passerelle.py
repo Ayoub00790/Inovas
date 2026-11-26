@@ -116,7 +116,31 @@ class Passerelle:
         span = text[r.start:r.end]
         if _DIGIT.search(span):
             return True
+        # composant d'un chemin (« /usr/sbin/nologin ») : un nom de personne n'est pas collé à un « / »
+        before, after = text[r.start - 1:r.start], text[r.end:r.end + 1]
+        if span == span.lower() and (before == "/" or after == "/"):
+            return True
         return span == span.lower() and any(c in span for c in "-_/.")
+
+    @staticmethod
+    def _propagate(text: str, results):
+        """Cohérence : une valeur détectée UNE fois est masquée PARTOUT dans le texte.
+        Sans cela, une valeur masquée sur une ligne pouvait rester en clair sur une autre
+        (le modèle de langue ne reconnaît pas toujours la même chose selon le contexte)."""
+        from presidio_analyzer import RecognizerResult
+        taken = [(r.start, r.end) for r in results]
+        extra = []
+        for r in results:
+            value = text[r.start:r.end]
+            if len(value) < 3:
+                continue
+            left = "(?<![A-Za-z0-9])" if value[0].isalnum() else ""
+            right = "(?![A-Za-z0-9])" if value[-1].isalnum() else ""
+            for m in re.finditer(left + re.escape(value) + right, text):
+                if not any(a < m.end() and m.start() < b for a, b in taken):
+                    extra.append(RecognizerResult(r.entity_type, m.start(), m.end(), r.score))
+                    taken.append((m.start(), m.end()))
+        return sorted(results + extra, key=lambda x: x.start) if extra else results
 
     @staticmethod
     def _merge_overlaps(results):
@@ -167,7 +191,7 @@ class Passerelle:
         return result, spans
 
     def _mask_text(self, text: str, allow_url: bool) -> tuple[str, list[dict], int, int]:
-        results = self.analyze(text)
+        results = self._propagate(text, self.analyze(text))
         uncertain = sum(1 for r in results if r.score < self.min_conf)
         count = len(results)
         # remplacements calculés dans l'ordre de lecture ([X_1] avant [X_2])...

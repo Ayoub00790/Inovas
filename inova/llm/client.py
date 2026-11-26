@@ -82,6 +82,11 @@ class LLMClient:
                           self.cloud_api_base, phase, self._mock_cloud, self.cloud_temperature)
 
     # ------------------------------------------------------------------
+    @staticmethod
+    def _tokens(resp) -> tuple[int, int]:
+        u = getattr(resp, "usage", None)
+        return int(getattr(u, "prompt_tokens", 0) or 0), int(getattr(u, "completion_tokens", 0) or 0)
+
     def _call(self, target, model, mode, system, user, api_base, phase, mock, temperature=None) -> str:
         t0 = time.perf_counter()
         if mode == "live":
@@ -105,11 +110,22 @@ class LLMClient:
             t0 = time.perf_counter()     # on chronomètre l'appel seul, pas le chargement de LiteLLM
             resp = litellm.completion(**kwargs)
             content = resp.choices[0].message.content or ""
+            pt, ct = self._tokens(resp)
+            # Certains modèles « réfléchissent » avant de répondre et ces tokens comptent dans
+            # max_tokens : budget épuisé = texte VIDE (constaté avec Claude Haiku 5.5).
+            # Un nouvel essai avec un budget plus large, une seule fois.
+            if not content.strip() and kwargs.get("max_tokens") and \
+                    getattr(resp.choices[0], "finish_reason", None) == "length":
+                kwargs["max_tokens"] = min(int(kwargs["max_tokens"]) * 3, 12000)
+                resp = litellm.completion(**kwargs)
+                content = resp.choices[0].message.content or ""
+                pt2, ct2 = self._tokens(resp)
+                pt, ct = pt + pt2, ct + ct2                     # les deux appels sont facturés
             if getattr(resp.choices[0], "finish_reason", None) == "length":   # coupée par max_tokens
                 content += "\n\n[Réponse tronquée : limite de longueur atteinte (llm.max_tokens).]"
             usage = getattr(resp, "usage", None)
-            pt = int(getattr(usage, "prompt_tokens", 0) or 0) or estimate_tokens(system + user)
-            ct = int(getattr(usage, "completion_tokens", 0) or 0) or estimate_tokens(content)
+            pt = pt or estimate_tokens(system + user)
+            ct = ct or estimate_tokens(content)
             estimated = usage is None
         else:
             content = mock(user)
