@@ -94,3 +94,25 @@ def test_perimetre_valide_et_invalide(api):
     assert api.save_scope({"scope": good})["ok"]
     assert api.scope_file.name == "scope.yaml"
     assert "ProjetAtlas" not in api.mask({"text": "Le ProjetAtlas est exposé"})["masked"]
+
+
+def test_requete_illisible_ne_fait_pas_planter_le_serveur():
+    """Un scanner (nmap -sV, nuclei réseau) envoie des octets non HTTP : réponse 400, sans exception."""
+    import socket
+    import threading
+    from http.server import ThreadingHTTPServer
+    from inova.web.server import make_handler
+    errors = []
+    from types import SimpleNamespace
+    fake_api = SimpleNamespace(**{n: (lambda *a, **k: {}) for n in dir(InovaAPI) if not n.startswith("_")})
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(fake_api, 0))
+    srv.handle_error = lambda request, addr: errors.append(addr)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        for raw in (b"\x16\x03\x01\x02\x00\x01\x00\x01\xfc\x03\x03\r\n\r\n", b"HELP\r\n\r\n", b"GET / HTTP/9.9\r\n\r\n"):
+            with socket.create_connection(("127.0.0.1", srv.server_address[1]), timeout=3) as c:
+                c.sendall(raw)
+                c.recv(1024)
+    finally:
+        srv.shutdown()
+    assert errors == []

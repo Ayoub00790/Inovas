@@ -149,8 +149,10 @@ def run(ctx: Context) -> None:
         # 2) services non web vus par nmap (bases de données, SSH, SMB…)
         if tools.get("network_scan", True):
             web_ports = {urlparse(u).port or (443 if urlparse(u).scheme == "https" else 80) for u in urls}
+            # jamais les outils de la machine elle-même : interface INOVA (8000), Ollama (11434)
+            skip = web_ports | {int(p) for p in tools.get("network_exclude_ports", [8000, 11434])}
             net = sorted({f"{s.address or s.host}:{s.port}" for s in ctx.services
-                          if s.port not in web_ports and ctx.guard.is_in_scope(f"{s.address or s.host}:{s.port}")})
+                          if s.port not in skip and ctx.guard.is_in_scope(f"{s.address or s.host}:{s.port}")})
             if net:
                 print(f"   nuclei (services réseau) sur {len(net)} port(s)…")
                 _merge(ctx, ctx.runner.run("nuclei_net", net))

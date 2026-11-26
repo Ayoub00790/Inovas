@@ -88,8 +88,10 @@ def make_handler(api: InovaAPI, port: int):
             self._guarded(fn, payload)
 
         def log_message(self, fmt, *args):  # journal console sobre
-            if self.path.startswith("/api/") and "/status" not in self.path:
-                print(f"  {self.command} {self.path}")
+            # une requête illisible (scanner, octets TLS…) n'a pas de chemin : on ne plante pas
+            path = getattr(self, "path", "") or ""
+            if path.startswith("/api/") and "/status" not in path:
+                print(f"  {self.command} {path}")
 
     return Handler
 
