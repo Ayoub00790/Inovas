@@ -64,7 +64,7 @@ def reachable(url: str, timeout: float = 3.0) -> bool:
 
 
 HEALTH_MARKERS = ("mysqli_real_connect", "#2002", "SQLSTATE[", "Fatal error", "Database connection error",
-                  "Internal Server Error", "Service Unavailable")
+                  "Internal Server Error", "Service Unavailable", "phpMyAdmin - Error", "Wrong permissions")
 
 
 def health(url: str, timeout: float = 5.0) -> str:

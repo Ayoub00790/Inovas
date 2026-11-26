@@ -23,8 +23,7 @@ services:
   # phpMyAdmin 4.8.1 : inclusion de fichier local (CVE-2018-12613)
   phpmyadmin:
     <<: *restart
-    image: vulhub/phpmyadmin:4.8.1
-    volumes: ["./phpmyadmin/config.inc.php:/var/www/html/config.inc.php"]
+    build: ./phpmyadmin               # configuration copiée avec les bons droits (voir Dockerfile)
     ports: ["127.0.0.1:8082:80"]
     depends_on: [mysql]
   mysql:
