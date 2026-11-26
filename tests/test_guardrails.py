@@ -113,31 +113,36 @@ def test_nuclei_sans_serveur_tiers_et_gravite_configurable(tmp_path, capsys):
 
 
 def test_outil_en_echec_journalise(tmp_path, monkeypatch, capsys):
-    """Un outil qui échoue ne doit plus passer inaperçu (journal + audit + avertissement)."""
+    """Un outil qui échoue ne doit plus passer inaperçu (journal + audit + avertissement).
+
+    L'outil est SIMULÉ (aucun processus lancé) : un test ne doit jamais déclencher un vrai
+    scan, même si nuclei est installé sur la machine (c'était le cas sous Windows)."""
     import datetime as dt
     import json
-    import os
-    import stat
+    import subprocess
     from inova.core.audit import AuditLog
     from inova.guardrails.scope import ScopeGuard
+    from inova.tools import runner as runner_mod
     from inova.tools.runner import ToolRunner
-    bindir = tmp_path / "bin"
-    bindir.mkdir()
-    fake = bindir / "nuclei"
-    fake.write_text("#!/bin/sh\necho 'flag provided but not defined: -xyz' >&2\nexit 2\n")
-    fake.chmod(fake.stat().st_mode | stat.S_IEXEC)
-    monkeypatch.setenv("PATH", f"{bindir}{os.pathsep}{os.environ['PATH']}")
+    launched = []
+
+    def fake_run(cmd, **kw):
+        launched.append(cmd)
+        return subprocess.CompletedProcess(cmd, 2, "", "flag provided but not defined: -xyz\n")
+
+    monkeypatch.setattr(runner_mod.shutil, "which", lambda tool: f"/faux/{tool}")
+    monkeypatch.setattr(runner_mod.subprocess, "run", fake_run)
     today = dt.date.today().isoformat()
     g = ScopeGuard({"authorization": {"valid_from": today, "valid_until": today},
                     "targets": {"ip_ranges": ["127.0.0.1/32"]}})
     audit = AuditLog(tmp_path)
     r = ToolRunner({"tools": {"dry_run": False, "allowlist": ["nuclei"]}}, g, tmp_path / "run", audit)
     assert r.run("nuclei", "http://127.0.0.1:3000") is None
+    assert len(launched) == 1 and launched[0][0] == "nuclei"
     assert "a échoué (code 2)" in capsys.readouterr().out
-    assert "flag provided" in next((tmp_path / "run" / "evidence").glob("*.log")).read_text()
-    ev = [json.loads(l) for l in audit.path.read_text().splitlines()]
+    assert "flag provided" in next((tmp_path / "run" / "evidence").glob("*.log")).read_text(encoding="utf-8")
+    ev = [json.loads(l) for l in audit.path.read_text(encoding="utf-8").splitlines()]
     assert ev[-1]["event"] == "tool_result" and ev[-1]["returncode"] == 2
-
 
 def test_nuclei_plusieurs_cibles_un_seul_passage(tmp_path, capsys):
     import datetime as dt
