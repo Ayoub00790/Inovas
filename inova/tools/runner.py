@@ -57,6 +57,8 @@ class ToolRunner:
         # rythme maximal (requêtes/s) : une cible fragile saturée (ex. Elasticsearch en 429)
         # répond mal et peut masquer des failles
         self.nuclei_rate_limit = t.get("nuclei_rate_limit")
+        # nuclei sur plusieurs sites peut durer bien plus que les autres outils
+        self.nuclei_timeout = int(t.get("nuclei_timeout_s", max(self.timeout, 3600)))
         self.guard = guard
         self.audit = audit
         self.evidence = run_dir / "evidence"
@@ -93,7 +95,8 @@ class ToolRunner:
         if shutil.which(tool) is None:
             raise FileNotFoundError(f"{tool} n'est pas installé")
         try:
-            proc = subprocess.run(cmd, timeout=self.timeout, check=False, capture_output=True,
+            proc = subprocess.run(cmd, timeout=self.nuclei_timeout if tool == "nuclei" else self.timeout,
+                                  check=False, capture_output=True,
                                   text=True, encoding="utf-8", errors="replace")
             code, log = proc.returncode, (proc.stdout or "") + (proc.stderr or "")
         except subprocess.TimeoutExpired as exc:

@@ -35,8 +35,18 @@ def audit_outbox(run_dir: Path, scope: dict, vault_values=(), extra_secrets=()) 
     path = Path(run_dir) / "cloud_outbox.jsonl"
     entries = [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines()] if path.exists() else []
     t = scope.get("targets", {})
-    values = {v for v in (*vault_values, *t.get("domains", []), *scope.get("sensitive_terms", []),
-                          *extra_secrets, *known_lab_secrets()) if v and len(v) >= MIN_LEN}
+    sources = {}
+    for src, vals in (("valeur masquée", vault_values), ("domaine", t.get("domains", [])),
+                      ("terme sensible", scope.get("sensitive_terms", [])),
+                      ("secret connu", (*extra_secrets, *known_lab_secrets()))):
+        for v in vals:
+            if v and len(v) >= MIN_LEN:
+                sources.setdefault(v, src)
+    values = set(sources)
+    # une valeur courte (« test ») doit apparaître comme un mot entier : sinon « %0atest »
+    # ou « latest » déclencheraient une fausse alerte
+    pattern = {v: re.compile(("(?<![A-Za-z0-9])" + re.escape(v) + "(?![A-Za-z0-9])") if len(v) < 8
+                             else re.escape(v), re.I) for v in values}
     networks = [ipaddress.ip_network(r, strict=False) for r in t.get("ip_ranges", [])]
 
     leaks = []
@@ -44,9 +54,9 @@ def audit_outbox(run_dir: Path, scope: dict, vault_values=(), extra_secrets=()) 
         sent = e.get("sent", "")
         low = sent.lower()
         for v in values:
-            if v.lower() in low:
+            if v.lower() in low and pattern[v].search(sent):
                 leaks.append({"entry": i, "phase": e.get("phase"), "type": "valeur_connue",
-                              "apercu": v[:3] + "…"})
+                              "source": sources[v], "apercu": v[:3] + "…"})
         for ip in _IPV4.findall(sent):
             try:
                 if any(ipaddress.ip_address(ip) in n for n in networks):

@@ -57,7 +57,7 @@ class LLMClient:
         self.cloud_temperature = c.get("cloud_temperature", common)
         self.timeout = float(c.get("timeout_s", 120))
         self.retries = int(c.get("retries", 1))              # nouvel essai si réseau lent ou API surchargée
-        self.max_tokens = c.get("max_tokens", 1500)          # réponses bornées : plus rapides, moins coûteuses
+        self.max_tokens = c.get("max_tokens", 3000)          # réponses bornées : plus rapides, moins coûteuses
         p = settings.get("pricing", {})
         self.price_in = float(p.get("cloud_input_per_million", 0) or 0)
         self.price_out = float(p.get("cloud_output_per_million", 0) or 0)
@@ -105,6 +105,8 @@ class LLMClient:
             t0 = time.perf_counter()     # on chronomètre l'appel seul, pas le chargement de LiteLLM
             resp = litellm.completion(**kwargs)
             content = resp.choices[0].message.content or ""
+            if getattr(resp.choices[0], "finish_reason", None) == "length":   # coupée par max_tokens
+                content += "\n\n[Réponse tronquée : limite de longueur atteinte (llm.max_tokens).]"
             usage = getattr(resp, "usage", None)
             pt = int(getattr(usage, "prompt_tokens", 0) or 0) or estimate_tokens(system + user)
             ct = int(getattr(usage, "completion_tokens", 0) or 0) or estimate_tokens(content)

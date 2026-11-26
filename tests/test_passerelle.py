@@ -103,3 +103,15 @@ def test_secrets_dans_une_url_masques(passerelle):
     _, r = passerelle.to_safe_prompt("https://user:Secr3t@demo.inova-lab.local/SinistresPro/x?token=abcdef123456")
     for s in ("Secr3t", "demo.inova-lab.local", "SinistresPro", "abcdef123456"):
         assert s not in r.masked_text
+
+
+def test_outbox_valeur_courte_comparee_en_mot_entier(tmp_path):
+    """« test » (utilisateur MySQL masqué) ne doit pas déclencher d'alerte dans « /index.php/%0atest »."""
+    import json
+    from inova.eval.outbox_audit import audit_outbox
+    sent = ["Constat sur http://[TARGET_IP_1]:8082/index.php/%0atest", "Utilisateur test connecté"]
+    (tmp_path / "cloud_outbox.jsonl").write_text(
+        "\n".join(json.dumps({"phase": "p", "sent": t}) for t in sent), encoding="utf-8")
+    res = audit_outbox(tmp_path, {"targets": {}}, vault_values=["test"])
+    assert [l["entry"] for l in res["leaks"]] == [1]          # seule la vraie occurrence compte
+    assert res["leaks"][0]["source"] == "valeur masquée"

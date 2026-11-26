@@ -14,6 +14,12 @@ from ..eval.outbox_audit import audit_outbox
 from ..guardrails.injection import wrap_untrusted
 
 
+def _reliability(f) -> str:
+    if f.duplicate_of:
+        return ("douteuse, " if f.confidence == "douteuse" else "") + f"doublon de {f.duplicate_of}"
+    return f.confidence
+
+
 RETEST = {True: "reproduit", False: "non reproduit", None: "non testé"}
 SSVC = {"ACT": "corriger immédiatement", "ATTEND": "corriger rapidement",
         "TRACK*": "surveiller de près", "TRACK": "suivi normal"}
@@ -50,7 +56,8 @@ def _fmt_cost(v, calls: int = 1) -> str:
 def run(ctx: Context) -> None:
     # Libellés explicites : « (TRACK) » seul a été lu par un LLM comme la méthode HTTP TRACK.
     top = "\n".join(f"- {f.id} {f.title} sur {f.asset} · gravité {f.severity} · CVSS {f.cvss or 'non renseigné'} · "
-                    f"priorisation SSVC : {f.decision} ({SSVC.get(f.decision, '')})" for f in ctx.findings[:5])
+                    f"priorisation SSVC : {f.decision} ({SSVC.get(f.decision, '')})"
+                    for f in [x for x in ctx.findings if not x.duplicate_of][:10])   # doublons exclus
     if ctx.findings:
         ctx.executive_summary = ctx.reasoner.think(
             phase="rapport", task="Rédige une synthèse exécutive (5 lignes) pour la direction. "
@@ -86,7 +93,7 @@ def run(ctx: Context) -> None:
          "|---|---|---|---|---|---|---|---|---|---|",
          *[f"| {f.priority_rank} | {f.id} | {f.title} | {f.asset} | {f.severity} | {f.cvss or '—'} | "
            f"{f.epss:.2f} | {f.decision} | {RETEST[f.verified]} | "
-           f"{('doublon de ' + f.duplicate_of) if f.duplicate_of else f.confidence} |" for f in ctx.findings],
+           f"{_reliability(f)} |" for f in ctx.findings],
          "", "Décisions : **ACT** corriger immédiatement · **ATTEND** corriger rapidement · "
          "**TRACK\\*** surveiller de près · **TRACK** suivi normal. CVSS « — » : score non fourni par "
          "le scanner. Re-test « reproduit » : le test du scanner se reproduit, ce qui ne prouve pas à lui "

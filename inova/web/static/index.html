@@ -885,7 +885,7 @@ function renderMission(r) {
       (f.alerts || []).map(a => `<span class="chip c-warn" style="margin-top:4px">⚠ ${esc(a)}</span>`).join(" ")}</td>
       <td class="num">${f.cvss || "—"}</td><td class="num">${f.epss.toFixed(2)}</td><td><span class="dec ${decCls(f.decision)}">${esc(f.decision)}</span></td>
       <td>${f.verified ? `<span class="chip c-ok">reproduit</span>` : f.verified === false ? `<span class="chip c-warn">non reproduit</span>` : `<span class="muted">non testé</span>`}</td>
-      <td title="${esc((f.confidence_notes || []).join(" ; "))}">${f.duplicate_of ? `<span class="chip c-info">doublon de ${esc(f.duplicate_of)}</span>`
+      <td title="${esc((f.confidence_notes || []).join(" ; "))}">${f.duplicate_of ? `${f.confidence === "douteuse" ? `<span class="chip c-bad">douteuse</span> ` : ""}<span class="chip c-info">doublon de ${esc(f.duplicate_of)}</span>`
         : f.confidence === "confirmée" ? `<span class="chip c-ok">confirmée</span>` : f.confidence === "douteuse" ? `<span class="chip c-bad">douteuse</span>` : `<span class="muted">à confirmer</span>`}</td></tr>`).join("") || `<tr><td colspan="7" class="empty">Aucun constat</td></tr>`}</tbody></table></div>`;
   const PH = {reconnaissance: "Phase 2 · Reconnaissance", exploitation: "Phase 5 · Exploitation", rapport: "Phase 7 · Rapport"};
   const exchanges = tr.map(t => {
